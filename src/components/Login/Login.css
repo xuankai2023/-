@@ -1,0 +1,245 @@
+/* === Login.css - 无 !important 版本 === */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --tiktok-red: #ff0050;
+  --tiktok-red-hover: #e00046;
+  --border-radius-lg: 24px;
+  --button-radius: 30px;
+}
+
+/* === 全局弹窗容器 === */
+:global(.van-dialog.tiktok-login-modal) {
+  width: 90%;
+  max-width: 520px;
+  min-height: 480px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: visible;
+  animation: dialogSlideUp 0.3s ease-out forwards;
+}
+
+@keyframes dialogSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:global(.van-overlay.van-dialog__overlay) {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* === 标题区域 === */
+:global(.van-dialog.tiktok-login-modal .van-dialog__header) {
+  padding: 28px 32px 20px;
+  border-bottom: none;
+  background: white;
+}
+
+:global(.van-dialog.tiktok-login-modal .van-dialog__title) {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+/* === 内容区域 === */
+:global(.van-dialog.tiktok-login-modal .van-dialog__content) {
+  padding: 24px 32px;
+  text-align: left;
+  min-height: 360px;
+  overflow: visible;
+}
+
+/* === 关闭图标 === */
+:global(.van-dialog.tiktok-login-modal .van-dialog__close-icon) {
+  font-size: 24px;
+  color: #888;
+  transition: all 0.2s ease;
+}
+:global(.van-dialog.tiktok-login-modal .van-dialog__close-icon:hover) {
+  color: #000;
+  transform: rotate(90deg);
+}
+
+/* === 按钮区域 === */
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer) {
+  padding: 0 32px 28px;
+  border-top: none;
+  display: flex;
+  gap: 16px;
+}
+
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer .van-button) {
+  border-radius: var(--button-radius);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 16px;
+  flex: 1;
+  min-height: 56px;
+}
+
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer .van-button--primary) {
+  background-color: var(--tiktok-red);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 0, 80, 0.3);
+}
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer .van-button--primary:hover:not(:disabled)) {
+  background-color: var(--tiktok-red-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 0, 80, 0.4);
+}
+
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer .van-button--default) {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #666;
+}
+:global(.van-dialog.tiktok-login-modal .van-dialog__footer .van-button--default:hover) {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+/* === 自定义登录内容 === */
+.login-content {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px 0 0 0;
+  font-size: 16px;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 15px;
+  border: 1px solid #fecaca;
+  box-shadow: 0 2px 6px rgba(185, 28, 28, 0.1);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  letter-spacing: 0.3px;
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 16px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: #fafafa;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  caret-color: var(--tiktok-red);
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--tiktok-red);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 0, 80, 0.1);
+}
+
+.form-input::placeholder {
+  color: #a0aec0;
+  font-size: 17px;
+}
+
+/* === 密码显示按钮 === */
+.toggle-password-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.toggle-password-btn:hover {
+  color: var(--tiktok-red);
+  background-color: #f0f0f0;
+}
+
+.toggle-password-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === 忘记密码链接 === */
+.forgot-password {
+  display: block;
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--tiktok-red);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.forgot-password:hover {
+  opacity: 0.8;
+}
+
+.forgot-password:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === 响应式优化 === */
+@media (max-width: 576px) {
+  :global(.van-dialog.tiktok-login-modal) {
+    width: 95%;
+    max-width: none;
+  }
+
+  :global(.van-dialog.tiktok-login-modal .van-dialog__title) {
+    font-size: 22px;
+  }
+
+  .form-input {
+    font-size: 16px;
+    padding: 14px 18px;
+  }
+
+  .toggle-password-btn {
+    right: 14px;
+    font-size: 13px;
+  }
+}
