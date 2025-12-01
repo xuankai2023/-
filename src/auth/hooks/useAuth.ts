@@ -1,7 +1,5 @@
 import { useState, useCallback } from 'react';
 import { authApiService, LoginCredentials } from '../services/authapi';
-import { tokenStorage } from '../jwt/tokenStorage';
-import { useToken } from './useToken';
 
 interface UseAuthResult {
   isAuthenticated: boolean;
@@ -22,8 +20,6 @@ export const useAuth = (): UseAuthResult => {
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const { isTokenValid, clearTokens } = useToken();
 
   // 登录功能
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
@@ -33,9 +29,9 @@ export const useAuth = (): UseAuthResult => {
       
       const response = await authApiService.login(credentials);
       
-      if (response.success && response.data) {
-        setIsAuthenticated(true);
+      if (response.success && response.data?.user) {
         setUser(response.data.user);
+        setIsAuthenticated(true);
         return true;
       } else {
         setError(response.error || '登录失败');
@@ -44,8 +40,7 @@ export const useAuth = (): UseAuthResult => {
         return false;
       }
     } catch (err) {
-      console.error('登录过程中发生错误:', err);
-      setError('登录时发生内部错误');
+      setError(err instanceof Error ? err.message : '登录失败');
       setIsAuthenticated(false);
       setUser(null);
       return false;
@@ -61,25 +56,19 @@ export const useAuth = (): UseAuthResult => {
       setError(null);
       
       // 调用API注销
-      const response = await authApiService.logout();
+      await authApiService.logout();
       
-      // 无论API调用结果如何，都清除本地令牌和状态
-      clearTokens();
+      // 清除状态
       setIsAuthenticated(false);
       setUser(null);
-      
-      return response.success;
+      return true;
     } catch (err) {
-      console.error('注销过程中发生错误:', err);
-      // 即使出错，也强制清除本地状态
-      clearTokens();
-      setIsAuthenticated(false);
-      setUser(null);
-      return true; // 返回true表示状态已清除
+      setError(err instanceof Error ? err.message : '注销失败');
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [clearTokens]);
+  }, []);
 
   // 检查认证状态
   const checkAuth = useCallback(async (): Promise<boolean> => {
@@ -87,38 +76,27 @@ export const useAuth = (): UseAuthResult => {
       setIsLoading(true);
       setError(null);
       
-      // 首先检查令牌是否有效
-      if (!isTokenValid) {
-        setIsAuthenticated(false);
-        setUser(null);
-        return false;
-      }
-      
-      // 调用API检查认证状态
       const isAuth = await authApiService.checkAuth();
       
       if (isAuth) {
-        // 获取用户信息
-        const userInfo = tokenStorage.getUser();
+        const userInfo = await authApiService.getCurrentUser();
         setUser(userInfo);
         setIsAuthenticated(true);
       } else {
-        clearTokens();
         setUser(null);
         setIsAuthenticated(false);
       }
       
       return isAuth;
     } catch (err) {
-      console.error('检查认证状态失败:', err);
-      setError('无法验证认证状态');
+      setError(err instanceof Error ? err.message : '检查认证状态失败');
       setIsAuthenticated(false);
       setUser(null);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isTokenValid, clearTokens]);
+  }, []);
 
   return {
     isAuthenticated,

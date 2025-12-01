@@ -1,0 +1,35 @@
+<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="400" height="600" fill="#e8f4fd"/>
+  
+  <!-- 大象身体 -->
+  <ellipse cx="200" cy="400" rx="150" ry="180" fill="#a0a0a0"/>
+  
+  <!-- 大象头部 -->
+  <ellipse cx="120" cy="300" rx="70" ry="80" fill="#a0a0a0"/>
+  
+  <!-- 耳朵 -->
+  <path d="M80 250 Q50 180 90 120 Q130 180 110 240 Z" fill="#808080"/>
+  
+  <!-- 象牙 -->
+  <path d="M90 350 L70 400 L90 400 Z" fill="white"/>
+  <path d="M150 350 L170 400 L150 400 Z" fill="white"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="100" cy="280" r="10" fill="#2c3e50"/>
+  <circle cx="105" cy="275" r="3" fill="white"/>
+  
+  <!-- 鼻子 -->
+  <path d="M120 350 Q100 450 200 500 Q300 450 280 380" fill="none" stroke="#a0a0a0" stroke-width="30" stroke-linecap="round"/>
+  <path d="M280 380 Q300 390 290 410" fill="none" stroke="#a0a0a0" stroke-width="15" stroke-linecap="round"/>
+  
+  <!-- 腿 -->
+  <rect x="100" y="500" width="30" height="100" rx="15" fill="#808080"/>
+  <rect x="150" y="500" width="30" height="100" rx="15" fill="#808080"/>
+  <rect x="220" y="500" width="30" height="100" rx="15" fill="#808080"/>
+  <rect x="270" y="500" width="30" height="100" rx="15" fill="#808080"/>
+  
+  <!-- 尾巴 -->
+  <path d="M350 400 Q380 380 370 350" fill="none" stroke="#808080" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="370" cy="350" r="5" fill="#a0a0a0"/>
+</svg>

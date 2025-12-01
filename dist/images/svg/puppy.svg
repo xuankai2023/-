@@ -1,0 +1,33 @@
+<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="400" height="600" fill="#f8f9fa"/>
+  
+  <!-- 小狗头部 -->
+  <ellipse cx="200" cy="300" rx="120" ry="150" fill="#f0d9b5"/>
+  
+  <!-- 耳朵 -->
+  <ellipse cx="100" cy="220" rx="30" ry="70" fill="#f0d9b5" transform="rotate(-30 100 220)"/>
+  <ellipse cx="300" cy="220" rx="30" ry="70" fill="#f0d9b5" transform="rotate(30 300 220)"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="160" cy="280" r="15" fill="#2c3e50"/>
+  <circle cx="240" cy="280" r="15" fill="#2c3e50"/>
+  <circle cx="165" cy="275" r="5" fill="white"/>
+  <circle cx="245" cy="275" r="5" fill="white"/>
+  
+  <!-- 鼻子 -->
+  <ellipse cx="200" cy="340" rx="25" ry="15" fill="#34495e"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M180 360 Q200 380 220 360" fill="none" stroke="#34495e" stroke-width="3"/>
+  
+  <!-- 身体 -->
+  <ellipse cx="200" cy="450" rx="100" ry="130" fill="#f0d9b5"/>
+  
+  <!-- 前腿 -->
+  <ellipse cx="150" cy="550" rx="15" ry="50" fill="#f0d9b5"/>
+  <ellipse cx="250" cy="550" rx="15" ry="50" fill="#f0d9b5"/>
+  
+  <!-- 尾巴 -->
+  <path d="M300 450 Q350 400 330 350" fill="none" stroke="#f0d9b5" stroke-width="25" stroke-linecap="round"/>
+</svg>

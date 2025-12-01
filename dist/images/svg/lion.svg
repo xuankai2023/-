@@ -1,0 +1,33 @@
+<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="400" height="600" fill="#ffecd2"/>
+  
+  <!-- 狮子头部 -->
+  <circle cx="200" cy="250" r="120" fill="#f5b041"/>
+  
+  <!-- 鬃毛 -->
+  <path d="M80 250 Q60 150 150 80 Q200 60 250 80 Q340 150 320 250 Q340 350 250 420 Q200 440 150 420 Q60 350 80 250Z" fill="#e67e22"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="170" cy="220" r="15" fill="#2c3e50"/>
+  <circle cx="230" cy="220" r="15" fill="#2c3e50"/>
+  <circle cx="175" cy="215" r="5" fill="white"/>
+  <circle cx="235" cy="215" r="5" fill="white"/>
+  
+  <!-- 鼻子 -->
+  <ellipse cx="200" cy="270" rx="25" ry="15" fill="#34495e"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M180 290 Q200 310 220 290" fill="none" stroke="#34495e" stroke-width="3"/>
+  
+  <!-- 身体 -->
+  <ellipse cx="200" cy="450" rx="100" ry="130" fill="#f5b041"/>
+  
+  <!-- 前腿 -->
+  <ellipse cx="150" cy="550" rx="20" ry="50" fill="#f5b041"/>
+  <ellipse cx="250" cy="550" rx="20" ry="50" fill="#f5b041"/>
+  
+  <!-- 尾巴 -->
+  <path d="M300 450 Q350 430 360 380" fill="none" stroke="#f5b041" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="360" cy="380" r="15" fill="#e67e22"/>
+</svg>

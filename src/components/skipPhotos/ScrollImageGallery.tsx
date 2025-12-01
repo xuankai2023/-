@@ -4,15 +4,18 @@ import React, { useState, useEffect } from 'react';
 import './ScrollImageGallery.css';
 
 const ScrollImageGallery: React.FC = () => {
-  // 所有图片资源（前3张用于引导，全部可用于全屏）
+  // 所有动物SVG图片资源（前3张用于引导，全部可用于全屏）
   const allImages = [
-    'https://via.placeholder.com/400x600/ff6b6b/fff?text=Beach',
-    'https://via.placeholder.com/400x600/4ecdc4/fff?text=Bike',
-    'https://via.placeholder.com/400x600/45b7d1/fff?text=Honeycomb',
-    'https://via.placeholder.com/1920x1080/96ceb4/fff?text=Forest',
-    'https://via.placeholder.com/1920x1080/feca57/000?text=Desert',
-    'https://via.placeholder.com/1920x1080/ff9ff3/000?text=City',
-    'https://via.placeholder.com/1920x1080/54a0ff/fff?text=Ocean',
+    // 引导阶段图片（竖屏）
+    '/images/svg/puppy.svg', // 小狗 - 竖屏
+    '/images/svg/lion.svg', // 狮子 - 竖屏
+    '/images/svg/elephant.svg', // 大象 - 竖屏
+    
+    // 全屏展示图片（横屏）
+    '/images/svg/panda_large.svg', // 熊猫 - 横屏
+    '/images/svg/lion_large.svg', // 狮子 - 横屏
+    '/images/svg/elephant_large.svg', // 大象 - 横屏
+    '/images/svg/tiger_large.svg', // 老虎 - 横屏
   ];
 
   const [scrollY, setScrollY] = useState(0);
@@ -54,19 +57,22 @@ const ScrollImageGallery: React.FC = () => {
 
         {!isInFullscreenMode && (
           <div className="image-guide">
-            {allImages.slice(0, 3).map((src, idx) => (
-              <div
-                key={idx}
-                className={`guide-image image-${idx + 1}`}
-                style={{
-                  transform: `scale(${baseScale})`,
-                  opacity: 1 - guideProgress * 0.7,
-                  zIndex: 3 - idx,
-                }}
-              >
-                <img src={src} alt={`Guide ${idx + 1}`} />
-              </div>
-            ))}
+            {allImages.slice(0, 3).map((src, idx) => {
+              const animalNames = ['小狗', '狮子', '大象'];
+              return (
+                <div
+                  key={idx}
+                  className={`guide-image image-${idx + 1}`}
+                  style={{
+                    transform: `scale(${baseScale})`,
+                    opacity: 1 - guideProgress * 0.7,
+                    zIndex: 3 - idx,
+                  }}
+                >
+                  <img src={src} alt={`${animalNames[idx]} - 引导图片 ${idx + 1}`} />
+                </div>
+              );
+            })}
           </div>
         )}
      
@@ -76,7 +82,7 @@ const ScrollImageGallery: React.FC = () => {
         <div className="fullscreen-overlay">
           <img
             src={allImages[currentFullscreenIndex]}
-            alt={`Fullscreen ${currentFullscreenIndex + 1}`}
+            alt={`动物展示 ${currentFullscreenIndex + 1}`}
             className="fullscreen-image"
           />
           {/* 可选：添加指示器 */}

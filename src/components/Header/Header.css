@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* 全局变量定义 */
+:root {
+  --primary-color: #3498db;
+  --text-color: #343a40;
+  --border-color: #e9ecef;
+  --background-color: #f8f9fa;
+  --hover-color: #2980b9;
+  --transition-duration: 0.2s;
+}
+html {
+  font-size: 16px; /* 1rem = 16px */
+}
+/* 主要容器样式 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem; /* 12px 20px */
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+  height: 4rem; /* 64px */
+  position: relative;
+  z-index: 10;
+  width:100%;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* 16px */
+  flex: 1;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* 16px */
+}
+.search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 20rem; /* 320px */
+}

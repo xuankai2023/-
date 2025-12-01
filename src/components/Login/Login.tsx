@@ -2,53 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Dialog as Modal, Button } from 'react-vant';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
-
-// 假设你有 authApiService，这里提供一个 mock 接口
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface AuthResponse {
-  token: string;
-  user: { id: string; username: string };
-}
-
-// 如果你没有真实服务，可以用下面这个 mock 替代
-// const authApiService = {
-//   login: async ({ username, password }: LoginCredentials): Promise<AuthResponse> => {
-//     if (username === 'test' && password === '123456') {
-//       return { token: 'fake-jwt-token', user: { id: '1', username } };
-//     }
-//     throw new Error('Invalid username or password');
-//   }
-// };
-
-// 如果你有自己的 authApiService，请保留导入
-// import { authApiService } from '../../auth';
-
-// 为演示，我们定义一个 mock 服务（实际项目中替换为真实导入）
-const authApiService = {
-  login: async ({ username, password }: LoginCredentials): Promise<AuthResponse> => {
-    // 模拟网络延迟
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    if (username.trim() && password.trim()) {
-      return { token: 'mock-token', user: { id: '1', username } };
-    }
-    throw new Error('Username and password are required');
-  }
-};
+import { useAuthContext } from '../../auth/AuthContext';
 
 interface LoginProps {
-  onClose: () => void;
-  onLoginSuccess?: () => void;
+  visible?: boolean;
+  onClose?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
+const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
+  const navigate = useNavigate();
+  const { login, isLoading: authLoading } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,58 +23,77 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (onClose) {
+          onClose();
+        } else {
+          // 如果没有onClose，返回到上一页
+          navigate(-1);
+        }
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, navigate]);
 
   const handleLogin = async () => {
     if (!username.trim()) {
-      setError('Username is required');
+      setError('用户名不能为空');
       return;
     }
     if (!password.trim()) {
-      setError('Password is required');
+      setError('密码不能为空');
       return;
     }
 
-    setLoading(true);
     setError('');
 
     // 移除焦点，收起软键盘（移动端友好）
     (document.activeElement as HTMLElement)?.blur();
 
     try {
-      const response = await authApiService.login({ username, password });
-      console.log('Login successful:', response);
+      // 执行登录
+      const success = await login({ username, password });
 
-      if (onLoginSuccess) onLoginSuccess();
-      
-      // 短暂延迟后关闭，让用户看到成功状态（可选）
-      setTimeout(onClose, 500);
+      if (success) {
+        // 登录成功：先关闭模态框，再跳转到 admin 页面
+        if (onClose) {
+          onClose();
+        }
+        // 延迟跳转，确保模态框先关闭
+        setTimeout(() => {
+          navigate('/admin', { replace: true });
+        }, 100);
+      } else {
+        setError('用户名或密码错误');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error 
-        ? err.message 
-        : 'Login failed. Please check your credentials.';
+      const errorMessage = err instanceof Error
+        ? err.message
+        : '登录失败，请检查您的凭据';
       setError(errorMessage);
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  return (
+  }; return (
     <Modal
-      visible={true}
-      onClose={onClose}
-      title="Sign in to TikTok"
+      visible={visible}
+      onClose={() => {
+        if (onClose) {
+          onClose();
+        } else {
+          navigate(-1);
+        }
+      }}
+      title="管理员登录"
       showCancelButton
-      confirmButtonText={loading ? "Signing in..." : "Sign in"}
-      cancelButtonText="Close"
-      onCancel={onClose}
-      onConfirm={loading ? undefined : handleLogin}
+      confirmButtonText={authLoading ? "登录中..." : "登录"}
+      cancelButtonText="关闭"
+      onCancel={() => {
+        if (onClose) {
+          onClose();
+        } else {
+          navigate(-1);
+        }
+      }}
+      onConfirm={authLoading ? undefined : handleLogin}
       className="tiktok-login-modal"
       closeOnClickOverlay={false}
       // 禁用默认确认按钮颜色逻辑，由 CSS 控制
@@ -122,10 +108,10 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
             type="text"
             id="username"
             className="form-input"
-            placeholder="Enter your username"
+            placeholder="请输入用户名"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            disabled={loading}
+            disabled={authLoading}
             autoComplete="username"
             autoFocus
             aria-label="Username"
@@ -138,10 +124,10 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
             type={showPassword ? 'text' : 'password'}
             id="password"
             className="form-input"
-            placeholder="Enter your password"
+            placeholder="请输入密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
+            disabled={authLoading}
             autoComplete="current-password"
             aria-label="Password"
           />
@@ -149,7 +135,7 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
             type="button"
             className="toggle-password-btn"
             onClick={() => setShowPassword(!showPassword)}
-            disabled={loading}
+            disabled={authLoading}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? 'Hide' : 'Show'}
@@ -159,10 +145,10 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
         <button
           type="button"
           className="forgot-password"
-          onClick={() => alert('Forgot password? Contact support.')}
-          disabled={loading}
+          onClick={() => alert('忘记密码? 请联系管理员')}
+          disabled={authLoading}
         >
-          Forgot password?
+          忘记密码?
         </button>
       </div>
     </Modal>

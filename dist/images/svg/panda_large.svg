@@ -1,0 +1,40 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="1920" height="1080" fill="#f5f5f5"/>
+  
+  <!-- 熊猫头部 -->
+  <circle cx="960" cy="450" r="300" fill="white"/>
+  
+  <!-- 耳朵 -->
+  <ellipse cx="700" cy="250" rx="100" ry="150" fill="black" transform="rotate(-20 700 250)"/>
+  <ellipse cx="1220" cy="250" rx="100" ry="150" fill="black" transform="rotate(20 1220 250)"/>
+  
+  <!-- 眼睛周围的黑色区域 -->
+  <path d="M750 350 Q730 400 750 450 Q800 480 850 460 Q880 450 850 420 Q830 380 750 350Z" fill="black"/>
+  <path d="M1170 350 Q1250 380 1230 420 Q1210 450 1240 460 Q1290 480 1330 450 Q1350 400 1330 350 Q1250 320 1170 350Z" fill="black"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="850" cy="410" r="40" fill="white"/>
+  <circle cx="1150" cy="410" r="40" fill="white"/>
+  <circle cx="850" cy="410" r="20" fill="black"/>
+  <circle cx="1150" cy="410" r="20" fill="black"/>
+  <circle cx="855" cy="405" r="8" fill="white"/>
+  <circle cx="1155" cy="405" r="8" fill="white"/>
+  
+  <!-- 鼻子 -->
+  <ellipse cx="1000" cy="500" rx="50" ry="30" fill="black"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M950 530 Q1000 560 1050 530" fill="none" stroke="black" stroke-width="10"/>
+  
+  <!-- 身体 -->
+  <ellipse cx="960" cy="800" rx="400" ry="300" fill="white"/>
+  
+  <!-- 手臂 -->
+  <ellipse cx="700" cy="780" rx="80" ry="150" fill="black" transform="rotate(-45 700 780)"/>
+  <ellipse cx="1220" cy="780" rx="80" ry="150" fill="black" transform="rotate(45 1220 780)"/>
+  
+  <!-- 腿 -->
+  <ellipse cx="840" cy="950" rx="80" ry="100" fill="black"/>
+  <ellipse cx="1080" cy="950" rx="80" ry="100" fill="black"/>
+</svg>

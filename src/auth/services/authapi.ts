@@ -41,7 +41,7 @@ const MOCK_USERS = [
   {
     id: '1',
     username: 'admin',
-    password: 'admin123', // 实际项目中应该使用哈希密码
+    password: '123456', // 实际项目中应该使用哈希密码
     fullName: '管理员',
     email: 'admin@example.com',
     avatar: '/avatars/admin.svg',
@@ -249,23 +249,52 @@ class AuthApiService {
    */
   async getCurrentUser() {
     try {
+      console.log('正在获取当前用户信息');
+      
       // 从tokenStorage中获取用户信息
       let user = tokenStorage.getUser();
+      console.log('从tokenStorage获取的用户:', user);
       
       if (!user) {
-        // 如果存储中没有，尝试从令牌中解析
+        // 如果存储中没有，尝试从localStorage直接获取
+        const localStorageUser = localStorage.getItem('currentUser');
+        if (localStorageUser) {
+          try {
+            user = JSON.parse(localStorageUser);
+            console.log('从localStorage直接获取的用户:', user);
+            tokenStorage.setUser(user);
+            return user;
+          } catch (parseError) {
+            console.warn('解析localStorage中的用户信息失败:', parseError);
+          }
+        }
+        
+        // 如果localStorage中也没有，尝试从令牌中解析
         const accessToken = tokenStorage.getAccessToken();
+        console.log('尝试从令牌解析用户信息，令牌存在:', !!accessToken);
+        
         if (accessToken) {
-          const payload = this.jwtUtils.parseToken(accessToken);
-          if (payload?.sub) {
-            const foundUser = MOCK_USERS.find(u => u.id === payload.sub);
-            if (foundUser) {
-              // 将用户信息存入tokenStorage
-              tokenStorage.setUser(foundUser);
-              return foundUser;
+          // 首先验证令牌是否有效
+          const tokenResult = this.jwtUtils.verifyToken(accessToken);
+          console.log('令牌验证结果:', tokenResult);
+          
+          if (tokenResult.isValid) {
+            const payload = this.jwtUtils.parseToken(accessToken);
+            console.log('令牌解析结果:', payload);
+            
+            if (payload?.sub) {
+              const foundUser = MOCK_USERS.find(u => u.id === payload.sub);
+              if (foundUser) {
+                console.log('找到匹配的用户:', foundUser);
+                // 将用户信息存入tokenStorage
+                tokenStorage.setUser(foundUser);
+                return foundUser;
+              }
             }
           }
         }
+        
+        console.log('无法获取用户信息');
         return null;
       }
       
