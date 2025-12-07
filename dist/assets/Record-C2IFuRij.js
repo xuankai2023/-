@@ -1,2 +1,0 @@
-var l=Object.defineProperty;var s=(i,r)=>l(i,"name",{value:r,configurable:!0});import{j as e}from"./index-CwuaEBKW.js";import{H as d,S as o}from"./Sidebar-P9LQXBWb.js";import"./method-BeHZdKfH.js";const f=s(()=>e.jsxs("div",{style:{display:"flex",flexDirection:"column",height:"100vh"},children:[e.jsx(d,{}),e.jsxs("div",{style:{display:"flex",flex:1,overflow:"hidden"},children:[e.jsx(o,{}),e.jsx("main",{style:{flex:1,padding:"20px",overflow:"auto"},children:e.jsx("h1",{children:"宠物档案页面"})})]})]}),"Record");export{f as default};
-//# sourceMappingURL=Record-C2IFuRij.js.map

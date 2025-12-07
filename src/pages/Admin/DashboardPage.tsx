@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
-import MainContent from '../../components/Admin/MainContent';
+import MainContent from '../../components/Admin/MainContent/MainContent';
 
 const DashboardPage: React.FC = () => {
 
@@ -17,22 +17,22 @@ const DashboardPage: React.FC = () => {
       flexDirection: 'column',
       backgroundColor: '#f5f5f5',
       margin: 0,
-      padding: 0,
-      overflow: 'hidden'
+      padding: 0
     }}>
       {/* 头部导航栏 */}
       <Header />
       
       <div style={{
         display: 'flex',
-        flex: 1,
-        overflow: 'hidden'
+        flex: 1
       }}>
         {/* 侧边菜单栏 */}
         <Sidebar />
 
         {/* 主内容区 */}
-        <MainContent />
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          <MainContent />
+        </div>
       </div>
     </div>
   );

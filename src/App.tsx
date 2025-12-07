@@ -17,6 +17,13 @@ const NewsroomPage = React.lazy(() => import('./pages/Newsroom/Newsroom'));
 const DashboardPage = React.lazy(() => import('./pages/Admin/DashboardPage'));
 const LoginPage = React.lazy(() => import('./components/Login/Login'));
 const RecordPage = React.lazy(() => import('./pages/Record/Record'));
+const PetDetail = React.lazy(() => import('./pages/petDetail/petdetail'));
+// 宠物类型子页面路由懒加载
+const DogRecord = React.lazy(() => import('./pages/Record/Dog/DogRecord'));
+const CatRecord = React.lazy(() => import('./pages/Record/Cat/CatRecord'));
+const RabbitRecord = React.lazy(() => import('./pages/Record/Rabbit/RabbitRecord'));
+const FishRecord = React.lazy(() => import('./pages/Record/Fish/FishRecord'));
+const OtherRecord = React.lazy(() => import('./pages/Record/Others/OtherRecord'));
 const ServicesPage = React.lazy(() => import('./pages/Services/Services'));
 const VaccinationRecordsPage = React.lazy(() => import('./pages/VaccinationRecords/VaccinationRecords'));
 const BoardingRecordsPage = React.lazy(() => import('./pages/ BoardingRecords/ BoardingRecordsPage'));
@@ -86,7 +93,38 @@ function App() {
                 <Route
                   path="/record"
                   element={
-                    <ProtectedRoute element={<RecordPage />} requiredRole="admin" />
+                    <RecordPage />
+                  }
+                />
+                {/* 宠物类型子页面路由 */}
+                <Route
+                  path="/record/dog"
+                  element={
+                    <ProtectedRoute element={<DogRecord />} requiredRole="admin" />
+                  }
+                />
+                <Route
+                  path="/record/cat"
+                  element={
+                    <ProtectedRoute element={<CatRecord />} requiredRole="admin" />
+                  }
+                />
+                <Route
+                  path="/record/rabbit"
+                  element={
+                    <ProtectedRoute element={<RabbitRecord />} requiredRole="admin" />
+                  }
+                />
+                <Route
+                  path="/record/fish"
+                  element={
+                    <ProtectedRoute element={<FishRecord />} requiredRole="admin" />
+                  }
+                />
+                <Route
+                  path="/record/other"
+                  element={
+                    <ProtectedRoute element={<OtherRecord />} requiredRole="admin" />
                   }
                 />
                 {/* 服务页面路由 */}
@@ -117,6 +155,11 @@ function App() {
                     <ProtectedRoute element={<OrderPage />} requiredRole="admin" />
                   }
                 />
+                {/* 宠物详情页路由 */}
+                <Route path="/petDetail/:petId" element={<Navigate to="/petDetail" />} />
+                {/* 宠物列表页路由 */}
+                <Route path="/petDetail" element={<PetDetail />} />
+                
                 {/* 默认路由重定向到 about */}
                 <Route path="/" element={<Navigate to="/about" replace />} />
               </Routes>

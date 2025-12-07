@@ -1,0 +1,2 @@
+var l=Object.defineProperty;var s=(i,r)=>l(i,"name",{value:r,configurable:!0});import{j as e}from"./index-DOzzhCXK.js";import{H as d,b as o}from"./Sidebar-B4Q5QHH-.js";import"./method-DbqADb85.js";const f=s(()=>e.jsxs("div",{style:{display:"flex",flexDirection:"column",height:"100vh"},children:[e.jsx(d,{}),e.jsxs("div",{style:{display:"flex",flex:1,overflow:"hidden"},children:[e.jsx(o,{}),e.jsx("main",{style:{flex:1,padding:"20px",overflow:"auto"},children:e.jsx("h1",{children:"服务页面"})})]})]}),"Services");export{f as default};
+//# sourceMappingURL=Services-CjHHv8n-.js.map
