@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Input, message, Space, Badge } from 'antd';
 import { MessageOutlined } from '@ant-design/icons';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const { Search } = Input;
@@ -20,6 +20,11 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ user }) => {
   const [value, setValue] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAvatarClick = () => {
+    navigate('/setting');
+  };
 
   // // ✨ 在 admin 页面隐藏 Header
   // if (location.pathname.startsWith('/admin')) {
@@ -51,7 +56,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
             <MessageOutlined />
           </Badge>
         </Space>
-        <img src="/images/png/admin.png" alt="管理员头像" />
+        <img 
+          src="/images/png/admin.png" 
+          alt="管理员头像" 
+          className="header-avatar" 
+          onClick={handleAvatarClick} 
+          style={{ cursor: 'pointer' }} 
+        />
       </div>
 
     </header>

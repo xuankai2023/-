@@ -1,0 +1,2 @@
+var a=Object.defineProperty;var o=(e,n)=>a(e,"name",{value:n,configurable:!0});import{r as c}from"./index-C0jzUuew.js";const s=o(e=>e&&typeof e=="object"?e:typeof e=="boolean"?{enabled:e,blur:e}:{},"normalizeMaskConfig"),g=o((e,n,r)=>c.useMemo(()=>{const f=s(e),t={...s(n),...f},u=t.blur!==!1?`${r}-mask-blur`:void 0;return[t.enabled!==!1,{mask:u}]},[e,n,r]),"useMergedMask");export{g as u};
+//# sourceMappingURL=useMergedMask-CDPnbdkM.js.map

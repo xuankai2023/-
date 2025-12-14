@@ -95,6 +95,111 @@ export const petTypes: PetType[] = [
     }
 ];
 
+// 销售占比数据接口
+export interface SalesDistribution {
+  value: number;
+  name: string;
+  itemStyle: { color: string };
+}
+
+// 药品合规数据接口
+export interface ComplianceItem {
+  key: string;
+  name: string;
+  status: string;
+  guide: string;
+  action: string;
+  statusType: 'success' | 'error';
+}
+
+// 热力图数据接口
+export interface HeatmapItem {
+  name: string;
+  value: number;
+  itemStyle?: { color: string };
+  children?: HeatmapItem[];
+}
+
+// 库存预警数据接口
+export interface StockAlertItem {
+  key: string;
+  name: string;
+  remaining: number;
+  safetyLine: number;
+  emoji: string;
+  actionText: string;
+  actionType: 'danger' | 'warning';
+}
+
+// 销售占比环形图数据
+export const salesDistributionData: SalesDistribution[] = [
+  { value: 42, name: '主粮', itemStyle: { color: '#FFA726' } },
+  { value: 18, name: '用品', itemStyle: { color: '#4FC3F7' } },
+  { value: 5, name: '药品', itemStyle: { color: '#66BB6A' } },
+  { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
+];
+
+// 药品合规专区表格数据
+export const complianceData: ComplianceItem[] = [
+  { key: '1', name: '体内驱虫片(幼犬)', status: '已认证', guide: '含米尔贝肟，8周以下慎用', action: '管理', statusType: 'success' },
+  { key: '2', name: '关节止痛软膏', status: '缺检测报告', guide: '仅限外用', action: '立即补全', statusType: 'error' },
+];
+
+// 热力图数据 - 修改为符合ECharts treemap要求的格式
+export const heatmapData: HeatmapItem[] = [
+  {
+    name: '宠物用品',
+    value: 123, // 添加必需的 value 属性
+    children: [
+      { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
+      { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
+      { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
+      { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
+      { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
+      { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
+      { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
+      { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
+      { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
+    ]
+  }
+];
+
+// 或者如果你想保持原始的扁平结构，可以使用这个版本
+export const heatmapDataFlat: HeatmapItem[] = [
+  { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
+  { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
+  { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
+  { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
+  { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
+  { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
+  { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
+  { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
+  { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
+];
+
+
+// 库存预警列表数据
+export const stockAlertData: StockAlertItem[] = [
+  { 
+    key: '1', 
+    name: '膨润土猫砂', 
+    remaining: 72, 
+    safetyLine: 150, 
+    emoji: '🐱', 
+    actionText: '一键补货', 
+    actionType: 'danger' 
+  },
+  { 
+    key: '2', 
+    name: '发声橡胶玩具', 
+    remaining: 0, 
+    safetyLine: 0, 
+    emoji: '🦴', 
+    actionText: '生成促销案', 
+    actionType: 'warning' 
+  }
+];
+
 // 模拟宠物档案数据
 export const petRecords: Pet[] = [
     // 狗狗类

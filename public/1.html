@@ -1,390 +1,521 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宠物商城智能后台管理系统</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* 自定义色彩系统 */
-        :root {
-            --color-food-orange: #FFA726;
-            --color-supplies-blue: #4FC3F7;
-            --color-meds-green: #66BB6A;
-            --bg-sidebar: #1e293b;
-            --bg-main: #f3f4f6;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>后台管理系统 - 设置</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
 
-        body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: var(--bg-main); }
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --text: #2b2d42;
+      --text-secondary: #6c757d;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --border: #e9ecef;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+      --spacing: 24px;
+    }
 
-        /* 左侧导航激活态 */
-        .nav-item.active {
-            background-color: rgba(79, 195, 247, 0.15);
-            color: var(--color-supplies-blue);
-            border-right: 3px solid var(--color-supplies-blue);
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
 
-        /* 卡片样式 */
-        .dashboard-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-        }
-        .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    /* 左侧导航 */
+    .sidebar {
+      width: 260px;
+      background: white;
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
 
-        /* 强制警告横幅 */
-        .warning-banner {
-            background: #FEF3C7;
-            border-left: 4px solid #F59E0B;
-            color: #92400E;
-        }
+    .sidebar h2 {
+      padding: 0 24px 20px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
 
-        /* 智能建议气泡 */
-        .smart-suggestion {
-            background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 100%);
-            border: 1px solid #bae6fd;
-        }
+    .nav-link {
+      display: block;
+      padding: 12px 24px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
 
-        /* 库存状态徽章 */
-        .badge-red { background: #fee2e2; color: #ef4444; }
-        .badge-orange { background: #ffedd5; color: #f97316; }
-        .badge-green { background: #dcfce7; color: #22c55e; }
-    </style>
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.06);
+      border-left: 3px solid var(--primary);
+    }
+
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 32px var(--spacing);
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: var(--spacing);
+    }
+
+    /* 表单控件 */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-secondary {
+      background: #f1f3f5;
+      color: var(--text);
+      margin-left: 12px;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .btn-danger:hover {
+      opacity: 0.9;
+    }
+
+    /* 开关 */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .2s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    /* 表格 */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* 卡片式权限展示 */
+    .role-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      background: #fafbff;
+    }
+
+    .role-card h4 {
+      margin: 0;
+      color: var(--primary);
+    }
+
+    .role-card p {
+      margin: 4px 0 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* 底部固定按钮 */
+    .fixed-help {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--primary);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .fixed-help i {
+      font-size: 24px;
+    }
+  </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body>
 
-    <aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
-        <div class="h-16 flex items-center justify-center border-b border-slate-700">
-            <h1 class="text-xl font-bold tracking-wider"><i class="fa-solid fa-paw text-blue-400 mr-2"></i>PetMaster</h1>
+  <!-- 左侧导航 -->
+  <aside class="sidebar">
+    <h2><i class="fas fa-cog me-2"></i>系统设置</h2>
+    <div class="nav-link active" data-target="account-info">账户信息</div>
+    <div class="nav-link" data-target="notification-settings">通知设置</div>
+    <div class="nav-link" data-target="security-and-privacy">安全与隐私</div>
+    <div class="nav-link" data-target="preference-settings">偏好设置</div>
+    <div class="nav-link" data-target="integration-api-access">集成与API</div>
+    <div class="nav-link" data-target="team-and-permissions">团队与权限</div>
+    <div class="nav-link" data-target="help-center-support">帮助与支持</div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 账户信息 -->
+    <section id="account-info" class="section active">
+      <div class="section-header">
+        <h2>账户信息</h2>
+        <p>管理您的个人资料和登录凭证</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" class="form-control" placeholder="请输入用户名" value="admin_user">
         </div>
+        <div class="form-group">
+          <label for="email">邮箱地址</label>
+          <input type="email" id="email" class="form-control" placeholder="example@domain.com" value="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label for="phone">手机号码</label>
+          <input type="tel" id="phone" class="form-control" placeholder="请输入手机号">
+        </div>
+        <button class="btn btn-primary">保存更改</button>
+        <button class="btn btn-secondary">取消</button>
+      </div>
+    </section>
+
+    <!-- 通知设置 -->
+    <section id="notification-settings" class="section">
+      <div class="section-header">
+        <h2>通知设置</h2>
+        <p>选择您希望接收的通知类型和方式</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label><input type="checkbox" checked> 邮件通知</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox"> 站内消息</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" checked> 系统维护提醒</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox"> 订单状态更新</label>
+        </div>
+        <button class="btn btn-primary">测试发送</button>
+      </div>
+    </section>
+
+    <!-- 安全与隐私 -->
+    <section id="security-and-privacy" class="section">
+      <div class="section-header">
+        <h2>安全与隐私</h2>
+        <p>增强账户安全性，保护您的数据</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>两步验证 (2FA)</label>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>登录活动记录</label>
+          <p style="margin-top: 8px; color: var(--text-secondary);">
+            最近登录：2025年12月14日 20:32 · IP: 114.242.xxx.xxx · 设备：Windows / Chrome
+          </p>
+        </div>
+        <button class="btn btn-primary">查看全部活动</button>
+      </div>
+    </section>
+
+    <!-- 偏好设置 -->
+    <section id="preference-settings" class="section">
+      <div class="section-header">
+        <h2>偏好设置</h2>
+        <p>自定义界面外观与行为</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label for="lang">界面语言</label>
+          <select id="lang" class="form-control">
+            <option>简体中文</option>
+            <option>English</option>
+            <option>日本語</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>主题模式</label>
+          <label class="switch">
+            <input type="checkbox">
+            <span class="slider"></span>
+          </label>
+          <span style="margin-left: 12px; color: var(--text-secondary);">启用暗色模式</span>
+        </div>
+        <button class="btn btn-primary">应用设置</button>
+      </div>
+    </section>
+
+    <!-- 集成与API -->
+    <section id="integration-api-access" class="section">
+      <div class="section-header">
+        <h2>集成与API访问</h2>
+        <p>管理第三方应用授权与 API 密钥</p>
+      </div>
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>应用名称</th>
+                <th>状态</th>
+                <th>最后使用</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>宠物寄养系统 API</td>
+                <td><span style="color: var(--success);">● 已授权</span></td>
+                <td>2025-12-14 20:32</td>
+                <td><button class="btn btn-danger">删除</button></td>
+              </tr>
+              <tr>
+                <td>微信通知服务</td>
+                <td><span style="color: #adb5bd;">● 已停用</span></td>
+                <td>2025-12-10 14:20</td>
+                <td><button class="btn btn-danger">删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 20px;">生成新 API Key</button>
+      </div>
+    </section>
+
+    <!-- 团队与权限 -->
+    <section id="team-and-permissions" class="section">
+      <div class="section-header">
+        <h2>团队与权限管理</h2>
+        <p>配置成员角色与访问权限</p>
+      </div>
+      <div class="card">
+        <div class="role-card">
+          <div>
+            <h4>管理员</h4>
+            <p>拥有全部系统权限</p>
+          </div>
+          <button class="btn btn-primary">编辑权限</button>
+        </div>
+        <div class="role-card">
+          <div>
+            <h4>运营人员</h4>
+            <p>可管理商品、订单、寄养记录</p>
+          </div>
+          <button class="btn btn-primary">编辑权限</button>
+        </div>
+        <div class="role-card">
+          <div>
+            <h4>客服专员</h4>
+            <p>仅可查看客户信息与消息</p>
+          </div>
+          <button class="btn btn-primary">编辑权限</button>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 16px;">+ 添加新角色</button>
+      </div>
+    </section>
+
+    <!-- 帮助与支持 -->
+    <section id="help-center-support" class="section">
+      <div class="section-header">
+        <h2>帮助中心与支持</h2>
+        <p>获取使用指南或联系技术支持</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="搜索帮助文档、教程或常见问题...">
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
+          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">📘 用户手册</a>
+          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">🎥 视频教程</a>
+          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">❓ 常见问题</a>
+          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">📞 联系客服</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 固定帮助按钮 -->
+  <div class="fixed-help">
+    <i class="fas fa-headset"></i>
+  </div>
+
+  <script>
+    // 简单的导航切换逻辑
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        // 移除所有 active
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         
-        <nav class="flex-1 py-6 space-y-2">
-            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mb-2">核心管理</div>
-            <a href="#" class="nav-item active flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
-                <i class="fa-solid fa-chart-line w-6 text-center"></i> <span class="ml-3">首页数据看板</span>
-            </a>
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
-                <i class="fa-solid fa-box-open w-6 text-center"></i> <span class="ml-3">商品管理</span>
-            </a>
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
-                <i class="fa-solid fa-stethoscope w-6 text-center"></i> <span class="ml-3">药品合规专区</span>
-            </a>
-            
-            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mt-6 mb-2">数据决策</div>
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
-                <i class="fa-solid fa-brain w-6 text-center"></i> <span class="ml-3">智能运营分析</span>
-            </a>
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
-                <i class="fa-solid fa-truck-ramp-box w-6 text-center"></i> <span class="ml-3">库存健康诊断</span>
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-slate-700">
-            <div class="flex items-center gap-3">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=4FC3F7&color=fff" class="w-10 h-10 rounded-full">
-                <div>
-                    <p class="text-sm font-medium">超级管理员</p>
-                    <p class="text-xs text-slate-400">Online</p>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col overflow-hidden relative">
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
-            <div class="text-slate-500 italic text-sm">
-                "不只是管理商品，更是读懂宠物与主人的健康需求"
-            </div>
-            
-            <div class="flex items-center gap-6">
-                <div class="flex bg-gray-100 rounded-lg p-1">
-                    <button class="px-3 py-1 bg-white rounded shadow text-xs font-medium text-slate-700">今日</button>
-                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本周</button>
-                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本月</button>
-                </div>
-
-                <div class="relative cursor-pointer">
-                    <i class="fa-solid fa-bell text-slate-500 text-lg"></i>
-                    <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="dashboard-card p-5 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 p-4 opacity-10">
-                        <i class="fa-solid fa-yen-sign text-6xl text-orange-400"></i>
-                    </div>
-                    <p class="text-slate-500 text-sm font-medium">今日销售额</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">¥18,752</h3>
-                    <p class="text-xs mt-2 text-green-500 flex items-center">
-                        <i class="fa-solid fa-arrow-trend-up mr-1"></i> 环比 +12%
-                    </p>
-                </div>
-
-                <div class="dashboard-card p-5 border-l-4 border-red-500">
-                    <p class="text-slate-500 text-sm font-medium">低库存预警</p>
-                    <div class="flex items-end gap-2 mt-1">
-                        <h3 class="text-3xl font-bold text-red-500">12</h3>
-                        <span class="text-sm text-slate-400 mb-1">个SKU</span>
-                    </div>
-                    <p class="text-xs mt-2 text-slate-500">猫砂、关节护理库存危急</p>
-                </div>
-
-                <div class="dashboard-card p-5">
-                    <p class="text-slate-500 text-sm font-medium">待发货订单</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">45</h3>
-                    <p class="text-xs mt-2 text-blue-400 cursor-pointer hover:underline">立即处理 ></p>
-                </div>
-
-                <div class="dashboard-card p-5">
-                    <p class="text-slate-500 text-sm font-medium">商品合规率</p>
-                    <h3 class="text-3xl font-bold text-green-600 mt-1">98%</h3>
-                    <p class="text-xs mt-2 text-slate-500">2个药品需补充兽药证</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                
-                <div class="dashboard-card p-6 lg:col-span-1">
-                    <h4 class="font-bold text-slate-700 mb-4">销售品类全景</h4>
-                    <div id="chart-sales-ring" style="height: 250px;"></div>
-                    <div class="text-center text-xs text-slate-400 mt-2">
-                        <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>主粮
-                        <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mx-1"></span>用品
-                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mx-1"></span>药品
-                    </div>
-                </div>
-
-                <div class="dashboard-card p-6 lg:col-span-2">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-slate-700">品类热力地图 <span class="text-xs font-normal text-slate-400 ml-2">(颜色越深销量越高)</span></h4>
-                        <button class="text-xs text-blue-500 border border-blue-500 px-2 py-1 rounded hover:bg-blue-50">导出报告</button>
-                    </div>
-                    <div id="chart-heatmap" style="height: 250px;"></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                <div class="dashboard-card overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-green-50">
-                        <h4 class="font-bold text-green-800"><i class="fa-solid fa-file-medical mr-2"></i>药品合规专区</h4>
-                        <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">严格监管</span>
-                    </div>
-                    
-                    <div class="warning-banner p-3 flex items-start text-xs">
-                        <i class="fa-solid fa-triangle-exclamation mr-2 mt-0.5"></i>
-                        <div>
-                            <strong>系统强制提示：</strong>
-                            "本产品为保健用品，不可替代兽医诊疗。如需健康咨询，请联系专业宠物医院"
-                        </div>
-                    </div>
-
-                    <div class="p-4">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-slate-500 uppercase bg-slate-50">
-                                <tr>
-                                    <th class="px-2 py-3">商品名称</th>
-                                    <th class="px-2 py-3">资质状态</th>
-                                    <th class="px-2 py-3">用药指南</th>
-                                    <th class="px-2 py-3">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b">
-                                    <td class="px-2 py-3 font-medium">体内驱虫片(幼犬)</td>
-                                    <td class="px-2 py-3"><span class="text-green-500"><i class="fa-solid fa-check-circle"></i> 已认证</span></td>
-                                    <td class="px-2 py-3 text-xs text-slate-500">含米尔贝肟，8周以下慎用</td>
-                                    <td class="px-2 py-3"><a href="#" class="text-blue-500 hover:underline">管理</a></td>
-                                </tr>
-                                <tr>
-                                    <td class="px-2 py-3 font-medium">关节止痛软膏</td>
-                                    <td class="px-2 py-3"><span class="text-red-500"><i class="fa-solid fa-circle-xmark"></i> 缺检测报告</span></td>
-                                    <td class="px-2 py-3 text-xs text-slate-500">仅限外用</td>
-                                    <td class="px-2 py-3"><button class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">立即补全</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="dashboard-card">
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-                        <h4 class="font-bold text-slate-700">库存健康度诊断</h4>
-                        <div class="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded">
-                            周转率 = 本月销量 / 期初库存
-                        </div>
-                    </div>
-                    
-                    <div class="p-4">
-                        <div class="smart-suggestion p-3 rounded-lg mb-4 flex gap-3 items-start">
-                            <div class="bg-blue-100 text-blue-500 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-lightbulb"></i>
-                            </div>
-                            <div class="text-sm">
-                                <p class="font-bold text-slate-700">智能建议：</p>
-                                <p class="text-slate-600">用户对"关节护理"咨询量激增300%，建议：①增加科普内容 ②搭配软骨素进行组合促销。</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🐱</div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-700">膨润土猫砂</p>
-                                        <p class="text-xs text-red-500">剩余 72件 (安全线 150件)</p>
-                                    </div>
-                                </div>
-                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded shadow">
-                                    一键补货
-                                </button>
-                            </div>
-
-                            <div class="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-100">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🦴</div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-700">发声橡胶玩具</p>
-                                        <p class="text-xs text-orange-500">周转率 0.3 (严重滞销)</p>
-                                    </div>
-                                </div>
-                                <button class="bg-orange-400 hover:bg-orange-500 text-white text-xs px-3 py-1.5 rounded shadow">
-                                    生成促销案
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            
-            <div class="mt-8 text-center text-xs text-slate-400">
-                &copy; 2024 PetMaster Intelligent System. Version 2.1.0
-            </div>
-
-        </div>
-    </main>
-
-    <script>
-        // 定义颜色变量 (与 CSS 一致)
-        const colors = {
-            orange: '#FFA726',
-            blue: '#4FC3F7',
-            green: '#66BB6A',
-            red: '#EF5350'
-        };
-
-        // 1. 初始化销售全景环形图
-        const salesChart = echarts.init(document.getElementById('chart-sales-ring'));
-        const salesOption = {
-            tooltip: { trigger: 'item' },
-            legend: { top: '5%', left: 'center', show: false },
-            series: [
-                {
-                    name: '销售占比',
-                    type: 'pie',
-                    radius: ['40%', '70%'], // 环形
-                    avoidLabelOverlap: false,
-                    itemStyle: {
-                        borderRadius: 10,
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    },
-                    label: { show: false, position: 'center' },
-                    emphasis: {
-                        label: { show: true, fontSize: 20, fontWeight: 'bold' }
-                    },
-                    labelLine: { show: false },
-                    data: [
-                        { value: 42, name: '主粮', itemStyle: { color: colors.orange } },
-                        { value: 18, name: '用品', itemStyle: { color: colors.blue } },
-                        { value: 5, name: '药品', itemStyle: { color: colors.green } },
-                        { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
-                    ]
-                }
-            ]
-        };
-        salesChart.setOption(salesOption);
-
-        // 2. 初始化热力地图 (使用 Treemap 模拟品类热力)
-        const heatmapChart = echarts.init(document.getElementById('chart-heatmap'));
-        const heatmapOption = {
-            tooltip: {
-                formatter: function (info) {
-                    return info.name + ': 营收贡献 ' + info.value + '%';
-                }
-            },
-            series: [{
-                type: 'treemap',
-                width: '100%',
-                height: '100%',
-                roam: false, // 禁止缩放
-                breadcrumb: { show: false },
-                itemStyle: {
-                    borderColor: '#fff',
-                    borderWidth: 1,
-                    gapWidth: 1
-                },
-                data: [
-                    {
-                        name: '全价猫粮',
-                        value: 30,
-                        itemStyle: { color: 'rgba(255, 167, 38, 1)' } // 深橙色 (爆款)
-                    },
-                    {
-                        name: '冻干零食',
-                        value: 20,
-                        itemStyle: { color: 'rgba(255, 167, 38, 0.8)' }
-                    },
-                    {
-                        name: '猫砂用品',
-                        value: 15,
-                        itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } // 深蓝色
-                    },
-                    {
-                        name: '驱虫药',
-                        value: 8,
-                        itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } // 绿色
-                    },
-                    {
-                        name: '智能饮水机',
-                        value: 12,
-                        itemStyle: { color: 'rgba(79, 195, 247, 0.6)' }
-                    },
-                    {
-                        name: '保健品',
-                        value: 5,
-                        itemStyle: { color: 'rgba(102, 187, 106, 0.5)' }
-                    },
-                    {
-                        name: '狗粮',
-                        value: 10,
-                        itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } // 浅橙色
-                    }
-                ]
-            }]
-        };
-        heatmapChart.setOption(heatmapOption);
-
-        // 窗口大小改变时重绘图表
-        window.addEventListener('resize', function() {
-            salesChart.resize();
-            heatmapChart.resize();
-        });
-
-        // 模拟库存不足弹窗逻辑 (页面加载后3秒演示)
-        setTimeout(() => {
-            // 在实际项目中这里会是一个更好看的 Modal，这里仅做 Console 或简单的 Toast 演示
-            console.log("⚠️ 系统提示：猫砂库存低于30件，请注意补货！");
-        }, 3000);
-    </script>
+        // 添加当前 active
+        link.classList.add('active');
+        const target = link.getAttribute('data-target');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+  </script>
 </body>
 </html>

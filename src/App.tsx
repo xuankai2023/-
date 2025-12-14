@@ -28,6 +28,7 @@ const ServicesPage = React.lazy(() => import('./pages/Services/Services'));
 const VaccinationRecordsPage = React.lazy(() => import('./pages/VaccinationRecords/VaccinationRecords'));
 const BoardingRecordsPage = React.lazy(() => import('./pages/ BoardingRecords/ BoardingRecordsPage'));
 const OrderPage = React.lazy(() => import('./pages/Order/OrderPage'));
+const SettingPage = React.lazy(() => import('./pages/Setting/Setting'));
 // 认证保护路由组件
 const ProtectedRoute: React.FC<{ element: React.ReactNode; requiredRole?: string }> = ({
   element,
@@ -159,6 +160,13 @@ function App() {
                 <Route path="/petDetail/:petId" element={<Navigate to="/petDetail" />} />
                 {/* 宠物列表页路由 */}
                 <Route path="/petDetail" element={<PetDetail />} />
+                {/* 设置页面路由 */}
+                <Route
+                  path="/setting"
+                  element={
+                    <ProtectedRoute element={<SettingPage />} requiredRole="admin" />
+                  }
+                />
                 
                 {/* 默认路由重定向到 about */}
                 <Route path="/" element={<Navigate to="/about" replace />} />
