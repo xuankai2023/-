@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { Arrow, Like } from '@react-vant/icons';
-import { Card, Button, Space, Grid, GridItem, Tag, Image, Toast } from 'react-vant';
+import { ArrowRightOutlined, LikeOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Row, Col, Tag, Image, message } from 'antd';
 import * as echarts from 'echarts';
 
 // 图表组件
@@ -53,138 +53,153 @@ const EChartsChart: React.FC = () => {
   return <div ref={chartRef} style={{ height: '360px', width: '100%' }} />;
 };
 
-// 数据指标卡片 —— 使用 Grid + 自定义内容（符合 vant 规范）
+// 数据指标卡片 —— 使用 Row + Col + Card（符合 Ant Design 规范）
 const MetricCard: React.FC = () => {
   return (
-    <Grid gutter={16} style={{ marginBottom: 20 }}>
-      <GridItem >
-        <Card round>
-          <Card.Cover onClick={() => Toast.info('点击了Cover区域')}>
-            <Image src='/public/images/svg/仓鼠.svg' />
-          </Card.Cover>
-          <Card.Header
-            extra={<Arrow />}
-            onClick={() => Toast.info('点击了Header区域')}
-          >
+    <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+      <Col xs={12} sm={12} md={6}>
+        <Card hoverable>
+          <div style={{ textAlign: 'center', padding: 16 }}>
+            <div 
+              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Cover区域')}
+            >
+              <img src='/public/images/svg/仓鼠.svg' style={{ width: '100%', height: '100%' }} />
+            </div>
+            <div 
+              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Header区域')}
+            >
               宠物总数
-          </Card.Header>
-          <Card.Body onClick={() => Toast.info('点击了Body区域')}>
-         
-          </Card.Body>
-          <Card.Footer>
-            <Space>
-              <Button round size='small'>
+              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+            </div>
+            <div onClick={() => message.info('点击了Body区域')}>
+              
+            </div>
+            <Space style={{ marginTop: 16 }}>
+              <Button size='small'>
                 更多
               </Button>
               <Button
-                icon={<Like />}
-                round
-                color='linear-gradient(to right, #ff6034, #ee0a24)'
+                icon={<LikeOutlined />}
+                type='primary'
+                danger
                 size='small'
               >
                 Like
               </Button>
             </Space>
-          </Card.Footer>
+          </div>
         </Card>
-      </GridItem>
+      </Col>
 
-      <GridItem >
-        <Card round>
-          <Card.Cover onClick={() => Toast.info('点击了Cover区域')}>
-            <Image src='/public/images/svg/荷兰猪.svg' />
-          </Card.Cover>
-          <Card.Header
-            extra={<Arrow />}
-            onClick={() => Toast.info('点击了Header区域')}
-          >
-           本月订单
-          </Card.Header>
-          <Card.Body onClick={() => Toast.info('点击了Body区域')}>
-            
-          </Card.Body>
-          <Card.Footer>
-            <Space>
-              <Button round size='small'>
+      <Col xs={12} sm={12} md={6}>
+        <Card hoverable>
+          <div style={{ textAlign: 'center', padding: 16 }}>
+            <div 
+              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Cover区域')}
+            >
+              <img src='/public/images/svg/荷兰猪.svg' style={{ width: '100%', height: '100%' }} />
+            </div>
+            <div 
+              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Header区域')}
+            >
+              本月订单
+              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+            </div>
+            <div onClick={() => message.info('点击了Body区域')}>
+              
+            </div>
+            <Space style={{ marginTop: 16 }}>
+              <Button size='small'>
                 更多
               </Button>
               <Button
-                icon={<Like />}
-                round
-                color='linear-gradient(to right, #ff6034, #ee0a24)'
+                icon={<LikeOutlined />}
+                type='primary'
+                danger
                 size='small'
               >
                 Like
               </Button>
             </Space>
-          </Card.Footer>
+          </div>
         </Card>
-      </GridItem>
+      </Col>
 
-      <GridItem >
-        <Card round>
-          <Card.Cover onClick={() => Toast.info('点击了Cover区域')}>
-            <Image src='/public/images/svg/哈士奇.svg' />
-          </Card.Cover>
-          <Card.Header
-            extra={<Arrow />}
-            onClick={() => Toast.info('点击了Header区域')}
-          >
-             库存商品
-          </Card.Header>
-          <Card.Body onClick={() => Toast.info('点击了Body区域')}>
-         
-          </Card.Body>
-          <Card.Footer>
-            <Space>
-              <Button round size='small'>
+      <Col xs={12} sm={12} md={6}>
+        <Card hoverable>
+          <div style={{ textAlign: 'center', padding: 16 }}>
+            <Image 
+              src='/public/images/svg/哈士奇.svg' 
+              style={{ width: 80, height: 80, marginBottom: 16 }} 
+              onClick={() => message.info('点击了Cover区域')}
+            />
+            <div 
+              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Header区域')}
+            >
+              库存商品
+              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+            </div>
+            <div onClick={() => message.info('点击了Body区域')}>
+              
+            </div>
+            <Space style={{ marginTop: 16 }}>
+              <Button size='small'>
                 更多
               </Button>
               <Button
-                icon={<Like />}
-                round
-                color='linear-gradient(to right, #ff6034, #ee0a24)'
+                icon={<LikeOutlined />}
+                type='primary'
+                danger
                 size='small'
               >
                 Like
               </Button>
             </Space>
-          </Card.Footer>
+          </div>
         </Card>
-      </GridItem>
+      </Col>
 
-      <GridItem >
-        <Card round>
-          <Card.Cover onClick={() => Toast.info('点击了Cover区域')}>
-            <Image src='/public/images/svg/可达鸭.svg'/>
-          </Card.Cover>
-          <Card.Header
-            extra={<Arrow />}
-            onClick={() => Toast.info('点击了Header区域')}
-          >
-          会员总数
-          </Card.Header>
-          <Card.Body onClick={() => Toast.info('点击了Body区域')}>
-            
-          </Card.Body>
-          <Card.Footer>
-            <Space>
-              <Button round size='small'>
+      <Col xs={12} sm={12} md={6}>
+        <Card hoverable>
+          <div style={{ textAlign: 'center', padding: 16 }}>
+            <div 
+              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Cover区域')}
+            >
+              <img src='/public/images/svg/可达鸭.svg' style={{ width: '100%', height: '100%' }} />
+            </div>
+            <div 
+              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              onClick={() => message.info('点击了Header区域')}
+            >
+              会员总数
+              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+            </div>
+            <div onClick={() => message.info('点击了Body区域')}>
+              
+            </div>
+            <Space style={{ marginTop: 16 }}>
+              <Button size='small'>
                 更多
               </Button>
               <Button
-                icon={<Like />}
-                round
-                color='linear-gradient(to right, #ff6034, #ee0a24)'
+                icon={<LikeOutlined />}
+                type='primary'
+                danger
                 size='small'
               >
                 Like
               </Button>
             </Space>
-          </Card.Footer>
+          </div>
         </Card>
-      </GridItem>
-    </Grid>
+      </Col>
+    </Row>
   );
 };
 
@@ -214,7 +229,7 @@ const OrderItem: React.FC<{
       </div>
       <div style={{ textAlign: 'right' }}>
         <div style={{ fontWeight: 500, fontSize: 14 }}>{amount}</div>
-        <Tag type={statusConfig.color as any} style={{ marginTop: 4 }}>{statusConfig.text}</Tag>
+        <Tag color={statusConfig.color === 'success' ? 'green' : 'orange'} style={{ marginTop: 4 }}>{statusConfig.text}</Tag>
       </div>
     </div>
   );
@@ -228,23 +243,23 @@ const MainContent: React.FC = () => {
       <MetricCard />
 
       {/* 图表 */}
-      <Card round style={{ marginBottom: 20 }}>
-        <Card.Header
-
-          extra={<Button type="primary" size="mini">查看详情</Button>}
-        />
-        <Card.Body style={{ paddingTop: 0 }}>
+      <Card style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
+          <span style={{ fontSize: 16, fontWeight: 500 }}>月度数据统计</span>
+          <Button type="primary" size="small">查看详情</Button>
+        </div>
+        <div style={{ paddingTop: 0, padding: '0 16px 16px 16px' }}>
           <EChartsChart />
-        </Card.Body>
+        </div>
       </Card>
 
       {/* 最近订单 */}
-      <Card round>
-        <Card.Header
-
-          extra={<Button type="primary" size="mini">查看全部</Button>}
-        />
-        <Card.Body style={{ padding: 0 }}>
+      <Card>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
+          <span style={{ fontSize: 16, fontWeight: 500 }}>最近订单</span>
+          <Button type="primary" size="small">查看全部</Button>
+        </div>
+        <div style={{ padding: 0 }}>
           <OrderItem
             id="ORD-2023-0875"
             customer="张明"
@@ -268,12 +283,12 @@ const MainContent: React.FC = () => {
             amount="¥89.00"
             status="processing"
           />
-        </Card.Body>
-        <Card.Footer>
-          <Button block type="primary" size="small">
+        </div>
+        <div style={{ padding: 16, textAlign: 'center' }}>
+          <Button type="primary" size="small" block>
             查看全部订单
           </Button>
-        </Card.Footer>
+        </div>
       </Card>
     </div>
   );

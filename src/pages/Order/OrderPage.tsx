@@ -2,21 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
 import './order.css';
-import {
-  PullRefresh, List, Card, Button, Tabs, Tag, Image, Space, Toast,
-  Empty, Loading, NoticeBar, Divider, Badge
-} from 'react-vant';
+import { Card, Button, Tabs, Tag, Image, Space, message, Empty, Spin, Divider } from 'antd';
+import { RestOutlined } from '@ant-design/icons';
 import {
   Order, pendingOrders, completedOrders, cancelledOrders, allOrders, OrderStatus
 } from '../../mock/orderData';
 
 // 模拟异步获取订单数据的函数
-async function getOrderData(orders: Order[], page: number, pageSize: number = 6, throwError: boolean = false) {
-  return new Promise<Order[]>((resolve, reject) => {
+async function getOrderData(orders: Order[], page: number, pageSize: number = 6) {
+  return new Promise<Order[]>((resolve) => {
     setTimeout(() => {
-      if (throwError) {
-        reject(new Error('获取订单数据失败'));
-      }
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
       const paginatedOrders = orders.slice(start, end);
@@ -49,14 +44,29 @@ const OrderPage: React.FC = () => {
   const getStatusConfig = (status: OrderStatus) => {
     switch (status) {
       case OrderStatus.PENDING:
-        return { text: '待处理', type: 'danger' as const };
+        return { text: '待处理' };
       case OrderStatus.COMPLETED:
-        return { text: '已完成', type: 'success' as const };
+        return { text: '已完成' };
       case OrderStatus.CANCELLED:
-        return { text: '已取消', type: 'default' as const };
+        return { text: '已取消' };
       default:
-        return { text: '未知状态', type: 'default' as const };
+        return { text: '未知状态' };
     }
+  };
+
+  // 根据宠物类型获取对应的SVG图标路径
+  const getPetIconPath = (petType: string): string => {
+    // 宠物类型到图标路径的映射
+    const petIconMap: Record<string, string> = {
+      '猫': '/images/svg/布偶猫.svg',
+      '狗': '/images/svg/哈士奇.svg',
+      '兔子': '/images/svg/兔子 (1).svg',
+      '仓鼠': '/images/svg/仓鼠.svg',
+      '鸟类': '/images/svg/可爱的卡通鸟.svg'
+    };
+    
+    // 如果找不到对应的图标，返回一个默认图标
+    return petIconMap[petType] || '/images/svg/puppy.svg';
   };
 
   // 渲染订单卡片
@@ -100,61 +110,84 @@ const OrderPage: React.FC = () => {
 
         <Divider style={{ margin: 0 }} />
 
-        <Card.Body style={{ padding: '16px' }}>
-          <div className="order-card-details">
-            {[
-              { icon: '🐾', label: '宠物', value: `${order.petName} (${order.petType})` },
-              { icon: '🔧', label: '服务', value: order.serviceName },
-              { icon: '📦', label: '数量', value: `${order.quantity} 项` },
-              { icon: '⏰', label: '下单', value: formatDate(order.orderTime) },
-              { icon: '📅', label: '预约', value: formatDate(order.scheduledTime) },
-            ].map((item, idx) => (
-              <div key={idx} className="order-card-detail-item">
-                <span className="order-card-detail-icon">{item.icon}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="order-card-detail-label">{item.label}</div>
-                  <div className="order-card-detail-value">{item.value}</div>
+        <div style={{ padding: '16px' }}>
+          <div className="order-details">
+            {
+              [
+                { 
+                  label: '宠物', 
+                  value: `${order.petName} (${order.petType})`,
+                  isPet: true,
+                  petType: order.petType
+                },
+                { icon: '服务', label: '服务', value: order.serviceName, isIconSVG: true },
+                { icon: '数量', label: '数量', value: `${order.quantity} 项`, isIconSVG: true },
+                { icon: '已下单', label: '下单', value: formatDate(order.orderTime), isIconSVG: true },
+                { icon: '预约', label: '预约', value: formatDate(order.scheduledTime), isIconSVG: true },
+              ].map((item, idx) => (
+                <div key={idx} className="detail-row">
+                  <div className="label">
+                    {item.isPet ? (
+                      <span className="icon-label" style={{ display: 'inline-block', width: '20px', height: '20px' }}>
+                        <img 
+                          src={getPetIconPath(item.petType)} 
+                          alt={item.petType} 
+                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
+                      </span>
+                    ) : item.isIconSVG ? (
+                      <span className="icon-label" style={{ display: 'inline-block', width: '20px', height: '20px' }}>
+                        <img 
+                          src={`/images/svg/${item.icon}.svg`} 
+                          alt={item.icon} 
+                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
+                      </span>
+                    ) : (
+                      <span className="icon-label">{item.icon}</span>
+                    )}
+                    {item.label}
+                  </div>
+                  <div className="value">{item.value}</div>
                 </div>
-              </div>
-            ))}
+              ))
+            }
           </div>
-        </Card.Body>
+        </div>
 
         <Divider style={{ margin: 0 }} />
 
-        <Card.Footer style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="order-card-footer-left">¥{order.totalAmount.toFixed(2)}</div>
           <div className="order-card-actions">
             <Button
               size="small"
-              plain
-              color="#999"
+              type="default"
               className="order-card-button"
               onClick={(e) => {
                 e.stopPropagation();
-                Toast.info('查看订单详情 ' + order.id);
+                message.info('查看订单详情 ' + order.id);
               }}
             >
-              👁️ 详情
+              详情
             </Button>
             <Button
               size="small"
-              type="primary"
-              color={order.status === OrderStatus.PENDING ? '#1677ff' : '#52c41a'}
+              type={order.status === OrderStatus.PENDING ? 'primary' : 'default'}
               className="order-card-button"
               onClick={(e) => {
                 e.stopPropagation();
                 if (order.status === OrderStatus.PENDING) {
-                  Toast.success('开始处理订单: ' + order.id);
+                  message.success('开始处理订单: ' + order.id);
                 } else {
-                  Toast.info('查看订单详情: ' + order.id);
+                  message.info('查看订单详情: ' + order.id);
                 }
               }}
             >
-              {order.status === OrderStatus.PENDING ? '▶️ 处理' : '✅ 查看'}
+              {order.status === OrderStatus.PENDING ? '处理' : ' 查看'}
             </Button>
           </div>
-        </Card.Footer>
+        </div>
       </Card>
     );
   };
@@ -173,7 +206,6 @@ const OrderPage: React.FC = () => {
   const loadOrders = async (pageNum: number, append: boolean = true) => {
     try {
       const orders = getOrdersByTab(activeTab);
-      // 可选：测试错误时传入 throwError: pageNum > 1
       const newOrders = await getOrderData(orders, pageNum);
 
       if (pageNum === 1) {
@@ -197,13 +229,13 @@ const OrderPage: React.FC = () => {
     }
   };
 
-  // 下拉刷新
+  // 刷新
   const handleRefresh = async () => {
     try {
       await loadOrders(1, false);
-      Toast.success('刷新成功');
+      message.success('刷新成功');
     } catch (error) {
-      Toast.fail('刷新失败，请重试');
+      message.error('刷新失败，请重试');
     }
   };
 
@@ -230,7 +262,7 @@ const OrderPage: React.FC = () => {
       }
     } catch (error) {
       setLoadError(true);
-      Toast.fail('加载更多失败');
+      message.error('加载更多失败');
     }
   };
 
@@ -257,12 +289,21 @@ const OrderPage: React.FC = () => {
         <Sidebar />
         <main style={{ flex: 1, padding: '20px', overflow: 'auto' }}>
           {/* 通知栏 */}
-          <NoticeBar
-            text={`🔊 当前有 ${pendingOrders.length} 个待处理订单，请及时处理`}
-            background="rgba(255, 251, 230, 0.9)"
-            color="#d48806"
-            style={{ borderRadius: '8px', marginBottom: '16px', backdropFilter: 'blur(10px)' }}
-          />
+          <div
+            style={{ 
+              padding: '8px 16px', 
+              background: 'rgba(255, 251, 230, 0.9)', 
+              color: '#d48806', 
+              borderRadius: '8px', 
+              marginBottom: '16px', 
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <span style={{ marginRight: '8px' }}>🔊</span>
+            <span>当前有 {pendingOrders.length} 个待处理订单，请及时处理</span>
+          </div>
 
           {/* 统计卡片 */}
           <div style={{
@@ -272,7 +313,7 @@ const OrderPage: React.FC = () => {
             marginBottom: '24px'
           }}>
             <Card style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '12px' }}>
-              <Card.Body>
+              <div style={{ padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ fontSize: '14px', opacity: 0.9 }}>全部订单</div>
@@ -280,11 +321,11 @@ const OrderPage: React.FC = () => {
                   </div>
                   <div style={{ fontSize: '24px' }}>🛍️</div>
                 </div>
-              </Card.Body>
+              </div>
             </Card>
 
             <Card style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white', borderRadius: '12px' }}>
-              <Card.Body>
+              <div style={{ padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ fontSize: '14px', opacity: 0.9 }}>待处理</div>
@@ -292,11 +333,11 @@ const OrderPage: React.FC = () => {
                   </div>
                   <div style={{ fontSize: '24px' }}>⏳</div>
                 </div>
-              </Card.Body>
+              </div>
             </Card>
 
             <Card style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white', borderRadius: '12px' }}>
-              <Card.Body>
+              <div style={{ padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ fontSize: '14px', opacity: 0.9 }}>已完成</div>
@@ -304,7 +345,7 @@ const OrderPage: React.FC = () => {
                   </div>
                   <div style={{ fontSize: '24px' }}>✅</div>
                 </div>
-              </Card.Body>
+              </div>
             </Card>
           </div>
 
@@ -313,133 +354,156 @@ const OrderPage: React.FC = () => {
           <div className='demo-tabs'>
             {loading ? (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
-                <Loading type="spinner" size="24px" vertical>加载中...</Loading>
+                <Spin size="large" tip="加载中..." />
               </div>
             ) : (
-              <Tabs active={activeTab} onChange={handleTabChange}>
-                <Tabs.TabPane name='all' title={`全部订单 (${allOrders.length})`}>
+              <Tabs activeKey={activeTab} onChange={handleTabChange}>
+                <Tabs.TabPane key='all' tab={`全部订单 (${allOrders.length})`}>
                   {allOrders.length === 0 ? (
-                    <Empty image="search" description="暂无订单数据">
+                    <Empty description="暂无订单数据">
                       <Button type="primary" size="small" onClick={() => window.location.reload()}>
                         刷新页面
                       </Button>
                     </Empty>
                   ) : (
                     <div>
-                      <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 'bold' }}>全部订单列表</h3>
-                      <PullRefresh onRefresh={handleRefresh}>
-                        <List
-                          onLoad={handleLoadMore}
-                          finished={finished}
-                          errorText={loadError ? '加载失败，点击重试' : ''}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 'bold' }}>全部订单列表</h3>
+                        <Button type="default" size="small" icon={<RestOutlined />} onClick={handleRefresh}>
+                          刷新
+                        </Button>
+                      </div>
+                      <div>
+                        <div
+                          className='order-grid-container'
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: '16px',
+                            padding: '16px 0'
+                          }}
                         >
-                          <div
-                            className='order-grid-container'
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                              gap: '16px',
-                              padding: '16px 0'
-                            }}
-                          >
-                            {currentOrders.map(order => renderOrderCard(order))}
+                          {currentOrders.map(order => renderOrderCard(order))}
+                        </div>
+                        {!finished && (
+                          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                            <Button type="default" onClick={handleLoadMore} disabled={loadError}>
+                              {loadError ? '加载失败，点击重试' : '加载更多'}
+                            </Button>
                           </div>
-                        </List>
-                      </PullRefresh>
+                        )}
+                      </div>
                     </div>
                   )}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane name='pending' title={`待处理订单 (${pendingOrders.length})`}>
+                <Tabs.TabPane key='pending' tab={`待处理订单 (${pendingOrders.length})`}>
                   {pendingOrders.length === 0 ? (
-                    <Empty image="search" description="暂无待处理订单">
+                    <Empty description="暂无待处理订单">
                       <div style={{ fontSize: '14px', color: '#969799' }}>所有订单都已处理完成</div>
                     </Empty>
                   ) : (
                     <div>
-                      <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 'bold' }}>待处理订单列表</h3>
-                      <PullRefresh onRefresh={handleRefresh}>
-                        <List
-                          onLoad={handleLoadMore}
-                          finished={finished}
-                          errorText={loadError ? '加载失败，点击重试' : ''}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 'bold' }}>待处理订单列表</h3>
+                        <Button type="default" size="small" icon={<RestOutlined />} onClick={handleRefresh}>
+                          刷新
+                        </Button>
+                      </div>
+                      <div>
+                        <div
+                          className='order-grid-container'
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: '16px',
+                            padding: '16px 0'
+                          }}
                         >
-                          <div
-                            className='order-grid-container'
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                              gap: '16px',
-                              padding: '16px 0'
-                            }}
-                          >
-                            {currentOrders.map(order => renderOrderCard(order))}
+                          {currentOrders.map(order => renderOrderCard(order))}
+                        </div>
+                        {!finished && (
+                          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                            <Button type="default" onClick={handleLoadMore} disabled={loadError}>
+                              {loadError ? '加载失败，点击重试' : '加载更多'}
+                            </Button>
                           </div>
-                        </List>
-                      </PullRefresh>
+                        )}
+                      </div>
                     </div>
                   )}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane name='completed' title={`已完成订单 (${completedOrders.length})`}>
+                <Tabs.TabPane key='completed' tab={`已完成订单 (${completedOrders.length})`}>
                   {completedOrders.length === 0 ? (
-                    <Empty image="search" description="暂无已完成订单">
+                    <Empty description="暂无已完成订单">
                       <div style={{ fontSize: '14px', color: '#969799' }}>还没有完成任何订单</div>
                     </Empty>
                   ) : (
                     <div>
-                      <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 'bold' }}>已完成订单列表</h3>
-                      <PullRefresh onRefresh={handleRefresh}>
-                        <List
-                          onLoad={handleLoadMore}
-                          finished={finished}
-                          errorText={loadError ? '加载失败，点击重试' : ''}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 'bold' }}>已完成订单列表</h3>
+                        <Button type="default" size="small" icon={<RestOutlined />} onClick={handleRefresh}>
+                          刷新
+                        </Button>
+                      </div>
+                      <div>
+                        <div
+                          className='order-grid-container'
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: '16px',
+                            padding: '16px 0'
+                          }}
                         >
-                          <div
-                            className='order-grid-container'
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                              gap: '16px',
-                              padding: '16px 0'
-                            }}
-                          >
-                            {currentOrders.map(order => renderOrderCard(order))}
+                          {currentOrders.map(order => renderOrderCard(order))}
+                        </div>
+                        {!finished && (
+                          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                            <Button type="default" onClick={handleLoadMore} disabled={loadError}>
+                              {loadError ? '加载失败，点击重试' : '加载更多'}
+                            </Button>
                           </div>
-                        </List>
-                      </PullRefresh>
+                        )}
+                      </div>
                     </div>
                   )}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane name='cancelled' title={`已取消订单 (${cancelledOrders.length})`}>
+                <Tabs.TabPane key='cancelled' tab={`已取消订单 (${cancelledOrders.length})`}>
                   {cancelledOrders.length === 0 ? (
-                    <Empty image="search" description="暂无已取消订单">
+                    <Empty description="暂无已取消订单">
                       <div style={{ fontSize: '14px', color: '#969799' }}>没有取消的订单记录</div>
                     </Empty>
                   ) : (
                     <div>
-                      <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 'bold' }}>已取消订单列表</h3>
-                      <PullRefresh onRefresh={handleRefresh}>
-                        <List
-                          onLoad={handleLoadMore}
-                          finished={finished}
-                          errorText={loadError ? '加载失败，点击重试' : ''}
-
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 'bold' }}>已取消订单列表</h3>
+                        <Button type="default" size="small" icon={<RestOutlined />} onClick={handleRefresh}>
+                          刷新
+                        </Button>
+                      </div>
+                      <div>
+                        <div
+                          className='order-grid-container'
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: '16px',
+                            padding: '16px 0'
+                          }}
                         >
-                          <div
-                            className='order-grid-container'
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                              gap: '16px',
-                              padding: '16px 0'
-                            }}
-                          >
-                            {currentOrders.map(order => renderOrderCard(order))}
+                          {currentOrders.map(order => renderOrderCard(order))}
+                        </div>
+                        {!finished && (
+                          <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                            <Button type="default" onClick={handleLoadMore} disabled={loadError}>
+                              {loadError ? '加载失败，点击重试' : '加载更多'}
+                            </Button>
                           </div>
-                        </List>
-                      </PullRefresh>
+                        )}
+                      </div>
                     </div>
                   )}
                 </Tabs.TabPane>

@@ -3,525 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare Pro - 宠物行业智能管理系统</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>宠物商城智能后台管理系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- 1. 全局变量与基础设置 --- */
+        /* 自定义色彩系统 */
         :root {
-            /* 配色方案 */
-            --primary-color: #1890FF;    /* 科技蓝 */
-            --success-color: #52C41A;    /* 活力绿 */
-            --warning-color: #FA541C;    /* 警示红/橙 */
-            --text-main: #333333;        /* 主文本 */
-            --text-sub: #666666;         /* 辅助文本 */
-            --bg-body: #F5F7FA;          /* 背景灰白 */
-            --bg-card: #FFFFFF;          /* 卡片白 */
-            --border-radius: 8px;        /* 圆角规范 */
-            --sidebar-width: 240px;
-            --header-height: 60px;
-            --footer-height: 40px;
+            --color-food-orange: #FFA726;
+            --color-supplies-blue: #4FC3F7;
+            --color-meds-green: #66BB6A;
+            --bg-sidebar: #1e293b;
+            --bg-main: #f3f4f6;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: var(--bg-main); }
+
+        /* 左侧导航激活态 */
+        .nav-item.active {
+            background-color: rgba(79, 195, 247, 0.15);
+            color: var(--color-supplies-blue);
+            border-right: 3px solid var(--color-supplies-blue);
         }
 
-        /* --- 2. 左侧侧边栏 (Sidebar) --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: #001529; /* 深色侧边栏体现专业感 */
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s;
-            z-index: 10;
-        }
-
-        .brand {
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            background: #002140;
-            letter-spacing: 1px;
-        }
-        .brand i { margin-right: 10px; color: var(--primary-color); }
-
-        .store-selector {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .store-select-btn {
-            width: 100%;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .menu {
-            flex: 1;
-            overflow-y: auto;
-            padding-top: 10px;
-        }
-        .menu-item {
-            padding: 12px 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            color: rgba(255,255,255,0.65);
-            transition: 0.3s;
-            text-decoration: none;
-        }
-        .menu-item:hover, .menu-item.active {
-            color: #fff;
-            background: var(--primary-color);
-        }
-        .menu-item i { width: 24px; margin-right: 8px; }
-
-        /* --- 3. 主工作区 (Main) --- */
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* 顶部导航 */
-        .header {
-            height: var(--header-height);
-            background: var(--bg-card);
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-        }
-        .header-left h2 { font-size: 18px; font-weight: bold; }
-        .header-right { display: flex; align-items: center; gap: 20px; }
-        .icon-btn { position: relative; cursor: pointer; color: var(--text-sub); }
-        .badge {
-            position: absolute; top: -5px; right: -5px;
-            background: var(--warning-color); color: #fff;
-            font-size: 10px; padding: 2px 5px; border-radius: 10px;
-        }
-        .user-profile { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .avatar { width: 32px; height: 32px; background: #ddd; border-radius: 50%; }
-
-        /* 内容滚动区 */
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
-
-        /* 卡片通用样式 */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        /* 卡片样式 */
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
         }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        
-        /* 仪表盘 Grid 布局 */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        
-        /* 数据统计卡片 */
-        .stat-card { display: flex; align-items: center; justify-content: space-between; }
-        .stat-info h4 { font-size: 14px; color: var(--text-sub); margin-bottom: 8px; }
-        .stat-info .num { font-size: 24px; font-weight: bold; color: var(--text-main); }
-        .stat-icon {
-            width: 48px; height: 48px;
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-        }
-        .bg-blue { background: #e6f7ff; color: var(--primary-color); }
-        .bg-green { background: #f6ffed; color: var(--success-color); }
-        .bg-red { background: #fff2f0; color: var(--warning-color); }
-        .bg-purple { background: #f9f0ff; color: #722ed1; }
+        .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
 
-        /* 图表区域 */
-        .chart-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* 左大右小 */
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        .chart-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
+        /* 强制警告横幅 */
+        .warning-banner {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            color: #92400E;
         }
 
-        /* 订单与排班区域 */
-        .bottom-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-        
-        /* 表格样式 */
-        .custom-table { width: 100%; border-collapse: collapse; }
-        .custom-table th { text-align: left; padding: 12px; background: #fafafa; color: var(--text-sub); font-size: 12px; }
-        .custom-table td { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-        .status-tag {
-            padding: 4px 8px; border-radius: 4px; font-size: 12px;
-        }
-        .tag-process { background: #e6f7ff; color: var(--primary-color); border: 1px solid #91d5ff; }
-        .tag-wait { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
-        .tag-done { background: #f6ffed; color: var(--success-color); border: 1px solid #b7eb8f; }
-
-        /* 底部工具栏 */
-        .footer-bar {
-            height: var(--footer-height);
-            background: #fff;
-            border-top: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            font-size: 12px;
-            color: var(--text-sub);
-        }
-        .quick-actions button {
-            background: var(--primary-color);
-            color: #fff; border: none;
-            padding: 6px 12px; border-radius: 4px;
-            margin-left: 10px; cursor: pointer;
-            font-size: 12px;
-        }
-        .quick-actions button.secondary { background: #fff; border: 1px solid #ddd; color: #666; }
-
-        /* 水印 */
-        .watermark {
-            position: fixed; bottom: 50px; right: 50px;
-            font-size: 80px; color: rgba(0,0,0,0.03);
-            pointer-events: none; z-index: 0; transform: rotate(-30deg);
+        /* 智能建议气泡 */
+        .smart-suggestion {
+            background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 100%);
+            border: 1px solid #bae6fd;
         }
 
-        /* 响应式调整 */
-        @media (max-width: 1024px) {
-            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-            .chart-row { grid-template-columns: 1fr; }
-            .bottom-row { grid-template-columns: 1fr; }
-        }
+        /* 库存状态徽章 */
+        .badge-red { background: #fee2e2; color: #ef4444; }
+        .badge-orange { background: #ffedd5; color: #f97316; }
+        .badge-green { background: #dcfce7; color: #22c55e; }
     </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-    <aside class="sidebar">
-        <div class="brand">
-            <i class="fas fa-paw"></i> PetManager
+    <aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+        <div class="h-16 flex items-center justify-center border-b border-slate-700">
+            <h1 class="text-xl font-bold tracking-wider"><i class="fa-solid fa-paw text-blue-400 mr-2"></i>PetMaster</h1>
         </div>
-        <div class="store-selector">
-            <button class="store-select-btn">
-                <span><i class="fas fa-hospital-alt"></i> 中心旗舰店</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <nav class="menu">
-            <a href="#" class="menu-item active"><i class="fas fa-tachometer-alt"></i> 工作台</a>
-            <a href="#" class="menu-item"><i class="fas fa-notes-medical"></i> 医疗中心</a>
-            <a href="#" class="menu-item"><i class="fas fa-user-friends"></i> 会员档案</a>
-            <a href="#" class="menu-item"><i class="fas fa-box-open"></i> 商品库存 <span style="margin-left:auto; font-size:10px; background:var(--warning-color); padding:2px 6px; border-radius:10px;">3</span></a>
-            <a href="#" class="menu-item"><i class="fas fa-cut"></i> 美容寄养</a>
-            <a href="#" class="menu-item"><i class="fas fa-chart-line"></i> 数据报表</a>
-            <a href="#" class="menu-item"><i class="fas fa-cog"></i> 系统设置</a>
+        
+        <nav class="flex-1 py-6 space-y-2">
+            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mb-2">核心管理</div>
+            <a href="#" class="nav-item active flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-chart-line w-6 text-center"></i> <span class="ml-3">首页数据看板</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-box-open w-6 text-center"></i> <span class="ml-3">商品管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-stethoscope w-6 text-center"></i> <span class="ml-3">药品合规专区</span>
+            </a>
+            
+            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mt-6 mb-2">数据决策</div>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-brain w-6 text-center"></i> <span class="ml-3">智能运营分析</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-truck-ramp-box w-6 text-center"></i> <span class="ml-3">库存健康诊断</span>
+            </a>
         </nav>
+
+        <div class="p-4 border-t border-slate-700">
+            <div class="flex items-center gap-3">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4FC3F7&color=fff" class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="text-sm font-medium">超级管理员</p>
+                    <p class="text-xs text-slate-400">Online</p>
+                </div>
+            </div>
+        </div>
     </aside>
 
-    <div class="main-container">
-        
-        <header class="header">
-            <div class="header-left">
-                <h2>工作台 Dashboard</h2>
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+            <div class="text-slate-500 italic text-sm">
+                "不只是管理商品，更是读懂宠物与主人的健康需求"
             </div>
-            <div class="header-right">
-                <div class="icon-btn" title="库存预警">
-                    <i class="fas fa-exclamation-circle" style="color: var(--warning-color);"></i>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button class="px-3 py-1 bg-white rounded shadow text-xs font-medium text-slate-700">今日</button>
+                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本周</button>
+                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本月</button>
                 </div>
-                <div class="icon-btn" title="消息">
-                    <i class="far fa-bell"></i>
-                    <span class="badge">12</span>
+
+                <div class="relative cursor-pointer">
+                    <i class="fa-solid fa-bell text-slate-500 text-lg"></i>
+                    <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
                 </div>
-                <div style="width: 1px; height: 20px; background: #ddd;"></div>
-                <div class="user-profile">
-                    <div class="avatar"></div>
-                    <span>管理员 Admin</span>
-                    <i class="fas fa-caret-down" style="color:#999; font-size: 12px;"></i>
-                </div>
-                <div class="icon-btn"><i class="fas fa-globe"></i> EN/CN</div>
             </div>
         </header>
 
-        <div class="content-scroll">
+        <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
             
-            <div class="dashboard-grid">
-                <div class="card stat-card">
-                    <div class="stat-info">
-                        <h4>今日总收入</h4>
-                        <div class="num">¥ 12,450</div>
-                        <div style="font-size:12px; color:var(--success-color); margin-top:5px;">
-                            <i class="fas fa-arrow-up"></i> 12.5% 环比
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="dashboard-card p-5 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-4 opacity-10">
+                        <i class="fa-solid fa-yen-sign text-6xl text-orange-400"></i>
                     </div>
-                    <div class="stat-icon bg-blue"><i class="fas fa-yen-sign"></i></div>
+                    <p class="text-slate-500 text-sm font-medium">今日销售额</p>
+                    <h3 class="text-3xl font-bold text-slate-800 mt-1">¥18,752</h3>
+                    <p class="text-xs mt-2 text-green-500 flex items-center">
+                        <i class="fa-solid fa-arrow-trend-up mr-1"></i> 环比 +12%
+                    </p>
                 </div>
+
+                <div class="dashboard-card p-5 border-l-4 border-red-500">
+                    <p class="text-slate-500 text-sm font-medium">低库存预警</p>
+                    <div class="flex items-end gap-2 mt-1">
+                        <h3 class="text-3xl font-bold text-red-500">12</h3>
+                        <span class="text-sm text-slate-400 mb-1">个SKU</span>
+                    </div>
+                    <p class="text-xs mt-2 text-slate-500">猫砂、关节护理库存危急</p>
+                </div>
+
+                <div class="dashboard-card p-5">
+                    <p class="text-slate-500 text-sm font-medium">待发货订单</p>
+                    <h3 class="text-3xl font-bold text-slate-800 mt-1">45</h3>
+                    <p class="text-xs mt-2 text-blue-400 cursor-pointer hover:underline">立即处理 ></p>
+                </div>
+
+                <div class="dashboard-card p-5">
+                    <p class="text-slate-500 text-sm font-medium">商品合规率</p>
+                    <h3 class="text-3xl font-bold text-green-600 mt-1">98%</h3>
+                    <p class="text-xs mt-2 text-slate-500">2个药品需补充兽药证</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 
-                <div class="card stat-card">
-                    <div class="stat-info">
-                        <h4>待处理订单</h4>
-                        <div class="num">8</div>
-                        <div style="font-size:12px; color:var(--text-sub); margin-top:5px;">
-                            美容 5 / 医疗 3
-                        </div>
+                <div class="dashboard-card p-6 lg:col-span-1">
+                    <h4 class="font-bold text-slate-700 mb-4">销售品类全景</h4>
+                    <div id="chart-sales-ring" style="height: 250px;"></div>
+                    <div class="text-center text-xs text-slate-400 mt-2">
+                        <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>主粮
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mx-1"></span>用品
+                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mx-1"></span>药品
                     </div>
-                    <div class="stat-icon bg-green"><i class="fas fa-clipboard-list"></i></div>
                 </div>
 
-                <div class="card stat-card">
-                    <div class="stat-info">
-                        <h4>库存预警</h4>
-                        <div class="num" style="color: var(--warning-color);">3</div>
-                        <div style="font-size:12px; color:var(--text-sub); margin-top:5px;">
-                            低库存/临期商品
-                        </div>
+                <div class="dashboard-card p-6 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-700">品类热力地图 <span class="text-xs font-normal text-slate-400 ml-2">(颜色越深销量越高)</span></h4>
+                        <button class="text-xs text-blue-500 border border-blue-500 px-2 py-1 rounded hover:bg-blue-50">导出报告</button>
                     </div>
-                    <div class="stat-icon bg-red"><i class="fas fa-box"></i></div>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-info">
-                        <h4>活跃会员</h4>
-                        <div class="num">156</div>
-                        <div style="font-size:12px; color:var(--text-sub); margin-top:5px;">
-                            本月新增 +24
-                        </div>
-                    </div>
-                    <div class="stat-icon bg-purple"><i class="fas fa-users"></i></div>
+                    <div id="chart-heatmap" style="height: 250px;"></div>
                 </div>
             </div>
 
-            <div class="chart-row">
-                <div class="card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-chart-bar" style="color:var(--primary-color);"></i> 财务营收分析</h3>
-                        <select style="border:1px solid #ddd; padding:4px; border-radius:4px;">
-                            <option>最近7天</option>
-                            <option>本月</option>
-                        </select>
-                    </div>
-                    <div style="height: 300px;">
-                        <canvas id="financeChart"></canvas>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                <div class="card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-heartbeat" style="color:var(--warning-color);"></i> 宠物健康/住院趋势</h3>
+                <div class="dashboard-card overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-green-50">
+                        <h4 class="font-bold text-green-800"><i class="fa-solid fa-file-medical mr-2"></i>药品合规专区</h4>
+                        <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">严格监管</span>
                     </div>
-                    <div style="height: 300px;">
-                        <canvas id="healthChart"></canvas>
+                    
+                    <div class="warning-banner p-3 flex items-start text-xs">
+                        <i class="fa-solid fa-triangle-exclamation mr-2 mt-0.5"></i>
+                        <div>
+                            <strong>系统强制提示：</strong>
+                            "本产品为保健用品，不可替代兽医诊疗。如需健康咨询，请联系专业宠物医院"
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                                <tr>
+                                    <th class="px-2 py-3">商品名称</th>
+                                    <th class="px-2 py-3">资质状态</th>
+                                    <th class="px-2 py-3">用药指南</th>
+                                    <th class="px-2 py-3">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="px-2 py-3 font-medium">体内驱虫片(幼犬)</td>
+                                    <td class="px-2 py-3"><span class="text-green-500"><i class="fa-solid fa-check-circle"></i> 已认证</span></td>
+                                    <td class="px-2 py-3 text-xs text-slate-500">含米尔贝肟，8周以下慎用</td>
+                                    <td class="px-2 py-3"><a href="#" class="text-blue-500 hover:underline">管理</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-2 py-3 font-medium">关节止痛软膏</td>
+                                    <td class="px-2 py-3"><span class="text-red-500"><i class="fa-solid fa-circle-xmark"></i> 缺检测报告</span></td>
+                                    <td class="px-2 py-3 text-xs text-slate-500">仅限外用</td>
+                                    <td class="px-2 py-3"><button class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">立即补全</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                        <h4 class="font-bold text-slate-700">库存健康度诊断</h4>
+                        <div class="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded">
+                            周转率 = 本月销量 / 期初库存
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="smart-suggestion p-3 rounded-lg mb-4 flex gap-3 items-start">
+                            <div class="bg-blue-100 text-blue-500 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <div class="text-sm">
+                                <p class="font-bold text-slate-700">智能建议：</p>
+                                <p class="text-slate-600">用户对"关节护理"咨询量激增300%，建议：①增加科普内容 ②搭配软骨素进行组合促销。</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🐱</div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-700">膨润土猫砂</p>
+                                        <p class="text-xs text-red-500">剩余 72件 (安全线 150件)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded shadow">
+                                    一键补货
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🦴</div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-700">发声橡胶玩具</p>
+                                        <p class="text-xs text-orange-500">周转率 0.3 (严重滞销)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-orange-400 hover:bg-orange-500 text-white text-xs px-3 py-1.5 rounded shadow">
+                                    生成促销案
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="mt-8 text-center text-xs text-slate-400">
+                &copy; 2024 PetMaster Intelligent System. Version 2.1.0
             </div>
 
-            <div class="bottom-row">
-                <div class="card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-clock" style="color:var(--primary-color);"></i> 实时服务队列</h3>
-                        <a href="#" style="font-size:12px; color:var(--primary-color);">查看全部</a>
-                    </div>
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>时间</th>
-                                <th>客户/宠物</th>
-                                <th>服务项目</th>
-                                <th>医生/美容师</th>
-                                <th>状态</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>09:30</td>
-                                <td>张先生 / 咪咪 (猫)</td>
-                                <td>疫苗接种 (妙三多)</td>
-                                <td>王医生</td>
-                                <td><span class="status-tag tag-process">进行中</span></td>
-                            </tr>
-                            <tr>
-                                <td>10:00</td>
-                                <td>李女士 / 豆豆 (柯基)</td>
-                                <td>精致洗护</td>
-                                <td>Lisa</td>
-                                <td><span class="status-tag tag-wait">等待中</span></td>
-                            </tr>
-                            <tr>
-                                <td>10:30</td>
-                                <td>陈小姐 / 旺财</td>
-                                <td>绝育手术</td>
-                                <td>刘主任</td>
-                                <td><span class="status-tag tag-wait">准备术前</span></td>
-                            </tr>
-                            <tr>
-                                <td>09:00</td>
-                                <td>赵先生 / 橙子</td>
-                                <td>体内驱虫</td>
-                                <td>助理小张</td>
-                                <td><span class="status-tag tag-done">已完成</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card">
-                    <div class="chart-header">
-                        <h3><i class="fas fa-calendar-check" style="color:var(--success-color);"></i> 今日提醒事项</h3>
-                    </div>
-                    <ul style="list-style: none;">
-                        <li style="padding: 10px 0; border-bottom: 1px dashed #eee; display:flex; align-items:center;">
-                            <i class="fas fa-syringe" style="color:var(--warning-color); margin-right:10px;"></i>
-                            <div>
-                                <div style="font-size:14px;">疫苗到期提醒 (3条)</div>
-                                <div style="font-size:12px; color:#999;">需联系会员：ID-8821, ID-3321...</div>
-                            </div>
-                            <button style="margin-left:auto; font-size:12px; padding:4px 8px; border:1px solid #ddd; background:none; border-radius:4px; cursor:pointer;">一键推送</button>
-                        </li>
-                        <li style="padding: 10px 0; border-bottom: 1px dashed #eee; display:flex; align-items:center;">
-                            <i class="fas fa-box-open" style="color:var(--warning-color); margin-right:10px;"></i>
-                            <div>
-                                <div style="font-size:14px;">皇家猫粮 K36 补货建议</div>
-                                <div style="font-size:12px; color:#999;">库存剩余: 2袋 (低于警戒值 5)</div>
-                            </div>
-                            <button style="margin-left:auto; font-size:12px; padding:4px 8px; border:1px solid #ddd; background:none; border-radius:4px; cursor:pointer;">生成采购单</button>
-                        </li>
-                        <li style="padding: 10px 0; display:flex; align-items:center;">
-                            <i class="fas fa-birthday-cake" style="color:var(--primary-color); margin-right:10px;"></i>
-                            <div>
-                                <div style="font-size:14px;">今日宠物生日 (5位)</div>
-                                <div style="font-size:12px; color:#999;">系统已自动发送祝福短信</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="watermark">PET PRO</div>
         </div>
-
-        <footer class="footer-bar">
-            <div class="sys-status">
-                <i class="fas fa-server" style="color:#52C41A;"></i> 系统状态: 正常 | 数据库连接: 12ms | 负载: 25%
-            </div>
-            <div class="quick-actions">
-                <button class="secondary"><i class="fas fa-print"></i> 打印交班表</button>
-                <button><i class="fas fa-plus"></i> 新增挂号/订单</button>
-            </div>
-        </footer>
-    </div>
+    </main>
 
     <script>
-        // 1. 财务图表 (混合图：柱状图+折线图)
-        const ctxFinance = document.getElementById('financeChart').getContext('2d');
-        const financeChart = new Chart(ctxFinance, {
-            type: 'bar',
-            data: {
-                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                datasets: [
+        // 定义颜色变量 (与 CSS 一致)
+        const colors = {
+            orange: '#FFA726',
+            blue: '#4FC3F7',
+            green: '#66BB6A',
+            red: '#EF5350'
+        };
+
+        // 1. 初始化销售全景环形图
+        const salesChart = echarts.init(document.getElementById('chart-sales-ring'));
+        const salesOption = {
+            tooltip: { trigger: 'item' },
+            legend: { top: '5%', left: 'center', show: false },
+            series: [
+                {
+                    name: '销售占比',
+                    type: 'pie',
+                    radius: ['40%', '70%'], // 环形
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: { show: false, position: 'center' },
+                    emphasis: {
+                        label: { show: true, fontSize: 20, fontWeight: 'bold' }
+                    },
+                    labelLine: { show: false },
+                    data: [
+                        { value: 42, name: '主粮', itemStyle: { color: colors.orange } },
+                        { value: 18, name: '用品', itemStyle: { color: colors.blue } },
+                        { value: 5, name: '药品', itemStyle: { color: colors.green } },
+                        { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
+                    ]
+                }
+            ]
+        };
+        salesChart.setOption(salesOption);
+
+        // 2. 初始化热力地图 (使用 Treemap 模拟品类热力)
+        const heatmapChart = echarts.init(document.getElementById('chart-heatmap'));
+        const heatmapOption = {
+            tooltip: {
+                formatter: function (info) {
+                    return info.name + ': 营收贡献 ' + info.value + '%';
+                }
+            },
+            series: [{
+                type: 'treemap',
+                width: '100%',
+                height: '100%',
+                roam: false, // 禁止缩放
+                breadcrumb: { show: false },
+                itemStyle: {
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                    gapWidth: 1
+                },
+                data: [
                     {
-                        label: '医疗收入',
-                        data: [4500, 5200, 4800, 6100, 5500, 12000, 13500],
-                        backgroundColor: '#1890FF',
-                        borderRadius: 4
+                        name: '全价猫粮',
+                        value: 30,
+                        itemStyle: { color: 'rgba(255, 167, 38, 1)' } // 深橙色 (爆款)
                     },
                     {
-                        label: '商品/美容',
-                        data: [2000, 2500, 2200, 3000, 3200, 8000, 9000],
-                        backgroundColor: '#52C41A',
-                        borderRadius: 4
+                        name: '冻干零食',
+                        value: 20,
+                        itemStyle: { color: 'rgba(255, 167, 38, 0.8)' }
                     },
                     {
-                        type: 'line',
-                        label: '净利润率',
-                        data: [3000, 3500, 3200, 4000, 3800, 9000, 10000],
-                        borderColor: '#FA541C',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: false
+                        name: '猫砂用品',
+                        value: 15,
+                        itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } // 深蓝色
+                    },
+                    {
+                        name: '驱虫药',
+                        value: 8,
+                        itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } // 绿色
+                    },
+                    {
+                        name: '智能饮水机',
+                        value: 12,
+                        itemStyle: { color: 'rgba(79, 195, 247, 0.6)' }
+                    },
+                    {
+                        name: '保健品',
+                        value: 5,
+                        itemStyle: { color: 'rgba(102, 187, 106, 0.5)' }
+                    },
+                    {
+                        name: '狗粮',
+                        value: 10,
+                        itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } // 浅橙色
                     }
                 ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
-                    x: { grid: { display: false } }
-                }
-            }
+            }]
+        };
+        heatmapChart.setOption(heatmapOption);
+
+        // 窗口大小改变时重绘图表
+        window.addEventListener('resize', function() {
+            salesChart.resize();
+            heatmapChart.resize();
         });
 
-        // 2. 健康趋势图 (线图)
-        const ctxHealth = document.getElementById('healthChart').getContext('2d');
-        const healthChart = new Chart(ctxHealth, {
-            type: 'line',
-            data: {
-                labels: ['1日', '2日', '3日', '4日', '5日', '6日', '7日'],
-                datasets: [{
-                    label: '住院宠物数量',
-                    data: [5, 6, 8, 7, 5, 4, 6],
-                    borderColor: '#1890FF',
-                    backgroundColor: 'rgba(24, 144, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }, {
-                    label: '重症预警',
-                    data: [1, 1, 2, 0, 0, 1, 0],
-                    borderColor: '#FA541C',
-                    borderDash: [5, 5],
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
+        // 模拟库存不足弹窗逻辑 (页面加载后3秒演示)
+        setTimeout(() => {
+            // 在实际项目中这里会是一个更好看的 Modal，这里仅做 Console 或简单的 Toast 演示
+            console.log("⚠️ 系统提示：猫砂库存低于30件，请注意补货！");
+        }, 3000);
     </script>
 </body>
 </html>

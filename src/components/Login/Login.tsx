@@ -1,7 +1,7 @@
 // src/components/Login/Login.tsx
 
 import React, { useState, useEffect } from 'react';
-import { Dialog as Modal, Button } from 'react-vant';
+import { Modal, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import { useAuthContext } from '../../auth/AuthContext';
@@ -75,17 +75,6 @@ const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
   }; return (
     <Modal
       visible={visible}
-      onClose={() => {
-        if (onClose) {
-          onClose();
-        } else {
-          navigate(-1);
-        }
-      }}
-      title="管理员登录"
-      showCancelButton
-      confirmButtonText={authLoading ? "登录中..." : "登录"}
-      cancelButtonText="关闭"
       onCancel={() => {
         if (onClose) {
           onClose();
@@ -93,11 +82,13 @@ const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
           navigate(-1);
         }
       }}
-      onConfirm={authLoading ? undefined : handleLogin}
+      title="管理员登录"
+      okText={authLoading ? "登录中..." : "登录"}
+      cancelText="关闭"
+      onOk={authLoading ? undefined : handleLogin}
       className="tiktok-login-modal"
-      closeOnClickOverlay={false}
-      // 禁用默认确认按钮颜色逻辑，由 CSS 控制
-      confirmButtonColor=""
+      maskClosable={false}
+      confirmLoading={authLoading}
     >
       <div className="login-content">
         {error && <div className="error-message">{error}</div>}

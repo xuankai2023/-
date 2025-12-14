@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
-import { Card, Grid, GridItem, Image } from 'react-vant';
+import { Card, Row, Col } from 'antd';
 import './Record.css';
 import { petRecords, petTypes } from '../../mock/petData';
 
@@ -50,12 +50,12 @@ const Record = () => {
           <div className="record-page-container">
             {/* 宠物类型卡片网格（5 个并排） */}
             <div className="pet-type-grid-container">
-              <Grid columnNum={5} gutter={12}>
+              <Row gutter={12}>
                 {petTypes.map((type) => {
                   const count = getPetCountByType(type.id);
                   const iconPath = getPetTypeIcon(type.id);
                   return (
-                    <GridItem key={type.id}>
+                    <Col key={type.id} xs={24} sm={12} md={8} lg={6} xl={5.5}>
                       <Card
                         className="pet-type-card"
                         style={{
@@ -68,11 +68,11 @@ const Record = () => {
                       >
                         <div className="pet-type-card-content">
                           <div className="pet-type-icon-wrapper">
-                            <Image
+                            <img
                               src={iconPath}
                               alt={type.name}
                               className="pet-type-icon"
-                              fit="contain"
+                              style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                             />
                           </div>
                           <h3 className="pet-type-name">{type.name}</h3>
@@ -83,16 +83,16 @@ const Record = () => {
                           </div>
                         </div>
                       </Card>
-                    </GridItem>
+                    </Col>
                   );
                 })}
-              </Grid>
+              </Row>
             </div>
 
-            {/* 宠物信息卡片（1 行 4 个） */}
+            {/* 宠物信息卡片 */}
             <div className="pet-summary-grid">
-              {petRecords.slice(0, 4).map((pet) => (
-                <Card key={pet.id} className="pet-summary-card">
+              {petRecords.map((pet) => (
+                <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
                   <div className="pet-summary-card-header">
                     <div className="pet-summary-avatar">
                       <img src={pet.avatar} alt={pet.name} />

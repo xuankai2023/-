@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Toast, Space, Badge } from 'react-vant';
-import { ChatO } from '@react-vant/icons';
+import { Input, message, Space, Badge } from 'antd';
+import { MessageOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import './Header.css';
+
+const { Search } = Input;
 
 
 interface User {
@@ -33,28 +35,20 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       <div className='header-right'>
         <Search
           value={value}
-          onChange={setValue}
+          onChange={(e) => setValue(e.target.value)}
           placeholder="请输入搜索关键词"
-          showAction
           onSearch={(val) => {
-            Toast(val);
+            message.info(val);
             setValue(val);
           }}
-          onCancel={() => {
-            Toast('取消');
-            setValue('');
-          }}
-          onClear={() => {
-            Toast('清除');
-            setValue('');
-          }}
-          onClickInput={() => {
-            Toast('点击输入区域时触发	');
+          allowClear
+          onPressEnter={() => {
+            message.info(value);
           }}
         />
-        <Space className='demo-icon' gap={20}>
+        <Space className='demo-icon' size={20}>
           <Badge dot>
-            <ChatO />
+            <MessageOutlined />
           </Badge>
         </Space>
         <img src="/images/png/admin.png" alt="管理员头像" />

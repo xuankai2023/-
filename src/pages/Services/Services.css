@@ -1,0 +1,570 @@
+:root {
+  /* 核心配色 */
+  --primary-blue: #2A9D8F;
+  --secondary-green: #81B29A;
+  --alert-red: #E76F51;
+  --sidebar-bg: #1D3557;
+  --bg-color: #F4F6F8;
+  --text-dark: #264653;
+  --text-light: #8d99ae;
+  --white: #ffffff;
+  --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* 服务页面容器 */
+.services-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* 主内容区域 */
+.services-main {
+  flex: 1;
+  overflow: auto;
+  background-color: var(--bg-color);
+}
+
+/* 顶部导航栏 */
+.services-topbar {
+  background: var(--white);
+  height: 70px;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  position: relative;
+  top: 0;
+  z-index: 100;
+}
+/* 紧急指挥中心 */
+.emergency-banner {
+  background: linear-gradient(135deg, #E76F51 0%, #d65a3b 100%);
+  border-radius: 12px;
+  padding: 15px 15px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(231, 111, 81, 0.3);
+  margin: 0px 0px;
+}
+
+.emergency-left h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emergency-stats {
+  display: flex;
+  gap: 40px;
+}
+
+.stat-item h4 {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.stat-item p {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.pulse-dot {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-danger {
+  background: white;
+  color: var(--alert-red);
+  font-weight: bold;
+}
+/* 搜索栏 */
+.services-search {
+  background: var(--bg-color);
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 400px;
+  color: var(--text-light);
+}
+
+.services-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  color: var(--text-dark);
+}
+
+/* 顶部操作按钮 */
+.services-actions {
+  display: flex;
+  gap: 20px;
+}
+
+.icon-btn {
+  position: relative;
+  cursor: pointer;
+  color: var(--text-dark);
+  font-size: 18px;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--alert-red);
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 10px;
+}
+.services-grid-container {
+  grid-column: span 4;
+  margin-top: 20px;
+}
+/* 仪表盘容器 */
+.dashboard-container {
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 5px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto 1fr;
+  gap: 24px;
+}
+
+/* 1. 急诊指挥中心 (Emergency Banner) */
+.emergency-banner {
+  grid-column: span 12;
+  background: linear-gradient(135deg, #E76F51 0%, #d65a3b 100%);
+  border-radius: 12px;
+  padding: 20px 30px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(231, 111, 81, 0.3);
+}
+
+.emergency-left h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emergency-stats {
+  display: flex;
+  gap: 40px;
+}
+
+.stat-item h4 {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.stat-item p {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.pulse-dot {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* 2. 核心指标卡片 (Metrics) */
+.metric-card {
+  grid-column: span 3;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-light);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.metric-trend {
+  font-size: 12px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.trend-up {
+  color: var(--secondary-green);
+}
+
+.trend-down {
+  color: var(--alert-red);
+}
+
+/* 3. 通用卡片样式 */
+.section-card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px;
+  margin: 0px;
+}
+
+/* 4. 服务队列 */
+.service-queue {
+  grid-column: span 8;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-blue);
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.patient-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-surgery {
+  background: rgba(231, 111, 81, 0.1);
+  color: var(--alert-red);
+}
+
+.status-waiting {
+  background: rgba(42, 157, 143, 0.1);
+  color: var(--primary-blue);
+}
+
+/* 5. 服务日程 */
+.service-schedule {
+  grid-column: span 4;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 35px;
+  bottom: -25px;
+  width: 2px;
+  background: #eee;
+}
+
+.timeline-item:last-child::before {
+  display: none;
+}
+
+.time-box {
+  background: var(--bg-color);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  height: fit-content;
+  color: var(--text-light);
+}
+
+.event-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.event-desc {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+/* 6. 数据图表区域 */
+.chart-section {
+  grid-column: span 8;
+  height: 350px;
+}
+
+/* 7. 快速操作区域 */
+.quick-actions {
+  grid-column: span 4;
+}
+
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 8. 服务项目网格 */
+.services-grid {
+  grid-column: span 12;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.services-grid .card-body {
+  padding: 0;
+  width: 100%;
+}
+
+/* 网格项样式 */
+.van-grid-item {
+  text-align: center;
+}
+
+.van-grid-item__content {
+  padding: 10px;
+}
+
+.van-grid-item__icon {
+  font-size: 24px;
+  color: var(--primary-blue);
+  margin-bottom: 5px;
+}
+
+.van-grid-item__text {
+  font-size: 12px;
+  color: var(--text-dark);
+}
+
+/* 按钮样式 */
+.card-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primary-btn {
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.primary-btn:hover {
+  background: #21867a;
+}
+
+/* 服务日程样式 */
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-left: 20px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 35px;
+  bottom: -25px;
+  width: 2px;
+  background: #eee;
+}
+
+.timeline-item:last-child::before {
+  display: none;
+}
+
+.time-box {
+  background: var(--bg-color);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  height: fit-content;
+  color: var(--text-light);
+  margin-right: 10px;
+}
+
+.event-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.event-desc {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+/* 图表占位符 */
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+.echarts-chart {
+  height: 100%;
+  width: 100%;
+}
+
+.chart-placeholder i {
+  font-size: 48px;
+  color: #C0C4CC;
+}
+/* 图表样式 */
+/* 队列信息 */
+.queue-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.queue-name {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.queue-service {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.queue-time {
+  font-weight: 600;
+  color: var(--primary-blue);
+}

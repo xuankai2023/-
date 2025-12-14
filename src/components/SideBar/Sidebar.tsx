@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { Toast } from 'react-vant';
-import { ArrowLeft, ArrowDown } from '@react-vant/icons';
+import React, { useState, useEffect } from 'react';
+import { message } from 'antd';
+import { LeftOutlined, DownOutlined } from '@ant-design/icons';
 import './Sidebar.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default () => {
   const [active, setActive] = useState(0);
   const [petTypeActive, setPetTypeActive] = useState<number | null>(null);
   const [petRecordsExpanded, setPetRecordsExpanded] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLeft, setIsLeft] = useState(true); // true 表示显示 ArrowLeft
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // 控制菜单栏收缩状态
-
+// 1. 点击箭头图标时 只执行 toggleArrow 函数
+//2. 事件不会冒泡到主菜单项，避免 handleSidebarChange 函数被意外触发
+//3. 实现了子菜单展开/收起操作的独立性，与主菜单项的点击行为解耦
   const toggleArrow = (e: React.MouseEvent) => {
     e.stopPropagation(); // 阻止事件冒泡
     const newExpanded = !petRecordsExpanded;
@@ -31,6 +34,24 @@ export default () => {
     '/admin'
   ];
 
+  // 根据当前路由更新active状态
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const index = routeMap.findIndex(route => 
+      currentPath === route || currentPath.startsWith(route + '/')
+    );
+    if (index !== -1) {
+      setActive(index);
+    } else {
+      setActive(0); // 默认高亮宠物档案
+    }
+    // 如果当前路由不是/record开头，确保子菜单是收起状态
+    if (!currentPath.startsWith('/record')) {
+      setPetRecordsExpanded(false);
+      setIsLeft(true);
+    }
+  }, [location.pathname]);
+
   // 宠物类型子菜单
   const petTypes = [
     { name: '猫咪', path: '/record/cat' },
@@ -46,16 +67,16 @@ export default () => {
     setPetTypeActive(null);
 
     if (index === 0) {
-      // 切换宠物档案子菜单展开状态
-      const newExpanded = !petRecordsExpanded;
-      setPetRecordsExpanded(newExpanded);
-      // 同步更新箭头方向
-      setIsLeft(!newExpanded);
-      // 展开菜单栏时取消收缩状态
-      setSidebarCollapsed(false);
-      // 可选：点击父项也跳转到默认页面
-      navigate(routeMap[0]);
-      Toast.info('已切换到宠物档案');
+        // 切换宠物档案子菜单展开状态
+        const newExpanded = !petRecordsExpanded;
+        setPetRecordsExpanded(newExpanded);
+        // 同步更新箭头方向
+        setIsLeft(!newExpanded);
+        // 展开菜单栏时取消收缩状态
+        setSidebarCollapsed(false);
+        // 可选：点击父项也跳转到默认页面
+        navigate(routeMap[0]);
+        message.info('已切换到宠物档案');
     } else {
       setPetRecordsExpanded(false);
       setIsLeft(true); // 关闭其他菜单时重置箭头状态为向上
@@ -65,7 +86,7 @@ export default () => {
       if (route) {
         navigate(route);
         const titles = ['宠物档案', '订单', '服务', '疫苗接种', '寄养情况', '数据统计'];
-        Toast.info(`已切换到${titles[index]}`);
+        message.info(`已切换到${titles[index]}`);
       }
     }
   };
@@ -74,7 +95,7 @@ export default () => {
   const handlePetTypeClick = (path: string, index: number) => {
     setPetTypeActive(index);
     navigate(path);
-    Toast.info(`已筛选：${petTypes[index].name}`);
+    message.info(`已筛选：${petTypes[index].name}`);
     // 点击子菜单项时收缩整个菜单栏
     setPetRecordsExpanded(false);
     setIsLeft(true);
@@ -106,9 +127,9 @@ export default () => {
               {item.hasSubmenu && !sidebarCollapsed && (
                 <div className="arrow-icon" onClick={(e) => toggleArrow(e)}>
                   {isLeft ? (
-                    <ArrowLeft />
+                    <LeftOutlined />
                   ) : (
-                    <ArrowDown />
+                    <DownOutlined />
                   )}
                 </div>
               )}

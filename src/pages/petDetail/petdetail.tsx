@@ -1,360 +1,365 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
-import { Button, Card } from 'react-vant';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from '@react-vant/icons';
+import { Button } from 'antd';
 import { petRecords } from '../../mock/petData';
 import * as echarts from 'echarts';
 import './petdetail.css';
 
-interface PetInfo {
-  id: string;
-  name: string;
-  breed: string;
-  age: string;
-  weight: string;
-  gender: string;
-  avatar: string;
-}
+// 计算宠物年龄
+const calculateAge = (birthDate: string): string => {
+  const birth = new Date(birthDate);
+  const now = new Date();
+  let years = now.getFullYear() - birth.getFullYear();
+  let months = now.getMonth() - birth.getMonth();
+  
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  
+  return `${years}岁${months}个月`;
+};
 
-// 健康趋势监测图表组件
-const HealthTrendChart: React.FC = () => {
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const chartInstance = React.useRef<echarts.ECharts>();
-
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    chartInstance.current = echarts.init(chartRef.current);
-
-    const option = {
-      title: {
-        text: '健康趋势监测',
-        left: 'left',
-        textStyle: {
-          color: '#333',
-          fontSize: 18,
+function PetDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  // 从mock数据中获取宠物信息
+  const petInfo = petRecords.find(pet => pet.id === id) || petRecords[2];
+  
+  // 体重趋势图引用
+  const weightChartRef = useRef<HTMLDivElement>(null);
+  const weightChartInstance = useRef<echarts.ECharts | null>(null);
+  
+  // 雷达图引用
+  const radarChartRef = useRef<HTMLDivElement>(null);
+  const radarChartInstance = useRef<echarts.ECharts | null>(null);
+  
+  // 初始化图表
+  useEffect(() => {
+    // 1. 体重趋势图
+    if (weightChartRef.current) {
+      weightChartInstance.current = echarts.init(weightChartRef.current);
+      const weightOption = {
+        tooltip: { trigger: 'axis' },
+        grid: { top: '10%', left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: ['7月', '8月', '9月', '10月', '11月', '12月'],
+          axisLine: { lineStyle: { color: '#94a3b8' } }
         },
-        padding: [0, 0, 0, 20],
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow',
-        },
-      },
-      legend: {
-        data: ['体重变化 (kg)', '每日食量 (g)'],
-        top: '5%',
-        right: '10%',
-        textStyle: {
-          fontSize: 14,
-        },
-      },
-      xAxis: {
-        type: 'category',
-        data: ['6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        axisLabel: {
-          color: '#666',
-        },
-        axisLine: {
-          lineStyle: {
-            color: '#ccc',
-          },
-        },
-      },
-      yAxis: [
-        {
+        yAxis: {
           type: 'value',
-          name: '体重(kg)',
-          position: 'left',
-          min: 4.5,
-          max: 5.2,
-          interval: 0.1,
-          axisLabel: {
-            color: '#666',
-          },
-          splitLine: {
-            lineStyle: {
-              color: '#eee',
-            },
-          },
+          min: 25,
+          max: 32,
+          axisLine: { show: false },
+          splitLine: { lineStyle: { type: 'dashed', color: '#e2e8f0' } }
         },
-        {
-          type: 'value',
-          name: '食量(g)',
-          position: 'right',
-          min: 60,
-          max: 76,
-          interval: 2,
-          axisLabel: {
-            color: '#666',
-          },
-          splitLine: {
-            show: false,
-          },
-          axisLine: {
-            lineStyle: {
-              color: '#ccc',
-            },
-          },
-        },
-      ],
-      series: [
-        {
-          name: '体重变化 (kg)',
+        series: [{
+          name: '体重 (kg)',
           type: 'line',
-          yAxisIndex: 0,
           smooth: true,
-          lineStyle: {
-            color: '#1890ff',
-            width: 2,
-          },
+          data: [27.2, 27.5, 27.8, 28.1, 28.3, 28.5],
+          itemStyle: { color: '#3b82f6' },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(24, 144, 255, 0.3)' },
-              { offset: 1, color: 'rgba(24, 144, 255, 0.1)' },
-            ]),
-          },
-          symbol: 'circle',
-          symbolSize: 8,
-          itemStyle: {
-            color: '#1890ff',
-          },
-          data: [4.5, 4.6, 4.6, 4.8, 5.0, 5.1, 5.2],
+              { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+              { offset: 1, color: 'rgba(59, 130, 246, 0.01)' }
+            ])
+          }
+        }]
+      };
+      weightChartInstance.current.setOption(weightOption);
+    }
+    
+    // 2. 健康雷达图 (行为观察)
+    if (radarChartRef.current) {
+      radarChartInstance.current = echarts.init(radarChartRef.current);
+      const radarOption = {
+        tooltip: {},
+        radar: {
+          indicator: [
+            { name: '精神状态', max: 100 },
+            { name: '食欲', max: 100 },
+            { name: '活动量', max: 100 },
+            { name: '排泄情况', max: 100 },
+            { name: '社交互动', max: 100 }
+          ],
+          splitArea: { show: true, areaStyle: { color: ['#f8fafc', '#f1f5f9'] } },
+          axisName: { color: '#64748b' }
         },
-        {
-          name: '每日食量 (g)',
-          type: 'line',
-          yAxisIndex: 1,
-          smooth: true,
-          lineStyle: {
-            color: '#52c41a',
-            width: 2,
-            type: 'dashed',
-          },
-          symbol: 'circle',
-          symbolSize: 8,
-          itemStyle: {
-            color: '#52c41a',
-          },
-          data: [60, 66, 66, 70, 75, 68, 65],
-        },
-      ],
-      grid: {
-        left: '10%',
-        right: '10%',
-        bottom: '15%',
-        containLabel: true,
-      },
+        series: [{
+          name: '健康评分',
+          type: 'radar',
+          data: [{
+            value: [95, 90, 85, 92, 88],
+            name: '当前状态',
+            itemStyle: { color: '#10b981' },
+            areaStyle: { color: 'rgba(16, 185, 129, 0.4)' }
+          }]
+        }]
+      };
+      radarChartInstance.current.setOption(radarOption);
+    }
+    
+    // 窗口大小改变时重绘图表
+    const handleResize = () => {
+      weightChartInstance.current?.resize();
+      radarChartInstance.current?.resize();
     };
-
-    chartInstance.current.setOption(option);
-
+    
+    window.addEventListener('resize', handleResize);
+    
+    // 清理函数
     return () => {
-      if (chartInstance.current) {
-        chartInstance.current.dispose();
-      }
+      window.removeEventListener('resize', handleResize);
+      weightChartInstance.current?.dispose();
+      radarChartInstance.current?.dispose();
     };
   }, []);
 
   return (
-    <div className="health-trend-chart">
-      <div ref={chartRef} style={{ width: '100%', height: '400px' }} />
-      <div className="chart-note">
-        <span>ℹ️ 行为观察：11月活动量有所下降，可能与气温降低有关，建议增加室内互动玩具。</span>
-      </div>
-    </div>
-  );
-};
+    <div className="pet-detail-container">
+      {/* 左侧侧边栏 */}
+      <Sidebar />
+      
+      {/* 主内容区域 */}
+      <main>
+        {/* 顶部 Header */}
+        <header>
+          <div>
+            <Button type="primary" onClick={() => navigate('/record')}>
+              <i className="fa-solid fa-arrow-left mr-1"></i> 返回
+            </Button>
+          </div>
+          <div>
+            <button>
+              <i className="fa-solid fa-print mr-1"></i> 导出报告
+            </button>
+            <button>
+              <i className="fa-solid fa-pen-to-square mr-1"></i> 更新数据
+            </button>
+          </div>
+        </header>
 
-function PetDetail() {
-  // 从mock数据中获取宠物信息
-  const petInfo = petRecords[2]; // 使用第三只宠物"咪咪"的信息
-  
-  // 计算宠物年龄
-  const calculateAge = (birthDate: string): string => {
-    const birth = new Date(birthDate);
-    const now = new Date();
-    let years = now.getFullYear() - birth.getFullYear();
-    let months = now.getMonth() - birth.getMonth();
-    
-    if (months < 0) {
-      years--;
-      months += 12;
-    }
-    
-    return `${years}岁${months}个月`;
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* 顶部导航栏 */}
-      <Header />
-
-      {/* 主体：左侧菜单 + 右侧内容 */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* 左侧侧边栏 */}
-        <Sidebar />
-
-        {/* 主内容区 */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f5f5f5' }}>
-          <div className="pet-detail-container">
-            {/* 顶部区域：宠物基本信息 + 健康概览 + 特殊需求 */}
-            <div className="pet-top-section">
-              {/* 左侧列：宠物基本信息卡片 + 特殊需求卡片 */}
-              <div className="pet-left-column">
-                {/* 宠物基本信息卡片 - 左侧 */}
-                <Card className="pet-basic-info">
-                  <div className="pet-avatar-section">
-                    <div className="pet-avatar">
-                      🐱
-                    </div>
-                    <h2>{petInfo.name}</h2>
-                    <div className="pet-id-status">
-                      <span>ID: {petInfo.id}</span>
-                      <span className="status-tag">存活</span>
-                    </div>
-                  </div>
-                  
-                  <div className="pet-details">
-                    <div className="detail-item">
-                      <span className="detail-label">品种</span>
-                      <span className="detail-value">{petInfo.breed}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">性别</span>
-                      <span className="detail-value">{petInfo.gender === 'female' ? '母' : '公'}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">年龄</span>
-                      <span className="detail-value">{calculateAge(petInfo.birthDate)}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">体重</span>
-                      <span className="detail-value">{petInfo.weight} kg</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">毛色</span>
-                      <span className="detail-value">{petInfo.furColor}</span>
-                    </div>
-                  </div>
-                </Card>
-                
-                {/* 特殊需求卡片 - 宠物基本信息下方 */}
-                <Card className="special-requirements">
-                  <h3>特殊需求 & 备注</h3>
-                  
-                  <div className="allergies">
-                    <div className="allergy-header">
-                      <span>⚠️</span>
-                      <span>严重过敏</span>
-                    </div>
-                    <div className="allergy-list">
-                      <div className="allergy-item">青霉素</div>
-                      <div className="allergy-item">海鲜类罐头</div>
-                    </div>
-                  </div>
-                  
-                  <div className="emergency-contact">
-                    <div className="contact-header">紧急联系人</div>
-                    <div className="contact-info">
-                      <div className="contact-name">张先生 (主人)</div>
-                      <div className="contact-phone">138-8888-8888</div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-              
-              {/* 右侧列：健康概览 + 健康趋势监测 - 占满剩余空间 */}
-              <div className="pet-right-column">
-                {/* 健康概览卡片 */}
-                <Card className="health-overview">
-                  <h3>健康概览</h3>
-                  <div className="health-items">
-                    <div className="health-item">
-                      <div className="health-label">健康评级</div>
-                      <div className="health-value">良好 (A)</div>
-                      <div className="health-desc">无重大疾病</div>
-                    </div>
-                    <div className="health-item">
-                      <div className="health-label">疫苗状态</div>
-                      <div className="health-value">已接种</div>
-                      <div className="health-desc">猫三联 (2025/11 到期)</div>
-                    </div>
-                    <div className="health-item">
-                      <div className="health-label">体内外驱虫</div>
-                      <div className="health-value warning">待处理</div>
-                      <div className="health-desc">逾期 5 天</div>
-                    </div>
-                    <div className="health-item">
-                      <div className="health-label">下次体检</div>
-                      <div className="health-value info">2025-12-20</div>
-                      <div className="health-desc">剩余 14 天</div>
-                    </div>
-                  </div>
-                </Card>
-                
-                {/* 健康趋势监测图表 */}
-                <div className="chart-card">
-                  <HealthTrendChart />
-                </div>
-              </div>
+        {/* 内容滚动区 */}
+        <div className="content-scroll-area">
+          {/* 1. 顶部概览卡片 */}
+          <div className="pet-top-section">
+            {/* 头像 */}
+            <div className="pet-avatar-section">
+              <img src={petInfo.avatar} alt={petInfo.name} />
+              <span className="status-tag">健康</span>
             </div>
             
-            {/* 底部区域：医疗历史记录 + 近期消费记录 */}
-            <div className="pet-bottom-section">
-              {/* 医疗历史记录卡片 */}
-              <Card className="medical-history">
-                <div className="card-header">
-                  <h3>医疗历史记录</h3>
-                  <Button size="small" type="primary" style={{ borderRadius: '6px', backgroundColor: '#1890ff' }}>更新状态</Button>
+            {/* 基础信息 */}
+            <div className="pet-basic-info">
+              <div>
+                <div>
+                  <h2>
+                    {petInfo.name}
+                    <i className={`fa-solid ${petInfo.gender === 'female' ? 'fa-venus text-pink-400' : 'fa-mars text-blue-400'} text-lg`} title={petInfo.gender === 'female' ? '母' : '公'}></i>
+                  </h2>
+                  <p className="pet-id">ID: {petInfo.id}</p>
                 </div>
-                
-                <div className="medical-record">
-                  <div className="record-header">
-                    <div className="record-date">
-                      <span className="date-dot"></span>
-                      <span className="record-date-text">2025-11-05</span>
-                    </div>
-                  </div>
-                  <div className="record-desc">年度体检 & 疫苗接种</div>
-                  <div className="record-detail">体检结果正常，常规生化检查正常。</div>
-                </div>
-              </Card>
+                <span className="sterilized-tag">已绝育</span>
+              </div>
               
-              {/* 近期消费记录卡片 */}
-              <Card className="transaction-history">
-                <div className="card-header">
-                  <h3>近期消费记录</h3>
-                  <div className="transaction-filter">
-                    <span className="filter-text">2025年</span>
-                    <span className="filter-arrow">▼</span>
-                  </div>
+              <div className="pet-details">
+                <div className="detail-item">
+                  <p className="detail-label">品种</p>
+                  <p className="detail-value">{petInfo.breed}</p>
                 </div>
-                
-                <div className="transaction-list">
-                  <div className="transaction-item">
-                    <div>
-                      <div className="transaction-date">2025-11-05</div>
-                      <div className="transaction-desc">体检套餐</div>
-                    </div>
-                    <div className="transaction-amount">¥380</div>
-                  </div>
-                  <div className="transaction-item">
-                    <div>
-                      <div className="transaction-date">2025-10-20</div>
-                      <div className="transaction-desc">疫苗接种</div>
-                    </div>
-                    <div className="transaction-amount">¥120</div>
-                  </div>
+                <div className="detail-item">
+                  <p className="detail-label">年龄</p>
+                  <p className="detail-value">{calculateAge(petInfo.birthDate)}</p>
                 </div>
-              </Card>
+                <div className="detail-item">
+                  <p className="detail-label">体重</p>
+                  <p className="detail-value">{petInfo.weight} kg <span style={{ fontSize: '12px', color: 'var(--success)', fontWeight: 400, backgroundColor: '#d1fae5', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px' }}>标准</span></p>
+                </div>
+                <div className="detail-item">
+                  <p className="detail-label">毛色</p>
+                  <p className="detail-value">{petInfo.furColor}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* 2. 核心健康指标 (实时数据) */}
+          <div className="health-overview">
+            <h3>
+              <i className="fa-solid fa-heart-pulse"></i> 最新生命体征
+              <span>更新时间: 2025-12-10 14:30</span>
+            </h3>
+            <div className="health-items">
+              {/* 体温 */}
+              <div className="health-item">
+                <div>
+                  <span>体温 (℃)</span>
+                  <i className="fa-solid fa-temperature-half" style={{ color: '#f87171' }}></i>
+                </div>
+                <div className="health-value">38.5</div>
+                <div className="health-desc">
+                  <i className="fa-solid fa-circle-check"></i> 正常范围 (38.0-39.0)
+                </div>
+              </div>
+              
+              {/* 心率 */}
+              <div className="health-item">
+                <div>
+                  <span>心率 (bpm)</span>
+                  <i className="fa-solid fa-heart" style={{ color: '#ef4444' }}></i>
+                </div>
+                <div className="health-value">82</div>
+                <div className="health-desc">
+                  <i className="fa-solid fa-circle-check"></i> 正常范围 (60-140)
+                </div>
+              </div>
+              
+              {/* 呼吸 */}
+              <div className="health-item">
+                <div>
+                  <span>呼吸频率 (次/分)</span>
+                  <i className="fa-solid fa-lungs" style={{ color: '#60a5fa' }}></i>
+                </div>
+                <div className="health-value">24</div>
+                <div className="health-desc">
+                  <i className="fa-solid fa-circle-check"></i> 正常范围 (10-30)
+                </div>
+              </div>
+              
+              {/* 黏膜 */}
+              <div className="health-item">
+                <div>
+                  <span>黏膜颜色</span>
+                  <i className="fa-regular fa-eye" style={{ color: '#94a3b8' }}></i>
+                </div>
+                <div className="health-value pink">粉红</div>
+                <div className="health-desc">
+                  <i className="fa-solid fa-circle-check"></i> 健康状态
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. 数据可视化图表 */}
+          <div className="chart-section">
+            {/* 左侧：体重趋势图 */}
+            <div className="chart-card">
+              <h3>体重变化趋势 (近6个月)</h3>
+              <div ref={weightChartRef} className="chart-container" />
+            </div>
+            
+            {/* 右侧：健康行为雷达图 */}
+            <div className="chart-card">
+              <h3>行为与状态评估</h3>
+              <div ref={radarChartRef} className="chart-container" />
+            </div>
+          </div>
+
+          {/* 4. 详细检查与记录模块 */}
+          <div className="records-section">
+            {/* 体格检查记录 */}
+            <div className="records-card">
+              <div className="records-card-header">
+                <h3>最新体格检查</h3>
+                <span>检查人: Dr. Wang</span>
+              </div>
+              <div className="examination-list">
+                  <div className="examination-item">
+                    <div>
+                      <div className="examination-icon">
+                        <i className="fa-solid fa-dog"></i>
+                      </div>
+                      <span className="examination-name">皮肤与毛发</span>
+                    </div>
+                    <span className="examination-status normal">无异常</span>
+                  </div>
+                  <div className="examination-item">
+                    <div>
+                      <div className="examination-icon">
+                        <i className="fa-solid fa-eye"></i>
+                      </div>
+                      <span className="examination-name">眼睛/视力</span>
+                    </div>
+                    <span className="examination-status normal">角膜透明</span>
+                  </div>
+                  <div className="examination-item">
+                    <div>
+                      <div className="examination-icon">
+                        <i className="fa-solid fa-tooth"></i>
+                      </div>
+                      <span className="examination-name">口腔健康</span>
+                    </div>
+                    <span className="examination-status warning">轻微牙结石</span>
+                  </div>
+                  <div className="examination-item">
+                    <div>
+                      <div className="examination-icon">
+                        <i className="fa-solid fa-ear-listen"></i>
+                      </div>
+                      <span className="examination-name">耳道检查</span>
+                    </div>
+                    <span className="examination-status normal">干净无异味</span>
+                  </div>
+              </div>
+            </div>
+
+            {/* 疫苗与驱虫计划 */}
+            <div className="records-card">
+              <div className="records-card-header">
+                <h3>免疫与驱虫记录</h3>
+                <button>查看全部</button>
+              </div>
+              <div>
+                <table className="vaccination-table">
+                  <thead>
+                    <tr>
+                      <th>项目</th>
+                      <th>类型</th>
+                      <th>日期</th>
+                      <th>状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="vaccine-name">狂犬疫苗</td>
+                      <td className="vaccine-type">疫苗</td>
+                      <td className="vaccine-date">2025-03-15</td>
+                      <td><span className="vaccine-status completed">已完成</span></td>
+                    </tr>
+                    <tr>
+                      <td className="vaccine-name">爱沃克 (体内外)</td>
+                      <td className="vaccine-type">驱虫</td>
+                      <td className="vaccine-date">2025-11-01</td>
+                      <td><span className="vaccine-status completed">已完成</span></td>
+                    </tr>
+                    <tr>
+                      <td className="vaccine-name">八联疫苗 (加强)</td>
+                      <td className="vaccine-type">疫苗</td>
+                      <td className="vaccine-date">2025-12-20</td>
+                      <td><span className="vaccine-status pending">待接种</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              {/* 底部提醒 */}
+              <div className="health-reminder">
+                <i className="fa-solid fa-bell"></i>
+                <div>
+                  <h4>健康提醒</h4>
+                  <p>距离下一次全面体检还有 15 天，建议提前预约。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {/* 底部留白 */}
+        <div className="bottom-margin"></div>
+        </div>
+      </main>
     </div>
   );
 }

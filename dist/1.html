@@ -1,566 +1,390 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宠物档案详情 - 咪咪</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>宠物商城智能后台管理系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
+        /* 自定义色彩系统 */
         :root {
-            --primary-color: #1890ff;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-secondary: #666666;
-            --danger-color: #ff4d4f;
-            --success-color: #52c41a;
-            --warning-color: #faad14;
-            --border-radius: 8px;
+            --color-food-orange: #FFA726;
+            --color-supplies-blue: #4FC3F7;
+            --color-meds-green: #66BB6A;
+            --bg-sidebar: #1e293b;
+            --bg-main: #f3f4f6;
         }
 
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: var(--bg-main); }
+
+        /* 左侧导航激活态 */
+        .nav-item.active {
+            background-color: rgba(79, 195, 247, 0.15);
+            color: var(--color-supplies-blue);
+            border-right: 3px solid var(--color-supplies-blue);
         }
 
-        /* 顶部导航 (复刻原图风格) */
-        .navbar {
-            background: #fff;
-            padding: 0 24px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* 卡片样式 */
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* 强制警告横幅 */
+        .warning-banner {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            color: #92400E;
         }
 
-        .navbar h1 {
-            font-size: 20px;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        /* 智能建议气泡 */
+        .smart-suggestion {
+            background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 100%);
+            border: 1px solid #bae6fd;
         }
 
-        .navbar i {
-            color: var(--primary-color);
-        }
-
-        /* 主布局 */
-        .container {
-            max-width: 1200px;
-            margin: 24px auto;
-            padding: 0 16px;
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            /* 左侧概览，右侧详情 */
-            gap: 24px;
-        }
-
-        /* 通用卡片样式 */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            border-left: 4px solid var(--primary-color);
-            padding-left: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* 1. 宠物基本信息 (侧边栏) */
-        .pet-avatar {
-            width: 100%;
-            height: 200px;
-            background-color: #e6f7ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--border-radius);
-            margin-bottom: 16px;
-            font-size: 64px;
-            color: var(--primary-color);
-            overflow: hidden;
-        }
-
-        .pet-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 8px;
-        }
-
-        .info-label {
-            color: var(--text-secondary);
-        }
-
-        .info-value {
-            font-weight: 500;
-        }
-
-        /* 标签样式 */
-        .tag {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .tag-blue {
-            background: #e6f7ff;
-            color: #1890ff;
-            border: 1px solid #91d5ff;
-        }
-
-        .tag-green {
-            background: #f6ffed;
-            color: #52c41a;
-            border: 1px solid #b7eb8f;
-        }
-
-        /* 2. 健康概览 (网格) */
-        .health-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-        }
-
-        .health-item {
-            background: #fafafa;
-            padding: 16px;
-            border-radius: var(--border-radius);
-            text-align: center;
-        }
-
-        .health-value {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-
-        .status-ok {
-            color: var(--success-color);
-        }
-
-        .status-warn {
-            color: var(--danger-color);
-        }
-
-        /* 3. 医疗历史 (时间轴) */
-        .timeline {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border-left: 2px solid #f0f0f0;
-            margin-left: 10px;
-        }
-
-        .timeline-item {
-            margin-bottom: 24px;
-            padding-left: 24px;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            position: absolute;
-            left: -6px;
-            top: 5px;
-        }
-
-        .timeline-date {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .timeline-content h4 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-        }
-
-        .timeline-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .attachment-link {
-            font-size: 12px;
-            color: var(--primary-color);
-            cursor: pointer;
-            display: block;
-            margin-top: 5px;
-        }
-
-        /* 4. 消费记录 (表格) */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        th {
-            background: #fafafa;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .money {
-            font-family: 'Consolas', monospace;
-            color: var(--warning-color);
-            font-weight: bold;
-        }
-
-        /* 5. 趋势图表 */
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
-
-        /* 6. 特殊需求 (警告框) */
-        .alert-box {
-            background-color: #fff2f0;
-            border: 1px solid #ffccc7;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-box strong {
-            color: var(--danger-color);
-        }
-
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d9d9d9;
-            border-radius: 4px;
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
-
-        /* 7. 页脚日志 */
-        .footer-log {
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 40px;
-            padding-bottom: 20px;
-            border-top: 1px solid #e8e8e8;
-            padding-top: 20px;
-        }
-
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* 库存状态徽章 */
+        .badge-red { background: #fee2e2; color: #ef4444; }
+        .badge-orange { background: #ffedd5; color: #f97316; }
+        .badge-green { background: #dcfce7; color: #22c55e; }
     </style>
 </head>
+<body class="flex h-screen overflow-hidden">
 
-<body>
-
-    <nav class="navbar">
-        <h1><i class="fas fa-paw"></i> 宠物行业管理系统</h1>
-        <div>
-            <span style="margin-right: 15px; color: #666;"><i class="fas fa-user-circle"></i> 管理员</span>
-            <button style="border:none; background:none; cursor:pointer;">退出</button>
+    <aside class="w-64 bg-slate-800 text-white flex flex-col shadow-xl z-20">
+        <div class="h-16 flex items-center justify-center border-b border-slate-700">
+            <h1 class="text-xl font-bold tracking-wider"><i class="fa-solid fa-paw text-blue-400 mr-2"></i>PetMaster</h1>
         </div>
-    </nav>
+        
+        <nav class="flex-1 py-6 space-y-2">
+            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mb-2">核心管理</div>
+            <a href="#" class="nav-item active flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-chart-line w-6 text-center"></i> <span class="ml-3">首页数据看板</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-box-open w-6 text-center"></i> <span class="ml-3">商品管理</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-stethoscope w-6 text-center"></i> <span class="ml-3">药品合规专区</span>
+            </a>
+            
+            <div class="px-4 text-xs text-slate-400 font-semibold uppercase mt-6 mb-2">数据决策</div>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-brain w-6 text-center"></i> <span class="ml-3">智能运营分析</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                <i class="fa-solid fa-truck-ramp-box w-6 text-center"></i> <span class="ml-3">库存健康诊断</span>
+            </a>
+        </nav>
 
-    <div class="container">
+        <div class="p-4 border-t border-slate-700">
+            <div class="flex items-center gap-3">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=4FC3F7&color=fff" class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="text-sm font-medium">超级管理员</p>
+                    <p class="text-xs text-slate-400">Online</p>
+                </div>
+            </div>
+        </div>
+    </aside>
 
-        <aside>
-            <section class="card">
-                <div class="pet-avatar">
-                    <i class="fas fa-cat"></i>
-                </div>
-                <h2 style="text-align: center; margin: 0 0 5px 0;">咪咪 (Mimi)</h2>
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <span class="tag tag-blue">ID: CAT-2023001</span>
-                    <span class="tag tag-green">在档</span>
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+            <div class="text-slate-500 italic text-sm">
+                "不只是管理商品，更是读懂宠物与主人的健康需求"
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button class="px-3 py-1 bg-white rounded shadow text-xs font-medium text-slate-700">今日</button>
+                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本周</button>
+                    <button class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-700">本月</button>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">品种</span>
-                    <span class="info-value">英短蓝猫</span>
+                <div class="relative cursor-pointer">
+                    <i class="fa-solid fa-bell text-slate-500 text-lg"></i>
+                    <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">性别</span>
-                    <span class="info-value"><i class="fas fa-venus" style="color: pink;"></i> 母</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">年龄</span>
-                    <span class="info-value">2岁 3个月</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">体重</span>
-                    <span class="info-value">5.2 kg <span style="color: red; font-size: 12px;">(偏重)</span></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">毛色</span>
-                    <span class="info-value">灰色/蓝色</span>
-                </div>
-            </section>
+            </div>
+        </header>
 
-            <section class="card">
-                <div class="card-title">特殊需求 & 备注</div>
-
-                <div class="alert-box">
-                    <i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i>
-                    <div>
-                        <strong>严重过敏源：</strong> 青霉素、海鲜类罐头
+        <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="dashboard-card p-5 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-4 opacity-10">
+                        <i class="fa-solid fa-yen-sign text-6xl text-orange-400"></i>
                     </div>
+                    <p class="text-slate-500 text-sm font-medium">今日销售额</p>
+                    <h3 class="text-3xl font-bold text-slate-800 mt-1">¥18,752</h3>
+                    <p class="text-xs mt-2 text-green-500 flex items-center">
+                        <i class="fa-solid fa-arrow-trend-up mr-1"></i> 环比 +12%
+                    </p>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">紧急联系人</span>
-                    <span class="info-value">张先生 (主人)</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">联系电话</span>
-                    <span class="info-value">138-0000-0000</span>
+                <div class="dashboard-card p-5 border-l-4 border-red-500">
+                    <p class="text-slate-500 text-sm font-medium">低库存预警</p>
+                    <div class="flex items-end gap-2 mt-1">
+                        <h3 class="text-3xl font-bold text-red-500">12</h3>
+                        <span class="text-sm text-slate-400 mb-1">个SKU</span>
+                    </div>
+                    <p class="text-xs mt-2 text-slate-500">猫砂、关节护理库存危急</p>
                 </div>
 
-                <div style="margin-top: 15px;">
-                    <label style="font-size: 12px; color: #666; display:block; margin-bottom: 5px;">日常护理备注：</label>
-                    <textarea placeholder="输入新的备注信息...">性格比较胆小，看诊时建议使用猫保定袋。最近有挑食现象。</textarea>
-                    <button
-                        style="margin-top: 8px; width: 100%; background: var(--primary-color); color: #fff; border: none; padding: 8px; border-radius: 4px; cursor: pointer;">保存备注</button>
+                <div class="dashboard-card p-5">
+                    <p class="text-slate-500 text-sm font-medium">待发货订单</p>
+                    <h3 class="text-3xl font-bold text-slate-800 mt-1">45</h3>
+                    <p class="text-xs mt-2 text-blue-400 cursor-pointer hover:underline">立即处理 ></p>
                 </div>
-            </section>
-        </aside>
 
-        <main>
-            <section class="card">
-                <div class="card-title">
-                    健康概览
-                    <button
-                        style="font-size: 14px; background: none; border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; cursor: pointer;">更新状态</button>
+                <div class="dashboard-card p-5">
+                    <p class="text-slate-500 text-sm font-medium">商品合规率</p>
+                    <h3 class="text-3xl font-bold text-green-600 mt-1">98%</h3>
+                    <p class="text-xs mt-2 text-slate-500">2个药品需补充兽药证</p>
                 </div>
-                <div class="health-grid">
-                    <div class="health-item">
-                        <div style="font-size: 12px; color: #999;">健康评级</div>
-                        <div class="health-value status-ok">良好 (A)</div>
-                        <div style="font-size: 12px;">无重大疾病</div>
-                    </div>
-                    <div class="health-item">
-                        <div style="font-size: 12px; color: #999;">疫苗状态</div>
-                        <div class="health-value status-ok">已接种</div>
-                        <div style="font-size: 12px;">猫三联 (2025/11 到期)</div>
-                    </div>
-                    <div class="health-item">
-                        <div style="font-size: 12px; color: #999;">体内外驱虫</div>
-                        <div class="health-value status-warn">待处理</div>
-                        <div style="font-size: 12px; color: var(--danger-color);">逾期 5 天</div>
-                    </div>
-                    <div class="health-item">
-                        <div style="font-size: 12px; color: #999;">下次体检</div>
-                        <div class="health-value">2025-12-20</div>
-                        <div style="font-size: 12px;">剩余 14 天</div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="card">
-                <div class="card-title">健康趋势监测</div>
-                <div class="chart-container">
-                    <canvas id="healthTrendChart"></canvas>
-                </div>
-                <div style="margin-top: 10px; font-size: 13px; color: #666; background: #f9f9f9; padding: 10px;">
-                    <i class="fas fa-info-circle"></i> <strong>行为观察：</strong> 11月活动量有所下降，可能与气温降低有关，建议增加室内互动玩具。
-                </div>
-            </section>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <section class="card">
-                    <div class="card-title">医疗历史记录</div>
-                    <ul class="timeline">
-                        <li class="timeline-item">
-                            <div class="timeline-date">2025-11-05</div>
-                            <div class="timeline-content">
-                                <h4>年度体检 & 疫苗接种</h4>
-                                <div class="timeline-desc">接种妙三多第3针，常规生化检查正常。</div>
-                                <span class="attachment-link"><i class="fas fa-file-pdf"></i> 查看体检报告.pdf</span>
-                            </div>
-                        </li>
-                        <li class="timeline-item">
-                            <div class="timeline-date">2025-06-12</div>
-                            <div class="timeline-content">
-                                <h4>软便治疗</h4>
-                                <div class="timeline-desc">诊断为肠胃炎，开了益生菌和处方粮。</div>
-                                <div class="timeline-desc" style="color: #666; font-size: 12px;">费用：¥320.00</div>
-                            </div>
-                        </li>
-                        <li class="timeline-item">
-                            <div class="timeline-date">2024-12-10</div>
-                            <div class="timeline-content">
-                                <h4>绝育手术</h4>
-                                <div class="timeline-desc">吸入麻醉，手术顺利，恢复良好。</div>
-                            </div>
-                        </li>
-                    </ul>
-                </section>
-
-                <section class="card">
-                    <div class="card-title">
-                        近期消费记录
-                        <select style="font-size: 12px;">
-                            <option>2025年</option>
-                            <option>2024年</option>
-                        </select>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>日期</th>
-                                <th>项目</th>
-                                <th>金额</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>12-01</td>
-                                <td>寄养 (3天)</td>
-                                <td class="money">¥450</td>
-                            </tr>
-                            <tr>
-                                <td>11-05</td>
-                                <td>年度疫苗</td>
-                                <td class="money">¥120</td>
-                            </tr>
-                            <tr>
-                                <td>11-05</td>
-                                <td>全身体检</td>
-                                <td class="money">¥800</td>
-                            </tr>
-                            <tr>
-                                <td>10-20</td>
-                                <td>洗护美容</td>
-                                <td class="money">¥150</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2" style="text-align: right; font-weight: bold;">本年度总计：</td>
-                                <td class="money" style="font-size: 16px;">¥3,520</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <div style="margin-top: 15px;">
-                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">支出构成 (医疗 vs 美容 vs 食品)</div>
-                        <div
-                            style="height: 8px; width: 100%; background: #eee; border-radius: 4px; display: flex; overflow: hidden;">
-                            <div style="width: 60%; background: #ff4d4f;" title="医疗 60%"></div>
-                            <div style="width: 20%; background: #1890ff;" title="美容 20%"></div>
-                            <div style="width: 20%; background: #faad14;" title="食品 20%"></div>
-                        </div>
-                    </div>
-                </section>
             </div>
 
-        </main>
-    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                
+                <div class="dashboard-card p-6 lg:col-span-1">
+                    <h4 class="font-bold text-slate-700 mb-4">销售品类全景</h4>
+                    <div id="chart-sales-ring" style="height: 250px;"></div>
+                    <div class="text-center text-xs text-slate-400 mt-2">
+                        <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>主粮
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mx-1"></span>用品
+                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mx-1"></span>药品
+                    </div>
+                </div>
 
-    <footer class="footer-log">
-        <p>最后更新于：2025-12-06 09:30:00 | 数据来源：兽医诊疗系统同步</p>
-        <p style="font-size: 11px; opacity: 0.7;">
-            修改记录：[2025-12-06] 同步最新体重数据; [2025-11-05] 添加疫苗接种记录 (操作员: Admin)
-        </p>
-    </footer>
+                <div class="dashboard-card p-6 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-700">品类热力地图 <span class="text-xs font-normal text-slate-400 ml-2">(颜色越深销量越高)</span></h4>
+                        <button class="text-xs text-blue-500 border border-blue-500 px-2 py-1 rounded hover:bg-blue-50">导出报告</button>
+                    </div>
+                    <div id="chart-heatmap" style="height: 250px;"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="dashboard-card overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-green-50">
+                        <h4 class="font-bold text-green-800"><i class="fa-solid fa-file-medical mr-2"></i>药品合规专区</h4>
+                        <span class="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">严格监管</span>
+                    </div>
+                    
+                    <div class="warning-banner p-3 flex items-start text-xs">
+                        <i class="fa-solid fa-triangle-exclamation mr-2 mt-0.5"></i>
+                        <div>
+                            <strong>系统强制提示：</strong>
+                            "本产品为保健用品，不可替代兽医诊疗。如需健康咨询，请联系专业宠物医院"
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                                <tr>
+                                    <th class="px-2 py-3">商品名称</th>
+                                    <th class="px-2 py-3">资质状态</th>
+                                    <th class="px-2 py-3">用药指南</th>
+                                    <th class="px-2 py-3">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="px-2 py-3 font-medium">体内驱虫片(幼犬)</td>
+                                    <td class="px-2 py-3"><span class="text-green-500"><i class="fa-solid fa-check-circle"></i> 已认证</span></td>
+                                    <td class="px-2 py-3 text-xs text-slate-500">含米尔贝肟，8周以下慎用</td>
+                                    <td class="px-2 py-3"><a href="#" class="text-blue-500 hover:underline">管理</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-2 py-3 font-medium">关节止痛软膏</td>
+                                    <td class="px-2 py-3"><span class="text-red-500"><i class="fa-solid fa-circle-xmark"></i> 缺检测报告</span></td>
+                                    <td class="px-2 py-3 text-xs text-slate-500">仅限外用</td>
+                                    <td class="px-2 py-3"><button class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">立即补全</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                        <h4 class="font-bold text-slate-700">库存健康度诊断</h4>
+                        <div class="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded">
+                            周转率 = 本月销量 / 期初库存
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="smart-suggestion p-3 rounded-lg mb-4 flex gap-3 items-start">
+                            <div class="bg-blue-100 text-blue-500 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <div class="text-sm">
+                                <p class="font-bold text-slate-700">智能建议：</p>
+                                <p class="text-slate-600">用户对"关节护理"咨询量激增300%，建议：①增加科普内容 ②搭配软骨素进行组合促销。</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🐱</div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-700">膨润土猫砂</p>
+                                        <p class="text-xs text-red-500">剩余 72件 (安全线 150件)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded shadow">
+                                    一键补货
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white rounded flex items-center justify-center text-lg shadow-sm">🦴</div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-700">发声橡胶玩具</p>
+                                        <p class="text-xs text-orange-500">周转率 0.3 (严重滞销)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-orange-400 hover:bg-orange-500 text-white text-xs px-3 py-1.5 rounded shadow">
+                                    生成促销案
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="mt-8 text-center text-xs text-slate-400">
+                &copy; 2024 PetMaster Intelligent System. Version 2.1.0
+            </div>
+
+        </div>
+    </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('healthTrendChart').getContext('2d');
+        // 定义颜色变量 (与 CSS 一致)
+        const colors = {
+            orange: '#FFA726',
+            blue: '#4FC3F7',
+            green: '#66BB6A',
+            red: '#EF5350'
+        };
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                    datasets: [{
-                        label: '体重变化 (kg)',
-                        data: [4.5, 4.6, 4.6, 4.8, 5.0, 5.1, 5.2],
-                        borderColor: '#1890ff',
-                        backgroundColor: 'rgba(24, 144, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        yAxisID: 'y'
-                    }, {
-                        label: '每日食量 (g)',
-                        data: [60, 65, 65, 70, 75, 70, 65],
-                        borderColor: '#52c41a',
-                        borderDash: [5, 5],
-                        tension: 0.4,
-                        fill: false,
-                        yAxisID: 'y1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+        // 1. 初始化销售全景环形图
+        const salesChart = echarts.init(document.getElementById('chart-sales-ring'));
+        const salesOption = {
+            tooltip: { trigger: 'item' },
+            legend: { top: '5%', left: 'center', show: false },
+            series: [
+                {
+                    name: '销售占比',
+                    type: 'pie',
+                    radius: ['40%', '70%'], // 环形
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
                     },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: '体重 (kg)' }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            title: { display: true, text: '食量 (g)' }
-                        }
-                    }
+                    label: { show: false, position: 'center' },
+                    emphasis: {
+                        label: { show: true, fontSize: 20, fontWeight: 'bold' }
+                    },
+                    labelLine: { show: false },
+                    data: [
+                        { value: 42, name: '主粮', itemStyle: { color: colors.orange } },
+                        { value: 18, name: '用品', itemStyle: { color: colors.blue } },
+                        { value: 5, name: '药品', itemStyle: { color: colors.green } },
+                        { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
+                    ]
                 }
-            });
+            ]
+        };
+        salesChart.setOption(salesOption);
+
+        // 2. 初始化热力地图 (使用 Treemap 模拟品类热力)
+        const heatmapChart = echarts.init(document.getElementById('chart-heatmap'));
+        const heatmapOption = {
+            tooltip: {
+                formatter: function (info) {
+                    return info.name + ': 营收贡献 ' + info.value + '%';
+                }
+            },
+            series: [{
+                type: 'treemap',
+                width: '100%',
+                height: '100%',
+                roam: false, // 禁止缩放
+                breadcrumb: { show: false },
+                itemStyle: {
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                    gapWidth: 1
+                },
+                data: [
+                    {
+                        name: '全价猫粮',
+                        value: 30,
+                        itemStyle: { color: 'rgba(255, 167, 38, 1)' } // 深橙色 (爆款)
+                    },
+                    {
+                        name: '冻干零食',
+                        value: 20,
+                        itemStyle: { color: 'rgba(255, 167, 38, 0.8)' }
+                    },
+                    {
+                        name: '猫砂用品',
+                        value: 15,
+                        itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } // 深蓝色
+                    },
+                    {
+                        name: '驱虫药',
+                        value: 8,
+                        itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } // 绿色
+                    },
+                    {
+                        name: '智能饮水机',
+                        value: 12,
+                        itemStyle: { color: 'rgba(79, 195, 247, 0.6)' }
+                    },
+                    {
+                        name: '保健品',
+                        value: 5,
+                        itemStyle: { color: 'rgba(102, 187, 106, 0.5)' }
+                    },
+                    {
+                        name: '狗粮',
+                        value: 10,
+                        itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } // 浅橙色
+                    }
+                ]
+            }]
+        };
+        heatmapChart.setOption(heatmapOption);
+
+        // 窗口大小改变时重绘图表
+        window.addEventListener('resize', function() {
+            salesChart.resize();
+            heatmapChart.resize();
         });
+
+        // 模拟库存不足弹窗逻辑 (页面加载后3秒演示)
+        setTimeout(() => {
+            // 在实际项目中这里会是一个更好看的 Modal，这里仅做 Console 或简单的 Toast 演示
+            console.log("⚠️ 系统提示：猫砂库存低于30件，请注意补货！");
+        }, 3000);
     </script>
 </body>
-
 </html>

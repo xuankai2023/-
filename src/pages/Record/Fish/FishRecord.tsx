@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
-import { Search, Button, Space, Toast } from 'react-vant';
+import { Input, Button, Space, message } from 'antd';
 import './FishRecord.css';
 
 interface PetInfo {
@@ -72,12 +72,13 @@ const FishRecord: React.FC = () => {
             </div>
             
             <div className="table-toolbar">
-              <Search
+              <Input.Search
                 value={searchValue}
-                onChange={setSearchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="搜索宠物名称、品种、年龄或体长"
-                showAction
                 style={{ width: '400px' }}
+                allowClear
+                onPressEnter={() => {}}
               />
             </div>
 
@@ -120,17 +121,17 @@ const FishRecord: React.FC = () => {
                         <td>{pet.size}</td>
                         <td>{pet.gender}</td>
                         <td>
-                          <Space gap={8}>
+                          <Space style={{ gap: '8px' }}>
                             <Button 
                               size="small" 
                               type="primary"
-                              onClick={() => Toast.info(`查看 ${pet.name} 的详情`)}
+                              onClick={() => message.info(`查看 ${pet.name} 的详情`)}
                             >
                               查看
                             </Button>
                             <Button 
                               size="small"
-                              onClick={() => Toast.info(`编辑 ${pet.name} 的信息`)}
+                              onClick={() => message.info(`编辑 ${pet.name} 的信息`)}
                             >
                               编辑
                             </Button>

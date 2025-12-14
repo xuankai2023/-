@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
-import { Search, Button, Tag, Space } from 'react-vant';
+import { Input, Button, Tag, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import './CatRecord.css';
 
@@ -81,12 +81,13 @@ const CatRecord: React.FC = () => {
 
             {/* 搜索栏 */}
             <div className="table-toolbar">
-              <Search
+              <Input.Search
                 value={searchValue}
-                onChange={setSearchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="搜索宠物名称、品种、年龄或体重"
-                showAction
                 style={{ width: '400px' }}
+                allowClear
+                onPressEnter={() => {}}
               />
             </div>
 
@@ -130,7 +131,7 @@ const CatRecord: React.FC = () => {
                         <td>{pet.weight}</td>
                         <td>{pet.gender}</td>
                         <td>
-                          <Space gap={8}>
+                          <Space style={{ gap: '8px' }}>
                             <Button
                               size="small"
                               type="primary"

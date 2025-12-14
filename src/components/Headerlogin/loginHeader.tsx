@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from 'react-vant';
+import { Button } from 'antd';
 import { useNavigate, useLocation} from 'react-router-dom';
 import './LoginModal.css';
 import Login from '../Login/Login';
