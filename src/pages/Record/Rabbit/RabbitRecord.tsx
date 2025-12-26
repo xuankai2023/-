@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
-import { Input, Button, Space, message } from 'antd';
+import { Input, Button, Space } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import './RabbitRecord.css';
 
 interface PetInfo {
@@ -16,35 +17,27 @@ interface PetInfo {
 
 const RabbitRecord: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
+  const navigate = useNavigate();
 
-  // 模拟宠物兔鼠数据
+  // 模拟宠物兔鼠数据（ID 与 petDetail 使用的 mock 数据保持一致：PET014-015 是兔）
   const rabbitRecords: PetInfo[] = [
     {
-      id: 'rabbit-001',
-      name: '跳跳',
+      id: 'PET014',
+      name: '雪球',
       breed: '垂耳兔',
-      age: '1岁',
-      weight: '1.5kg',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/rabbit1/200'
-    },
-    {
-      id: 'rabbit-002',
-      name: '小灰',
-      breed: '荷兰侏儒兔',
-      age: '8个月',
-      weight: '0.8kg',
+      age: '2岁',
+      weight: '1.2kg',
       gender: '母',
-      avatar: 'https://picsum.photos/seed/rabbit2/200'
+      avatar: 'https://images.unsplash.com/photo-1587304465952-b6b556910f2a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     },
     {
-      id: 'mouse-001',
-      name: '米米',
-      breed: '仓鼠',
-      age: '6个月',
-      weight: '0.1kg',
+      id: 'PET015',
+      name: '奶茶',
+      breed: '侏儒兔',
+      age: '1.5岁',
+      weight: '0.8kg',
       gender: '公',
-      avatar: 'https://picsum.photos/seed/mouse1/200'
+      avatar: 'https://images.unsplash.com/photo-1514589482840-681b79b720d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     }
   ];
 
@@ -107,7 +100,11 @@ const RabbitRecord: React.FC = () => {
                     </tr>
                   ) : (
                     filteredRecords.map((pet) => (
-                      <tr key={pet.id}>
+                      <tr
+                        key={pet.id}
+                        onClick={() => navigate(`/petDetail/${pet.id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <td>{pet.id}</td>
                         <td>
                           <div className="pet-name-cell">
@@ -128,7 +125,10 @@ const RabbitRecord: React.FC = () => {
                             <Button
                               size="small"
                               type="primary"
-                              onClick={() => message.info(`查看 ${pet.name} 的详情`)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/petDetail/${pet.id}`);
+                              }}
                             >
                               查看
                             </Button>

@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
-import { Input, Button, Space, message } from 'antd';
-import './OtherReacord.css';  // 修改：使用实际存在的文件名
+import { Input, Button, Space } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import './OtherReacord.css';
 
 interface PetInfo {
   id: string;
@@ -17,38 +18,59 @@ interface PetInfo {
 
 const OtherRecord: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
+  const navigate = useNavigate();
 
-  // 模拟其他宠物数据
+  // 模拟其他宠物数据（ID 与 petDetail 使用的 mock 数据保持一致：PET016-020）
   const otherRecords: PetInfo[] = [
     {
-      id: 'other-001',
-      name: '小鸟',
-      type: '鹦鹉',
-      breed: '虎皮鹦鹉',
+      id: 'PET016',
+      name: '瓜子',
+      type: '仓鼠',
+      breed: '仓鼠',
       age: '1岁',
-      weight: '0.05kg',
+      weight: '0.15kg',
       gender: '公',
-      avatar: 'https://picsum.photos/seed/bird1/200'
+      avatar: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     },
     {
-      id: 'other-002',
-      name: '龟龟',
-      type: '爬行动物',
-      breed: '巴西龟',
-      age: '5岁',
-      weight: '1kg',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/turtle1/200'
-    },
-    {
-      id: 'other-003',
-      name: '松鼠',
-      type: '小型哺乳动物',
-      breed: '魔王松鼠',
-      age: '1.5岁',
-      weight: '0.3kg',
+      id: 'PET017',
+      name: '灰灰',
+      type: '龙猫',
+      breed: '龙猫',
+      age: '2岁',
+      weight: '0.5kg',
       gender: '母',
-      avatar: 'https://picsum.photos/seed/squirrel1/200'
+      avatar: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET018',
+      name: '鹦鹉',
+      type: '鸟类',
+      breed: '虎皮鹦鹉',
+      age: '3岁',
+      weight: '0.1kg',
+      gender: '公',
+      avatar: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET019',
+      name: '小刺',
+      type: '小型哺乳动物',
+      breed: '刺猬',
+      age: '1岁',
+      weight: '0.3kg',
+      gender: '公',
+      avatar: 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET020',
+      name: '金金',
+      type: '小型啮齿类',
+      breed: '金丝熊',
+      age: '1岁',
+      weight: '0.2kg',
+      gender: '母',
+      avatar: 'https://images.unsplash.com/photo-1513245543132-31f507417b26?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     }
   ];
 
@@ -85,7 +107,7 @@ const OtherRecord: React.FC = () => {
                 placeholder="搜索宠物名称、类型、品种、年龄或体重"
                 style={{ width: '400px' }}
                 allowClear
-                onPressEnter={() => {}}
+                onPressEnter={() => { }}
               />
             </div>
 
@@ -113,7 +135,11 @@ const OtherRecord: React.FC = () => {
                     </tr>
                   ) : (
                     filteredRecords.map((pet) => (
-                      <tr key={pet.id}>
+                      <tr
+                        key={pet.id}
+                        onClick={() => navigate(`/petDetail/${pet.id}`)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <td>{pet.id}</td>
                         <td>
                           <div className="pet-name-cell">
@@ -135,13 +161,19 @@ const OtherRecord: React.FC = () => {
                             <Button
                               size="small"
                               type="primary"
-                              onClick={() => message.info(`查看 ${pet.name} 的详情`)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/petDetail/${pet.id}`);
+                              }}
                             >
                               查看
                             </Button>
                             <Button
                               size="small"
-                              onClick={() => message.info(`编辑 ${pet.name} 的信息`)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                alert(`编辑 ${pet.name} 的信息`);
+                              }}
                             >
                               编辑
                             </Button>

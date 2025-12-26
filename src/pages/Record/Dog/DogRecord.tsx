@@ -3,7 +3,7 @@ import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
 import { Input, Button, Space, message } from 'antd';
 import './DogReacord.css';
-
+import { useNavigate } from 'react-router-dom';
 interface PetInfo {
   id: string;
   name: string;
@@ -16,35 +16,38 @@ interface PetInfo {
 
 const DogRecord: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
-
-  // 模拟宠物狗数据
+  const navigate = useNavigate();
+  const handleViewDetail = (petId: string) => {
+    navigate(`/petDetail/${petId}`);
+  };
+  // 模拟宠物狗数据（ID 与 petDetail 使用的 mock 数据保持一致：PET001-003 是狗）
   const dogRecords: PetInfo[] = [
     {
-      id: 'dog-001',
-      name: '小黑',
-      breed: '拉布拉多',
-      age: '3岁',
-      weight: '25kg',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/dog1/200'
-    },
-    {
-      id: 'dog-002',
-      name: '小白',
-      breed: '萨摩耶',
-      age: '2岁',
-      weight: '20kg',
-      gender: '母',
-      avatar: 'https://picsum.photos/seed/dog2/200'
-    },
-    {
-      id: 'dog-003',
-      name: '旺财',
-      breed: '金毛',
+      id: 'PET001',
+      name: '黑哥',
+      breed: '金毛寻回犬',
       age: '4岁',
-      weight: '30kg',
+      weight: '32.5kg',
       gender: '公',
-      avatar: 'https://picsum.photos/seed/dog3/200'
+      avatar: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET002',
+      name: '大黄',
+      breed: '中华田园犬',
+      age: '5岁',
+      weight: '22kg',
+      gender: '公',
+      avatar: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET003',
+      name: '可乐',
+      breed: '哈士奇',
+      age: '3岁',
+      weight: '28.5kg',
+      gender: '公',
+      avatar: 'https://images.unsplash.com/photo-1501088430049-71c79fa3283e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     }
   ];
 
@@ -80,7 +83,7 @@ const DogRecord: React.FC = () => {
                 placeholder="搜索宠物名称、品种、年龄或体重"
                 style={{ width: '400px' }}
                 allowClear
-                onPressEnter={() => {}}
+                onPressEnter={() => { }}
               />
             </div>
 
@@ -107,7 +110,7 @@ const DogRecord: React.FC = () => {
                     </tr>
                   ) : (
                     filteredRecords.map((pet) => (
-                      <tr key={pet.id}>
+                      <tr key={pet.id} onClick={() => handleViewDetail(pet.id)} style={{ cursor: 'pointer' }}>
                         <td>{pet.id}</td>
                         <td>
                           <div className="pet-name-cell">
@@ -128,13 +131,19 @@ const DogRecord: React.FC = () => {
                             <Button
                               size="small"
                               type="primary"
-                              onClick={() => message.info(`查看 ${pet.name} 的详情`)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                handleViewDetail(pet.id);
+                              }}
                             >
                               查看
                             </Button>
                             <Button
                               size="small"
-                              onClick={() => message.info(`编辑 ${pet.name} 的信息`)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                alert(`编辑 ${pet.name} 的信息`);
+                              }}
                             >
                               编辑
                             </Button>

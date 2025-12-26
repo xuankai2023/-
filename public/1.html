@@ -1,521 +1,431 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>后台管理系统 - 设置</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物订单详情 - 后台管理系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5; /* 品牌蓝 */
+            --bg-color: #f3f4f6;      /* 背景灰 */
+            --card-bg: #ffffff;       /* 卡片白 */
+            --text-main: #111827;     /* 主要文字 */
+            --text-secondary: #6b7280;/* 次要文字 */
+            --border-color: #e5e7eb;  /* 边框色 */
+            --success-color: #10b981; /* 成功绿 */
+            --warning-color: #f59e0b; /* 警告黄 */
+        }
 
-    :root {
-      --primary: #4361ee;
-      --primary-light: #4895ef;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --text: #2b2d42;
-      --text-secondary: #6c757d;
-      --bg: #f8f9fa;
-      --card-bg: #ffffff;
-      --border: #e9ecef;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      --radius: 12px;
-      --spacing: 24px;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      min-height: 100vh;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+        }
 
-    /* 左侧导航 */
-    .sidebar {
-      width: 260px;
-      background: white;
-      border-right: 1px solid var(--border);
-      padding: 24px 0;
-      position: fixed;
-      height: 100vh;
-      overflow-y: auto;
-    }
+        /* 布局容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    .sidebar h2 {
-      padding: 0 24px 20px;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-    }
+        /* 顶部导航/标题栏 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
 
-    .nav-link {
-      display: block;
-      padding: 12px 24px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
+        .page-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
 
-    .nav-link:hover,
-    .nav-link.active {
-      color: var(--primary);
-      background: rgba(67, 97, 238, 0.06);
-      border-left: 3px solid var(--primary);
-    }
+        .page-title span {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-left: 10px;
+        }
 
-    /* 主内容区 */
-    .main-content {
-      flex: 1;
-      margin-left: 260px;
-      padding: 32px var(--spacing);
-    }
+        .action-buttons button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
 
-    .section {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
+        .btn-primary {
+            background-color: var(--primary-color) !important;
+            color: white;
+            border: none !important;
+        }
 
-    .section.active {
-      display: block;
-    }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        /* 网格布局 */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
 
-    .section-header {
-      margin-bottom: 24px;
-    }
+        /* 卡片通用样式 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+        }
 
-    .section-header h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .section-header p {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
+        .card-title i {
+            color: var(--text-secondary);
+        }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px;
-      margin-bottom: var(--spacing);
-    }
+        /* 数据行样式 */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
 
-    /* 表单控件 */
-    .form-group {
-      margin-bottom: 20px;
-    }
+        .info-label {
+            color: var(--text-secondary);
+        }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--text);
-    }
+        .info-value {
+            font-weight: 500;
+            text-align: right;
+        }
 
-    .form-control {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 15px;
-      transition: border-color 0.2s;
-    }
+        /* 状态标签 */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-    }
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
+        .badge-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
 
-    .btn-primary:hover {
-      background: var(--primary-light);
-    }
+        /* 宠物资料卡片特别样式 */
+        .pet-card-content {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
 
-    .btn-secondary {
-      background: #f1f3f5;
-      color: var(--text);
-      margin-left: 12px;
-    }
+        .pet-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--bg-color);
+        }
 
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-      padding: 8px 16px;
-      font-size: 14px;
-    }
+        .pet-details h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
 
-    .btn-danger:hover {
-      opacity: 0.9;
-    }
+        .pet-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
 
-    /* 开关 */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 52px;
-      height: 26px;
-    }
+        .tag {
+            background: var(--bg-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
 
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
+        /* 服务表格样式 */
+        .table-container {
+            grid-column: span 3; /* 占据整行 */
+            overflow-x: auto;
+        }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .2s;
-      border-radius: 34px;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .2s;
-      border-radius: 50%;
-    }
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background-color: #f9fafb;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    input:checked + .slider {
-      background-color: var(--primary);
-    }
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
+        tr:last-child td {
+            border-bottom: none;
+        }
 
-    /* 表格 */
-    .table-container {
-      overflow-x: auto;
-    }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: 700; }
+        .text-lg { font-size: 18px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+        /* 备注区域 */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            grid-column: span 3;
+        }
 
-    th, td {
-      padding: 14px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
+        .note-box {
+            background-color: #fefce8; /* 淡黄色背景强调备注 */
+            border: 1px dashed #eab308;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .doctor-note {
+            background-color: #eff6ff;
+            border: 1px dashed #3b82f6;
+        }
 
-    th {
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* 卡片式权限展示 */
-    .role-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      background: #fafbff;
-    }
-
-    .role-card h4 {
-      margin: 0;
-      color: var(--primary);
-    }
-
-    .role-card p {
-      margin: 4px 0 0;
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    /* 底部固定按钮 */
-    .fixed-help {
-      position: fixed;
-      bottom: 32px;
-      right: 32px;
-      background: var(--primary);
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-      cursor: pointer;
-      z-index: 1000;
-    }
-
-    .fixed-help i {
-      font-size: 24px;
-    }
-  </style>
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+            .table-container, .notes-grid {
+                grid-column: span 1;
+            }
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- 左侧导航 -->
-  <aside class="sidebar">
-    <h2><i class="fas fa-cog me-2"></i>系统设置</h2>
-    <div class="nav-link active" data-target="account-info">账户信息</div>
-    <div class="nav-link" data-target="notification-settings">通知设置</div>
-    <div class="nav-link" data-target="security-and-privacy">安全与隐私</div>
-    <div class="nav-link" data-target="preference-settings">偏好设置</div>
-    <div class="nav-link" data-target="integration-api-access">集成与API</div>
-    <div class="nav-link" data-target="team-and-permissions">团队与权限</div>
-    <div class="nav-link" data-target="help-center-support">帮助与支持</div>
-  </aside>
+<div class="container">
+    <header class="page-header">
+        <div class="page-title">
+            <h1>订单详情 <span class="badge badge-blue">#ORD-20251213-001</span></h1>
+            <span>创建于: 2025/12/13 07:01</span>
+        </div>
+        <div class="action-buttons">
+            <button><i class="fas fa-print"></i> 打印订单</button>
+            <button><i class="fas fa-edit"></i> 编辑</button>
+            <button class="btn-primary">开始服务</button>
+        </div>
+    </header>
 
-  <!-- 主内容区 -->
-  <main class="main-content">
-    <!-- 账户信息 -->
-    <section id="account-info" class="section active">
-      <div class="section-header">
-        <h2>账户信息</h2>
-        <p>管理您的个人资料和登录凭证</p>
-      </div>
-      <div class="card">
-        <div class="form-group">
-          <label for="username">用户名</label>
-          <input type="text" id="username" class="form-control" placeholder="请输入用户名" value="admin_user">
-        </div>
-        <div class="form-group">
-          <label for="email">邮箱地址</label>
-          <input type="email" id="email" class="form-control" placeholder="example@domain.com" value="admin@example.com">
-        </div>
-        <div class="form-group">
-          <label for="phone">手机号码</label>
-          <input type="tel" id="phone" class="form-control" placeholder="请输入手机号">
-        </div>
-        <button class="btn btn-primary">保存更改</button>
-        <button class="btn btn-secondary">取消</button>
-      </div>
-    </section>
-
-    <!-- 通知设置 -->
-    <section id="notification-settings" class="section">
-      <div class="section-header">
-        <h2>通知设置</h2>
-        <p>选择您希望接收的通知类型和方式</p>
-      </div>
-      <div class="card">
-        <div class="form-group">
-          <label><input type="checkbox" checked> 邮件通知</label>
-        </div>
-        <div class="form-group">
-          <label><input type="checkbox"> 站内消息</label>
-        </div>
-        <div class="form-group">
-          <label><input type="checkbox" checked> 系统维护提醒</label>
-        </div>
-        <div class="form-group">
-          <label><input type="checkbox"> 订单状态更新</label>
-        </div>
-        <button class="btn btn-primary">测试发送</button>
-      </div>
-    </section>
-
-    <!-- 安全与隐私 -->
-    <section id="security-and-privacy" class="section">
-      <div class="section-header">
-        <h2>安全与隐私</h2>
-        <p>增强账户安全性，保护您的数据</p>
-      </div>
-      <div class="card">
-        <div class="form-group">
-          <label>两步验证 (2FA)</label>
-          <label class="switch">
-            <input type="checkbox" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="form-group">
-          <label>登录活动记录</label>
-          <p style="margin-top: 8px; color: var(--text-secondary);">
-            最近登录：2025年12月14日 20:32 · IP: 114.242.xxx.xxx · 设备：Windows / Chrome
-          </p>
-        </div>
-        <button class="btn btn-primary">查看全部活动</button>
-      </div>
-    </section>
-
-    <!-- 偏好设置 -->
-    <section id="preference-settings" class="section">
-      <div class="section-header">
-        <h2>偏好设置</h2>
-        <p>自定义界面外观与行为</p>
-      </div>
-      <div class="card">
-        <div class="form-group">
-          <label for="lang">界面语言</label>
-          <select id="lang" class="form-control">
-            <option>简体中文</option>
-            <option>English</option>
-            <option>日本語</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>主题模式</label>
-          <label class="switch">
-            <input type="checkbox">
-            <span class="slider"></span>
-          </label>
-          <span style="margin-left: 12px; color: var(--text-secondary);">启用暗色模式</span>
-        </div>
-        <button class="btn btn-primary">应用设置</button>
-      </div>
-    </section>
-
-    <!-- 集成与API -->
-    <section id="integration-api-access" class="section">
-      <div class="section-header">
-        <h2>集成与API访问</h2>
-        <p>管理第三方应用授权与 API 密钥</p>
-      </div>
-      <div class="card">
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>应用名称</th>
-                <th>状态</th>
-                <th>最后使用</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>宠物寄养系统 API</td>
-                <td><span style="color: var(--success);">● 已授权</span></td>
-                <td>2025-12-14 20:32</td>
-                <td><button class="btn btn-danger">删除</button></td>
-              </tr>
-              <tr>
-                <td>微信通知服务</td>
-                <td><span style="color: #adb5bd;">● 已停用</span></td>
-                <td>2025-12-10 14:20</td>
-                <td><button class="btn btn-danger">删除</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <button class="btn btn-primary" style="margin-top: 20px;">生成新 API Key</button>
-      </div>
-    </section>
-
-    <!-- 团队与权限 -->
-    <section id="team-and-permissions" class="section">
-      <div class="section-header">
-        <h2>团队与权限管理</h2>
-        <p>配置成员角色与访问权限</p>
-      </div>
-      <div class="card">
-        <div class="role-card">
-          <div>
-            <h4>管理员</h4>
-            <p>拥有全部系统权限</p>
-          </div>
-          <button class="btn btn-primary">编辑权限</button>
-        </div>
-        <div class="role-card">
-          <div>
-            <h4>运营人员</h4>
-            <p>可管理商品、订单、寄养记录</p>
-          </div>
-          <button class="btn btn-primary">编辑权限</button>
-        </div>
-        <div class="role-card">
-          <div>
-            <h4>客服专员</h4>
-            <p>仅可查看客户信息与消息</p>
-          </div>
-          <button class="btn btn-primary">编辑权限</button>
-        </div>
-        <button class="btn btn-primary" style="margin-top: 16px;">+ 添加新角色</button>
-      </div>
-    </section>
-
-    <!-- 帮助与支持 -->
-    <section id="help-center-support" class="section">
-      <div class="section-header">
-        <h2>帮助中心与支持</h2>
-        <p>获取使用指南或联系技术支持</p>
-      </div>
-      <div class="card">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="搜索帮助文档、教程或常见问题...">
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
-          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">📘 用户手册</a>
-          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">🎥 视频教程</a>
-          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">❓ 常见问题</a>
-          <a href="#" style="text-decoration: none; color: var(--primary); font-weight: 600;">📞 联系客服</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- 固定帮助按钮 -->
-  <div class="fixed-help">
-    <i class="fas fa-headset"></i>
-  </div>
-
-  <script>
-    // 简单的导航切换逻辑
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        // 移除所有 active
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    <div class="grid-layout">
         
-        // 添加当前 active
-        link.classList.add('active');
-        const target = link.getAttribute('data-target');
-        document.getElementById(target).classList.add('active');
-      });
-    });
-  </script>
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-file-invoice"></i> 订单概览
+            </div>
+            <div class="info-row">
+                <span class="info-label">订单状态</span>
+                <span class="badge badge-warning">处理中</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">预约时间</span>
+                <span class="info-value">2025/12/24 10:21</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">服务网点</span>
+                <span class="info-value">朝阳区旗舰店</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-user"></i> 客户信息
+            </div>
+            <div class="info-row">
+                <span class="info-label">客户姓名</span>
+                <span class="info-value">张三先生</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">联系电话</span>
+                <span class="info-value">138-1234-5678</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">地址</span>
+                <span class="info-value" style="max-width: 60%; text-align: right;">北京市朝阳区阳光花园 3-201</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-credit-card"></i> 支付详情
+            </div>
+            <div class="info-row">
+                <span class="info-label">支付方式</span>
+                <span class="info-value"><i class="fab fa-weixin" style="color:#09bb07"></i> 微信支付</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">支付状态</span>
+                <span class="badge badge-success">已支付</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">流水号</span>
+                <span class="info-value" style="font-family: monospace;">WX20251213999</span>
+            </div>
+        </div>
+
+        <div class="card" style="grid-column: span 3;">
+            <div class="card-title">
+                <i class="fas fa-paw"></i> 宠物档案
+            </div>
+            <div class="pet-card-content">
+                
+                <img src="https://placehold.co/150x150/orange/white?text=Dog" alt="宠物照片" class="pet-avatar">
+                <div class="pet-details">
+                    <h3>宠物10 <i class="fas fa-mars" style="color: #3b82f6; font-size: 16px;"></i></h3>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">ID: PET-8821</p>
+                    <div class="pet-tags">
+                        <span class="tag">种类: 狗 (金毛)</span>
+                        <span class="tag">年龄: 3岁</span>
+                        <span class="tag">体重: 28kg</span>
+                        <span class="tag" style="background: #fee2e2; color: #b91c1c;">敏感体质: 否</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card table-container">
+            <div class="card-title">
+                <i class="fas fa-list-ul"></i> 服务详情
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">#</th>
+                        <th width="20%">服务类型</th>
+                        <th width="35%">服务描述</th>
+                        <th width="10%" class="text-right">数量</th>
+                        <th width="15%" class="text-right">单价 (¥)</th>
+                        <th width="15%" class="text-right">总价 (¥)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><b>宠物精洗</b></td>
+                        <td style="color: var(--text-secondary);">包含全身清洁、护毛素护理、吹干</td>
+                        <td class="text-right">1</td>
+                        <td class="text-right">120.00</td>
+                        <td class="text-right">120.00</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><b>指甲修剪</b></td>
+                        <td style="color: var(--text-secondary);">专业磨甲，防止抓伤</td>
+                        <td class="text-right">1</td>
+                        <td class="text-right">30.00</td>
+                        <td class="text-right">30.00</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><b>耳朵清洁</b></td>
+                        <td style="color: var(--text-secondary);">去除耳螨，清洁耳道</td>
+                        <td class="text-right">1</td>
+                        <td class="text-right">50.00</td>
+                        <td class="text-right">50.00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4"></td>
+                        <td class="text-right" style="padding-top: 24px;">服务合计:</td>
+                        <td class="text-right font-bold" style="padding-top: 24px;">200.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"></td>
+                        <td class="text-right" style="border:none;">优惠减免:</td>
+                        <td class="text-right" style="border:none; color: var(--success-color);">-20.00</td>
+                    </tr>
+                    <tr style="font-size: 18px;">
+                        <td colspan="4" style="border:none;"></td>
+                        <td class="text-right" style="border-top: 2px solid var(--border-color); padding-top: 16px;">实付总额:</td>
+                        <td class="text-right font-bold" style="color: var(--primary-color); border-top: 2px solid var(--border-color); padding-top: 16px;">¥ 180.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="notes-grid">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-comment-medical"></i> 客户特殊要求
+                </div>
+                <div class="note-box">
+                    "狗狗比较怕吹风机，请在吹干时将风力调小，并且使用静音吹风机。另外请不要修剪尾巴上的毛发。"
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-user-md"></i> 医生/美容师备注
+                </div>
+                <div class="note-box doctor-note">
+                    "已确认狗狗对吹风机敏感，已安排高级美容师进行安抚。检查发现左耳有轻微红肿，建议主人后续观察。"
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>

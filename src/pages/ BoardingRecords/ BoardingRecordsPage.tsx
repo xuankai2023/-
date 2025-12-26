@@ -1,21 +1,134 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
 import './BoardingRecordsPage.css';
 import { useBoardStore } from '../../Store/board';
 import { Row, Col, Tag, Button, Badge, Space, Card, Statistic, Table, Select, Input, Typography, DatePicker, Avatar } from 'antd';
 import { PlusOutlined, BellOutlined, ClockCircleOutlined, BarChartOutlined, PieChartOutlined, CheckCircleOutlined, CloseOutlined, SearchOutlined } from '@ant-design/icons';
+import * as echarts from 'echarts';
 
 // 寄养记录页面组件
 const BoardingRecordsPage: React.FC = () => {
   // 从store获取数据
   const { dashboardData, rooms, bookings, loadMockData } = useBoardStore();
-  
+  const trendRef = useRef<HTMLDivElement>(null);
+  const distRef = useRef<HTMLDivElement>(null);
+  const heatmapRef = useRef<HTMLDivElement>(null);
+
   // 组件加载时加载模拟数据
   useEffect(() => {
     loadMockData();
   }, [loadMockData]);
-  
+
+  // 初始化/更新图表
+  useEffect(() => {
+    const trendDom = trendRef.current;
+    const distDom = distRef.current;
+    const heatmapDom = heatmapRef.current;
+
+    if (!trendDom || !distDom || !heatmapDom) return;
+
+    const trendChart = echarts.getInstanceByDom(trendDom) || echarts.init(trendDom);
+    const distChart = echarts.getInstanceByDom(distDom) || echarts.init(distDom);
+    const heatmapChart = echarts.getInstanceByDom(heatmapDom) || echarts.init(heatmapDom);
+
+    trendChart.setOption({
+      tooltip: { trigger: 'axis' },
+      grid: { left: 40, right: 20, top: 30, bottom: 30 },
+      xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
+      yAxis: { type: 'value' },
+      series: [
+        {
+          name: '入住数',
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          data: [12, 15, 9, 18, 22, 17, 14],
+        },
+      ],
+    });
+
+    distChart.setOption({
+      tooltip: { trigger: 'item' },
+      legend: { bottom: 0 },
+      series: [
+        {
+          name: '宠物分布',
+          type: 'pie',
+          radius: '70%',
+          data: [
+            { value: dashboardData.inStorePets.dogs, name: '犬' },
+            { value: dashboardData.inStorePets.cats, name: '猫' },
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.4)',
+            },
+          },
+        },
+      ],
+    });
+
+    heatmapChart.setOption({
+      tooltip: { position: 'top' },
+      grid: { height: '70%', top: '10%' },
+      xAxis: {
+        type: 'category',
+        data: ['豪华单间', '标准间', '猫别墅', '其他'],
+        splitArea: { show: true },
+      },
+      yAxis: {
+        type: 'category',
+        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+        splitArea: { show: true },
+      },
+      visualMap: {
+        min: 0,
+        max: 20,
+        calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        bottom: 0,
+      },
+      series: [
+        {
+          name: '房型热力',
+          type: 'heatmap',
+          data: [
+            [0, 0, 5], [0, 1, 12], [0, 2, 8], [0, 3, 10], [0, 4, 6], [0, 5, 14], [0, 6, 9],
+            [1, 0, 3], [1, 1, 6], [1, 2, 9], [1, 3, 11], [1, 4, 7], [1, 5, 4], [1, 6, 2],
+            [2, 0, 1], [2, 1, 2], [2, 2, 7], [2, 3, 5], [2, 4, 4], [2, 5, 3], [2, 6, 1],
+            [3, 0, 9], [3, 1, 14], [3, 2, 6], [3, 3, 13], [3, 4, 8], [3, 5, 12], [3, 6, 10],
+          ],
+          label: { show: true },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        },
+      ],
+    });
+
+    const handleResize = () => {
+      trendChart.resize();
+      distChart.resize();
+      heatmapChart.resize();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      trendChart.dispose();
+      distChart.dispose();
+      heatmapChart.dispose();
+    };
+  }, [dashboardData]);
+
   return (
     <div className="boarding-records-container">
       <Header />
@@ -106,12 +219,20 @@ const BoardingRecordsPage: React.FC = () => {
               <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24} md={16}>
                   <Card title="近7天入住趋势" bordered={false}>
-                    <div id="chart-trend" className="chart-container"></div>
+                    <div ref={trendRef} className="chart-container"></div>
                   </Card>
                 </Col>
                 <Col xs={24} md={8}>
                   <Card title="在店宠物分布" bordered={false}>
-                    <div id="chart-dist" className="chart-container"></div>
+                    <div ref={distRef} className="chart-container"></div>
+                  </Card>
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+                <Col xs={24}>
+                  <Card title="房型热力图" bordered={false}>
+                    <div ref={heatmapRef} className="chart-container"></div>
                   </Card>
                 </Col>
               </Row>
@@ -205,7 +326,7 @@ const BoardingRecordsPage: React.FC = () => {
                           <div style={{ textAlign: 'center', padding: '24px 0', opacity: 0.7 }}>
                             <div style={{ fontSize: '48px', color: '#999', marginBottom: '8px' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
                               </svg>
                             </div>
                             <div style={{ fontWeight: 'bold', color: '#666' }}>{room.number} (维修)</div>
@@ -232,7 +353,7 @@ const BoardingRecordsPage: React.FC = () => {
                     <Button type="primary">添加预约</Button>
                   </Space>
                 </div>
-                
+
                 <div style={{ marginBottom: 16 }}>
                   <Row gutter={16} align="middle">
                     <Col xs={24} sm={8} md={6}>
@@ -252,7 +373,7 @@ const BoardingRecordsPage: React.FC = () => {
                     </Col>
                   </Row>
                 </div>
-                
+
                 <Table
                   dataSource={bookings}
                   rowKey="id"
@@ -321,8 +442,8 @@ const BoardingRecordsPage: React.FC = () => {
                     render={(status) => (
                       <Tag color={
                         status === '待确认' ? 'warning' :
-                        status === '已确认' ? 'success' :
-                        status === '已完成' ? 'default' : 'error'
+                          status === '已确认' ? 'success' :
+                            status === '已完成' ? 'default' : 'error'
                       }>
                         {status}
                       </Tag>

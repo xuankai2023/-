@@ -24,34 +24,34 @@ const CatRecord: React.FC = () => {
     navigate(`/petDetail/${petId}`);
   };
 
-  // 模拟宠物猫数据
+  // 模拟宠物猫数据（ID 与 petDetail 使用的 mock 数据保持一致：PET006-008 是猫）
   const catRecords: PetInfo[] = [
     {
-      id: 'cat-001',
-      name: '咪咪',
-      breed: '英短蓝猫',
-      age: '2岁',
-      weight: '5kg',
-      gender: '母',
-      avatar: 'https://picsum.photos/seed/cat1/200'
-    },
-    {
-      id: 'cat-002',
-      name: '豆豆',
-      breed: '布偶猫',
-      age: '1岁',
-      weight: '4kg',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/cat2/200'
-    },
-    {
-      id: 'cat-003',
-      name: '橙子',
-      breed: '橘猫',
+      id: 'PET006',
+      name: '小花',
+      breed: '波斯猫',
       age: '3岁',
-      weight: '6kg',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/cat3/200'
+      weight: '4.2kg',
+      gender: '母',
+      avatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET007',
+      name: '咪咪',
+      breed: '英国短毛猫',
+      age: '2岁',
+      weight: '5.1kg',
+      gender: '母',
+      avatar: 'https://images.unsplash.com/photo-1511044568932-338cba0ad803?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET008',
+      name: '丸子',
+      breed: '布偶猫',
+      age: '3岁',
+      weight: '6.8kg',
+      gender: '母',
+      avatar: 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     }
   ];
 
@@ -87,7 +87,7 @@ const CatRecord: React.FC = () => {
                 placeholder="搜索宠物名称、品种、年龄或体重"
                 style={{ width: '400px' }}
                 allowClear
-                onPressEnter={() => {}}
+                onPressEnter={() => { }}
               />
             </div>
 

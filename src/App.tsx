@@ -4,12 +4,15 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate
+  Navigate,
+  useLocation
 } from "react-router-dom";
 import Header from './components/Header/Header';
 import { AuthProvider, useAuthContext } from './auth/AuthContext';
 
 //懒加载页面组件
+const OrderDetailPage = React.lazy(() => import('./pages/orderdetail/orderdetail'));
+const OrderEditPage = React.lazy(() => import('./pages/Order/edit/editdetail'));
 const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
 const CareersPage = React.lazy(() => import('./pages/Careers/CareersPage'));
 const ContactPage = React.lazy(() => import('./pages/Contact/Contact'));
@@ -35,13 +38,15 @@ const ProtectedRoute: React.FC<{ element: React.ReactNode; requiredRole?: string
   requiredRole
 }) => {
   const { isAuthenticated, user, isLoading } = useAuthContext();
+  const location = useLocation();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // 保存当前位置，以便登录后重定向回来
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 如果需要特定角色，检查用户角色
@@ -156,10 +161,30 @@ function App() {
                     <ProtectedRoute element={<OrderPage />} requiredRole="admin" />
                   }
                 />
+                {/* 订单编辑页路由（放在详情路由前，避免匹配歧义） */}
+                <Route
+                  path="/order/:orderId/edit"
+                  element={
+                    <ProtectedRoute element={<OrderEditPage />} requiredRole="admin" />
+                  }
+                />
+                {/* 订单详情页路由（与 OrderPage 中的 /order/:orderId 跳转保持一致） */}
+                <Route
+                  path="/order/:orderId"
+                  element={
+                    <ProtectedRoute element={<OrderDetailPage />} requiredRole="admin" />
+                  }
+                />
+                {/* 兼容别名路由 */}
+                <Route
+                  path="/orderdetail/:orderId"
+                  element={
+                    <ProtectedRoute element={<OrderDetailPage />} requiredRole="admin" />
+                  }
+                />
                 {/* 宠物详情页路由 */}
-                <Route path="/petDetail/:petId" element={<Navigate to="/petDetail" />} />
-                {/* 宠物列表页路由 */}
-                <Route path="/petDetail" element={<PetDetail />} />
+                <Route path="/petdetail/:id" element={<PetDetail />} />
+                <Route path="/petDetail/:id" element={<PetDetail />} />
                 {/* 设置页面路由 */}
                 <Route
                   path="/setting"
@@ -167,7 +192,7 @@ function App() {
                     <ProtectedRoute element={<SettingPage />} requiredRole="admin" />
                   }
                 />
-                
+
                 {/* 默认路由重定向到 about */}
                 <Route path="/" element={<Navigate to="/about" replace />} />
               </Routes>

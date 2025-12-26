@@ -45,7 +45,11 @@ export interface PetType {
     gradient: string;
     description: string;
 }
-
+export interface VaccineRecord {
+    name: string;
+    date: string;
+    nextDate: string;
+}
 // 宠物类型配置数据
 export const petTypes: PetType[] = [
     {
@@ -97,107 +101,107 @@ export const petTypes: PetType[] = [
 
 // 销售占比数据接口
 export interface SalesDistribution {
-  value: number;
-  name: string;
-  itemStyle: { color: string };
+    value: number;
+    name: string;
+    itemStyle: { color: string };
 }
 
 // 药品合规数据接口
 export interface ComplianceItem {
-  key: string;
-  name: string;
-  status: string;
-  guide: string;
-  action: string;
-  statusType: 'success' | 'error';
+    key: string;
+    name: string;
+    status: string;
+    guide: string;
+    action: string;
+    statusType: 'success' | 'error';
 }
 
 // 热力图数据接口
 export interface HeatmapItem {
-  name: string;
-  value: number;
-  itemStyle?: { color: string };
-  children?: HeatmapItem[];
+    name: string;
+    value: number;
+    itemStyle?: { color: string };
+    children?: HeatmapItem[];
 }
 
 // 库存预警数据接口
 export interface StockAlertItem {
-  key: string;
-  name: string;
-  remaining: number;
-  safetyLine: number;
-  emoji: string;
-  actionText: string;
-  actionType: 'danger' | 'warning';
+    key: string;
+    name: string;
+    remaining: number;
+    safetyLine: number;
+    emoji: string;
+    actionText: string;
+    actionType: 'danger' | 'warning';
 }
 
 // 销售占比环形图数据
 export const salesDistributionData: SalesDistribution[] = [
-  { value: 42, name: '主粮', itemStyle: { color: '#FFA726' } },
-  { value: 18, name: '用品', itemStyle: { color: '#4FC3F7' } },
-  { value: 5, name: '药品', itemStyle: { color: '#66BB6A' } },
-  { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
+    { value: 42, name: '主粮', itemStyle: { color: '#FFA726' } },
+    { value: 18, name: '用品', itemStyle: { color: '#4FC3F7' } },
+    { value: 5, name: '药品', itemStyle: { color: '#66BB6A' } },
+    { value: 35, name: '零食', itemStyle: { color: '#FFCC80' } }
 ];
 
 // 药品合规专区表格数据
 export const complianceData: ComplianceItem[] = [
-  { key: '1', name: '体内驱虫片(幼犬)', status: '已认证', guide: '含米尔贝肟，8周以下慎用', action: '管理', statusType: 'success' },
-  { key: '2', name: '关节止痛软膏', status: '缺检测报告', guide: '仅限外用', action: '立即补全', statusType: 'error' },
+    { key: '1', name: '体内驱虫片(幼犬)', status: '已认证', guide: '含米尔贝肟，8周以下慎用', action: '管理', statusType: 'success' },
+    { key: '2', name: '关节止痛软膏', status: '缺检测报告', guide: '仅限外用', action: '立即补全', statusType: 'error' },
 ];
 
 // 热力图数据 - 修改为符合ECharts treemap要求的格式
 export const heatmapData: HeatmapItem[] = [
-  {
-    name: '宠物用品',
-    value: 123, // 添加必需的 value 属性
-    children: [
-      { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
-      { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
-      { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
-      { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
-      { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
-      { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
-      { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
-      { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
-      { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
-    ]
-  }
+    {
+        name: '宠物用品',
+        value: 123, // 添加必需的 value 属性
+        children: [
+            { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
+            { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
+            { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
+            { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
+            { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
+            { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
+            { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
+            { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
+            { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
+        ]
+    }
 ];
 
 // 或者如果你想保持原始的扁平结构，可以使用这个版本
 export const heatmapDataFlat: HeatmapItem[] = [
-  { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
-  { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
-  { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
-  { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
-  { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
-  { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
-  { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
-  { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
-  { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
+    { name: '全价猫粮', value: 30, itemStyle: { color: 'rgba(255, 167, 38, 1)' } },
+    { name: '冻干零食', value: 20, itemStyle: { color: 'rgba(255, 167, 38, 0.8)' } },
+    { name: '猫砂用品', value: 15, itemStyle: { color: 'rgba(79, 195, 247, 0.9)' } },
+    { name: '驱虫药', value: 8, itemStyle: { color: 'rgba(102, 187, 106, 0.9)' } },
+    { name: '智能饮水机', value: 12, itemStyle: { color: 'rgba(79, 195, 247, 0.6)' } },
+    { name: '保健品', value: 5, itemStyle: { color: 'rgba(102, 187, 106, 0.5)' } },
+    { name: '狗粮', value: 10, itemStyle: { color: 'rgba(255, 167, 38, 0.5)' } },
+    { name: '猫罐头', value: 15, itemStyle: { color: 'rgba(255, 167, 38, 0.7)' } },
+    { name: '宠物沐浴露', value: 8, itemStyle: { color: 'rgba(79, 195, 247, 0.7)' } }
 ];
 
 
 // 库存预警列表数据
 export const stockAlertData: StockAlertItem[] = [
-  { 
-    key: '1', 
-    name: '膨润土猫砂', 
-    remaining: 72, 
-    safetyLine: 150, 
-    emoji: '🐱', 
-    actionText: '一键补货', 
-    actionType: 'danger' 
-  },
-  { 
-    key: '2', 
-    name: '发声橡胶玩具', 
-    remaining: 0, 
-    safetyLine: 0, 
-    emoji: '🦴', 
-    actionText: '生成促销案', 
-    actionType: 'warning' 
-  }
+    {
+        key: '1',
+        name: '膨润土猫砂',
+        remaining: 72,
+        safetyLine: 150,
+        emoji: '🐱',
+        actionText: '一键补货',
+        actionType: 'danger'
+    },
+    {
+        key: '2',
+        name: '发声橡胶玩具',
+        remaining: 0,
+        safetyLine: 0,
+        emoji: '🦴',
+        actionText: '生成促销案',
+        actionType: 'warning'
+    }
 ];
 
 // 模拟宠物档案数据
@@ -205,7 +209,7 @@ export const petRecords: Pet[] = [
     // 狗狗类
     {
         id: 'PET001',
-        name: '旺财',
+        name: '黑哥',
         breed: '金毛寻回犬',
         gender: 'male',
         birthDate: '2020-05-15',
@@ -219,7 +223,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '对鸡蛋轻微过敏',
         lastCheckupDate: '2024-10-20',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '犬八联（核心）', date: '2024-03-15', nextDate: '2025-03-15' },
+            { name: '狂犬病疫苗', date: '2024-04-10', nextDate: '2025-04-10' },
+            { name: '体内外驱虫', date: '2024-09-01', nextDate: '2024-12-01' }
+        ],
         serviceHistory: []
     },
     {
@@ -238,7 +246,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-01',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '犬六联（加强）', date: '2024-02-20', nextDate: '2025-02-20' },
+            { name: '狂犬病疫苗', date: '2024-03-05', nextDate: '2025-03-05' },
+            { name: '体内驱虫', date: '2024-08-10', nextDate: '2024-11-10' }
+        ],
         serviceHistory: []
     },
     {
@@ -257,7 +269,13 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-15',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '犬四联（核心）', date: '2024-03-15', nextDate: '2025-03-15' },
+            { name: '狂犬病疫苗', date: '2024-04-20', nextDate: '2025-04-20' },
+            { name: '犬冠状病毒疫苗', date: '2024-05-10', nextDate: '2025-05-10' },
+            { name: '体外驱虫', date: '2024-06-05', nextDate: '2024-09-05' },
+            { name: '犬四联（加强）', date: '2024-09-18', nextDate: '2025-09-18' }
+        ],
         serviceHistory: []
     },
     {
@@ -276,7 +294,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-05',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '幼犬三针（核心）', date: '2024-04-01', nextDate: '2025-04-01' },
+            { name: '狂犬病疫苗', date: '2024-05-10', nextDate: '2025-05-10' },
+            { name: '外驱虫（滴剂）', date: '2024-09-15', nextDate: '2024-12-15' }
+        ],
         serviceHistory: []
     },
     {
@@ -295,7 +317,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-09-30',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '犬八联（核心）', date: '2024-02-28', nextDate: '2025-02-28' },
+            { name: '狂犬病疫苗', date: '2024-03-18', nextDate: '2025-03-18' },
+            { name: '体内驱虫', date: '2024-07-01', nextDate: '2024-10-01' }
+        ],
         serviceHistory: []
     },
     // 猫咪类
@@ -315,7 +341,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-10',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '猫三联（核心）', date: '2024-03-10', nextDate: '2025-03-10' },
+            { name: '狂犬病疫苗', date: '2024-04-05', nextDate: '2025-04-05' },
+            { name: '体外驱虫', date: '2024-08-12', nextDate: '2024-11-12' }
+        ],
         serviceHistory: []
     },
     {
@@ -334,7 +364,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-09-25',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '猫三联（核心）', date: '2024-02-20', nextDate: '2025-02-20' },
+            { name: '狂犬病疫苗', date: '2024-03-25', nextDate: '2025-03-25' },
+            { name: '体内驱虫', date: '2024-08-01', nextDate: '2024-11-01' }
+        ],
         serviceHistory: []
     },
     {
@@ -353,7 +387,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-25',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '猫三联（核心）', date: '2024-01-30', nextDate: '2025-01-30' },
+            { name: '狂犬病疫苗', date: '2024-03-02', nextDate: '2025-03-02' },
+            { name: '体外驱虫', date: '2024-07-20', nextDate: '2024-10-20' }
+        ],
         serviceHistory: []
     },
     {
@@ -372,7 +410,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-08',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '猫三联（核心）', date: '2024-04-12', nextDate: '2025-04-12' },
+            { name: '狂犬病疫苗', date: '2024-05-05', nextDate: '2025-05-05' },
+            { name: '体内驱虫', date: '2024-09-05', nextDate: '2024-12-05' }
+        ],
         serviceHistory: []
     },
     {
@@ -391,7 +433,11 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-18',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '猫三联（核心）', date: '2024-02-18', nextDate: '2025-02-18' },
+            { name: '狂犬病疫苗', date: '2024-03-28', nextDate: '2025-03-28' },
+            { name: '体外驱虫', date: '2024-08-08', nextDate: '2024-11-08' }
+        ],
         serviceHistory: []
     },
     // 鱼类
@@ -411,7 +457,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-03',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '常规检疫/消毒', date: '2024-03-01', nextDate: '2025-03-01' }
+        ],
         serviceHistory: []
     },
     {
@@ -430,7 +478,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-28',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '寄生虫预防（外用）', date: '2024-04-12', nextDate: '2024-07-12' }
+        ],
         serviceHistory: []
     },
     {
@@ -449,7 +499,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-05',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '水体消毒/检疫', date: '2024-05-05', nextDate: '2025-05-05' }
+        ],
         serviceHistory: []
     },
     // 兔子类
@@ -469,7 +521,10 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-22',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '巴氏杆菌疫苗', date: '2024-03-16', nextDate: '2025-03-16' },
+            { name: '体外驱虫', date: '2024-08-20', nextDate: '2024-11-20' }
+        ],
         serviceHistory: []
     },
     {
@@ -488,7 +543,10 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-06',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '兔瘟疫苗', date: '2024-04-08', nextDate: '2025-04-08' },
+            { name: '体内驱虫', date: '2024-09-10', nextDate: '2024-12-10' }
+        ],
         serviceHistory: []
     },
     // 其他宠物
@@ -508,7 +566,10 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-30',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '常规检疫', date: '2024-05-12', nextDate: '2025-05-12' },
+            { name: '体外驱虫', date: '2024-09-01', nextDate: '2024-12-01' }
+        ],
         serviceHistory: []
     },
     {
@@ -527,7 +588,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-02',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '真菌/寄生虫预防', date: '2024-06-06', nextDate: '2024-09-06' }
+        ],
         serviceHistory: []
     },
     {
@@ -546,7 +609,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-15',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '禽类常规疫苗', date: '2024-03-18', nextDate: '2025-03-18' }
+        ],
         serviceHistory: []
     },
     {
@@ -565,7 +630,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-10-25',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '狂犬/破伤风预防', date: '2024-05-22', nextDate: '2025-05-22' }
+        ],
         serviceHistory: []
     },
     {
@@ -584,7 +651,9 @@ export const petRecords: Pet[] = [
         specialDiseases: '无',
         allergies: '无',
         lastCheckupDate: '2024-11-07',
-        vaccineRecords: [],
+        vaccineRecords: [
+            { name: '常规检疫', date: '2024-06-15', nextDate: '2025-06-15' }
+        ],
         serviceHistory: []
     },
 ];

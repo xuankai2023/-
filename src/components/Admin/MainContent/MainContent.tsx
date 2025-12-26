@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { ArrowRightOutlined, LikeOutlined } from '@ant-design/icons';
 import { Card, Button, Space, Row, Col, Tag, Image, message } from 'antd';
+import './MainContent.css';
 import * as echarts from 'echarts';
 
 // 图表组件
@@ -58,25 +59,28 @@ const MetricCard: React.FC = () => {
   return (
     <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
       <Col xs={12} sm={12} md={6}>
-        <Card hoverable>
-          <div style={{ textAlign: 'center', padding: 16 }}>
+        <Card hoverable className="metric-card">
+          <div className="metric-card-inner">
             <div 
-              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-cover"
               onClick={() => message.info('点击了Cover区域')}
             >
-              <img src='/public/images/svg/仓鼠.svg' style={{ width: '100%', height: '100%' }} />
+              <img src='/images/svg/仓鼠.svg' className="metric-card-icon" alt="宠物总数" />
             </div>
             <div 
-              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-title"
               onClick={() => message.info('点击了Header区域')}
             >
               宠物总数
-              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+              <ArrowRightOutlined style={{ marginLeft: 6 }} />
             </div>
-            <div onClick={() => message.info('点击了Body区域')}>
-              
+            <div
+              className="metric-card-subtitle"
+              onClick={() => message.info('点击了Body区域')}
+            >
+              当前在册宠物总量及增长趋势
             </div>
-            <Space style={{ marginTop: 16 }}>
+            <Space className="metric-card-actions">
               <Button size='small'>
                 更多
               </Button>
@@ -94,25 +98,28 @@ const MetricCard: React.FC = () => {
       </Col>
 
       <Col xs={12} sm={12} md={6}>
-        <Card hoverable>
-          <div style={{ textAlign: 'center', padding: 16 }}>
+        <Card hoverable className="metric-card">
+          <div className="metric-card-inner">
             <div 
-              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-cover"
               onClick={() => message.info('点击了Cover区域')}
             >
-              <img src='/public/images/svg/荷兰猪.svg' style={{ width: '100%', height: '100%' }} />
+              <img src='/images/svg/荷兰猪.svg' className="metric-card-icon" alt="本月订单" />
             </div>
             <div 
-              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-title"
               onClick={() => message.info('点击了Header区域')}
             >
               本月订单
-              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+              <ArrowRightOutlined style={{ marginLeft: 6 }} />
             </div>
-            <div onClick={() => message.info('点击了Body区域')}>
-              
+            <div
+              className="metric-card-subtitle"
+              onClick={() => message.info('点击了Body区域')}
+            >
+              全渠道订单与转化情况一目了然
             </div>
-            <Space style={{ marginTop: 16 }}>
+            <Space className="metric-card-actions">
               <Button size='small'>
                 更多
               </Button>
@@ -130,24 +137,33 @@ const MetricCard: React.FC = () => {
       </Col>
 
       <Col xs={12} sm={12} md={6}>
-        <Card hoverable>
-          <div style={{ textAlign: 'center', padding: 16 }}>
-            <Image 
-              src='/public/images/svg/哈士奇.svg' 
-              style={{ width: 80, height: 80, marginBottom: 16 }} 
+        <Card hoverable className="metric-card">
+          <div className="metric-card-inner">
+            <div
+              className="metric-card-cover"
               onClick={() => message.info('点击了Cover区域')}
+            >
+              <Image
+                src='/images/svg/哈士奇.svg'
+                preview={false}
+                className="metric-card-icon"
+                alt="库存商品"
             />
+            </div>
             <div 
-              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-title"
               onClick={() => message.info('点击了Header区域')}
             >
               库存商品
-              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+              <ArrowRightOutlined style={{ marginLeft: 6 }} />
             </div>
-            <div onClick={() => message.info('点击了Body区域')}>
-              
+            <div
+              className="metric-card-subtitle"
+              onClick={() => message.info('点击了Body区域')}
+            >
+              实时掌握仓储与补货预警
             </div>
-            <Space style={{ marginTop: 16 }}>
+            <Space className="metric-card-actions">
               <Button size='small'>
                 更多
               </Button>
@@ -165,25 +181,28 @@ const MetricCard: React.FC = () => {
       </Col>
 
       <Col xs={12} sm={12} md={6}>
-        <Card hoverable>
-          <div style={{ textAlign: 'center', padding: 16 }}>
+        <Card hoverable className="metric-card">
+          <div className="metric-card-inner">
             <div 
-              style={{ width: 80, height: 80, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-cover"
               onClick={() => message.info('点击了Cover区域')}
             >
-              <img src='/public/images/svg/可达鸭.svg' style={{ width: '100%', height: '100%' }} />
+              <img src='/images/svg/可达鸭.svg' className="metric-card-icon" alt="会员总数" />
             </div>
             <div 
-              style={{ fontSize: 16, fontWeight: 500, marginBottom: 16, cursor: 'pointer' }} 
+              className="metric-card-title"
               onClick={() => message.info('点击了Header区域')}
             >
               会员总数
-              <ArrowRightOutlined style={{ marginLeft: 8 }} />
+              <ArrowRightOutlined style={{ marginLeft: 6 }} />
             </div>
-            <div onClick={() => message.info('点击了Body区域')}>
-              
+            <div
+              className="metric-card-subtitle"
+              onClick={() => message.info('点击了Body区域')}
+            >
+              会员增长与活跃度一键查看
             </div>
-            <Space style={{ marginTop: 16 }}>
+            <Space className="metric-card-actions">
               <Button size='small'>
                 更多
               </Button>

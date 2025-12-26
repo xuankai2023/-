@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
 import { Input, Button, Space, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import './FishRecord.css';
 
 interface PetInfo {
@@ -9,53 +10,57 @@ interface PetInfo {
   name: string;
   breed: string;
   age: string;
-  size: string;
+  weight: string;
   gender: string;
   avatar: string;
 }
 
 const FishRecord: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
-  
-  // 模拟观赏鱼数据
+  const navigate = useNavigate();
+  const handleViewDetail = (petId: string) => {
+    navigate(`/petDetail/${petId}`);
+  };
+
+  // 模拟观赏鱼数据（ID 与 petDetail 使用的 mock 数据保持一致：PET011-013 是鱼）
   const fishRecords: PetInfo[] = [
     {
-      id: 'fish-001',
-      name: '金金',
-      breed: '金龙鱼',
-      age: '2岁',
-      size: '30cm',
-      gender: '公',
-      avatar: 'https://picsum.photos/seed/fish1/200'
-    },
-    {
-      id: 'fish-002',
+      id: 'PET011',
       name: '红红',
-      breed: '孔雀鱼',
-      age: '3个月',
-      size: '3cm',
-      gender: '母',
-      avatar: 'https://picsum.photos/seed/fish2/200'
+      breed: '红锦鲤',
+      age: '2岁',
+      weight: '0.2kg',
+      gender: '公',
+      avatar: 'https://images.unsplash.com/photo-1517212168411-b31be8ac33d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     },
     {
-      id: 'fish-003',
-      name: '蓝蓝',
+      id: 'PET012',
+      name: '蓝宝石',
       breed: '蓝曼龙',
-      age: '6个月',
-      size: '8cm',
+      age: '1.5岁',
+      weight: '0.1kg',
+      gender: '母',
+      avatar: 'https://images.unsplash.com/photo-1516876437184-593fda40c7ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    },
+    {
+      id: 'PET013',
+      name: '斑马',
+      breed: '斑马鱼',
+      age: '1岁',
+      weight: '0.05kg',
       gender: '公',
-      avatar: 'https://picsum.photos/seed/fish3/200'
+      avatar: 'https://images.unsplash.com/photo-1571915923963-59973275d4f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
     }
   ];
 
   const filteredRecords = useMemo(() => {
     if (!searchValue) return fishRecords;
     const keyword = searchValue.toLowerCase();
-    return fishRecords.filter(pet => 
+    return fishRecords.filter(pet =>
       pet.name.toLowerCase().includes(keyword) ||
       pet.breed.toLowerCase().includes(keyword) ||
       pet.age.toLowerCase().includes(keyword) ||
-      pet.size.toLowerCase().includes(keyword)
+      pet.weight.toLowerCase().includes(keyword)
     );
   }, [searchValue]);
 
@@ -70,7 +75,7 @@ const FishRecord: React.FC = () => {
               <h1>观赏鱼档案</h1>
               <p>共 {filteredRecords.length} 条观赏鱼记录</p>
             </div>
-            
+
             <div className="table-toolbar">
               <Input.Search
                 value={searchValue}
@@ -78,7 +83,7 @@ const FishRecord: React.FC = () => {
                 placeholder="搜索宠物名称、品种、年龄或体长"
                 style={{ width: '400px' }}
                 allowClear
-                onPressEnter={() => {}}
+                onPressEnter={() => { }}
               />
             </div>
 
@@ -90,7 +95,7 @@ const FishRecord: React.FC = () => {
                     <th>宠物名称</th>
                     <th>品种</th>
                     <th>年龄</th>
-                    <th>体长</th>
+                    <th>体重</th>
                     <th>性别</th>
                     <th>操作</th>
                   </tr>
@@ -108,30 +113,37 @@ const FishRecord: React.FC = () => {
                         <td>{pet.id}</td>
                         <td>
                           <div className="pet-name-cell">
-                            <img 
-                              src={pet.avatar} 
+                            <img
+                              src={pet.avatar}
                               alt={pet.name}
                               className="pet-avatar-small"
                             />
                             <span>{pet.name}</span>
                           </div>
                         </td>
+
                         <td>{pet.breed}</td>
                         <td>{pet.age}</td>
-                        <td>{pet.size}</td>
+                        <td>{pet.weight}</td>
                         <td>{pet.gender}</td>
                         <td>
                           <Space style={{ gap: '8px' }}>
-                            <Button 
-                              size="small" 
+                            <Button
+                              size="small"
                               type="primary"
-                              onClick={() => message.info(`查看 ${pet.name} 的详情`)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                handleViewDetail(pet.id);
+                              }}
                             >
                               查看
                             </Button>
-                            <Button 
+                            <Button
                               size="small"
-                              onClick={() => message.info(`编辑 ${pet.name} 的信息`)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                alert(`编辑 ${pet.name} 的信息`);
+                              }}
                             >
                               编辑
                             </Button>

@@ -1,0 +1,137 @@
+/* 布局整体 */
+.orderedit-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.orderedit-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.orderedit-content {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+  background-color: #f3f4f6;
+}
+
+.orderedit-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 顶部标题与按钮 */
+.orderedit-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.orderedit-page-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 通用卡片样式 */
+.orderedit-card {
+  border-radius: 12px;
+}
+
+.orderedit-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orderedit-card-title i {
+  color: #6b7280;
+}
+
+.orderedit-top-grid {
+  margin-bottom: 24px;
+}
+
+/* 宠物档案 */
+.orderedit-pet-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.orderedit-pet-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e5e7eb;
+}
+
+.orderedit-pet-info {
+  flex: 1;
+}
+
+/* 金额汇总区域 */
+.orderedit-amount-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.orderedit-amount-right {
+  min-width: 240px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.summary-discount {
+  color: #16a34a;
+}
+
+.summary-total {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.orderedit-notes-row {
+  margin-top: 24px;
+}
+
+.orderedit-note-box {
+  background-color: #fefce8;
+  border: 1px dashed #eab308;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.orderedit-note-box.note-doctor {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+}
+
+@media (max-width: 768px) {
+  .orderedit-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .orderedit-content {
+    padding: 16px;
+  }
+}

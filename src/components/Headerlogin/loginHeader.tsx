@@ -48,8 +48,8 @@ const Header: React.FC = () => {
             <Button onClick={navigateToContact} className="nav-button">Contact</Button>
           </nav>
           <div className="header-actions">
-            <Button type="primary" onClick={() => navigate('/admin')} className="watch-tiktok-btn">
-              Watch TikTok →
+            <Button type="primary" onClick={openLoginModal} className="watch-tiktok-btn">
+              登录
             </Button>
           </div>
         </div>
