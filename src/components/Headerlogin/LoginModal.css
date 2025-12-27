@@ -151,34 +151,44 @@
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex-shrink: 0 !important;
 }
 
 /* Button optimizations for header */
 .watch-tiktok-btn {
-  border-radius: 24px;
-  padding: 10px 20px;
-  font-weight: 600;
-  font-size: 14px;
-  background-color: #000;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
+  border-radius: 24px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  background-color: #000 !important;
+  color: white !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  min-width: auto !important;
+  height: auto !important;
 }
 
 .watch-tiktok-btn:hover {
-  background-color: #333;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #333 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  color: white !important;
 }
 
 .watch-tiktok-btn:active {
-  transform: translateY(0);
+  transform: translateY(0) !important;
+}
+
+.watch-tiktok-btn:focus {
+  background-color: #000 !important;
+  color: white !important;
+  border: none !important;
 }
 
 /* Navigation button styles */
@@ -209,6 +219,49 @@ button.nav-button:hover,
 button.nav-button:active,
 .nav-button:active {
   transform: translateY(0) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-container {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .header-nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .header-actions {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .watch-tiktok-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+  }
+
+  .nav-button {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0 12px;
+  }
+
+  .watch-tiktok-btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
 }
 
 /* Main Content */

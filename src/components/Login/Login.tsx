@@ -9,9 +9,10 @@ import { useAuthContext } from '../../auth/AuthContext';
 interface LoginProps {
   visible?: boolean;
   onClose?: () => void;
+  onLoginSuccess?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
+const Login: React.FC<LoginProps> = ({ visible = true, onClose, onLoginSuccess }) => {
   const navigate = useNavigate();
   const { login, isLoading: authLoading } = useAuthContext();
   const [username, setUsername] = useState('');
@@ -48,16 +49,22 @@ const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
       console.log('login方法返回结果:', success);
 
       if (success) {
-        // 登录成功：先关闭模态框，再跳转到 admin 页面
+        console.log('登录成功，准备处理跳转');
+        // 登录成功：先关闭模态框
         if (onClose) {
           onClose();
         }
-        // 延迟跳转，确保模态框先关闭
+        // 如果有登录成功回调，调用它
+        if (onLoginSuccess) {
+          console.log('调用登录成功回调');
+          onLoginSuccess();
+        }
+        // 无论是否有回调，都执行跳转（双重保障）
         setTimeout(() => {
-          // 如果有来源页面，跳转到来源页面，否则跳转到admin
-          const from = location.state?.from?.pathname || '/admin';
-          navigate(from, { replace: true });
-        }, 100);
+          const targetPath = '/admin';
+          console.log('强制跳转到:', targetPath);
+          navigate(targetPath, { replace: true });
+        }, 300);
       } else {
         setError('用户名或密码错误');
       }
@@ -228,7 +235,7 @@ const Login: React.FC<LoginProps> = ({ visible = true, onClose }) => {
         >
           忘记密码?
         </button>
-        
+
         {/* 登录按钮 */}
         <div className="login-modal-actions" style={{ marginTop: 24 }}>
           <Button

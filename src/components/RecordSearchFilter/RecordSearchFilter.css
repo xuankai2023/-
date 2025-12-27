@@ -1,0 +1,283 @@
+.record-search-filter {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.record-search-filter:hover {
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.record-search-filter-content {
+  width: 100%;
+  position: relative;
+}
+
+/* 添加装饰性背景元素 */
+.record-search-filter-content::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.record-search-filter-items {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.record-search-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.record-search-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.filter-icon {
+  color: #6366f1;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.record-search-filter-input {
+  height: 44px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+.record-search-filter-input:hover {
+  border-color: #6366f1;
+  background: #fafbff;
+}
+
+.record-search-filter-input:focus,
+.record-search-filter-input.ant-input-focused {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 2px 8px rgba(99, 102, 241, 0.15);
+  background: #ffffff;
+}
+
+.record-search-filter-date-picker {
+  height: 44px;
+  border-radius: 10px;
+}
+
+.record-search-filter-date-picker .ant-picker {
+  height: 44px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  font-size: 14px;
+}
+
+.record-search-filter-date-picker .ant-picker:hover {
+  border-color: #6366f1;
+  background: #fafbff;
+}
+
+.record-search-filter-date-picker .ant-picker-focused {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 2px 8px rgba(99, 102, 241, 0.15);
+  background: #ffffff;
+}
+
+.record-search-filter-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 0;
+}
+
+.record-search-filter-button {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+  border: none;
+}
+
+.record-search-filter-button.ant-btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3), 0 2px 4px rgba(99, 102, 241, 0.2);
+  color: #ffffff;
+}
+
+.record-search-filter-button.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4), 0 3px 6px rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.record-search-filter-button.ant-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.record-search-filter-button:not(.ant-btn-primary) {
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  color: #6b7280;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.record-search-filter-button:not(.ant-btn-primary):hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #fafbff;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
+  transform: translateY(-1px);
+}
+
+.record-search-filter-button:not(.ant-btn-primary):active {
+  transform: translateY(0);
+}
+
+.record-search-filter-button:not(.ant-btn-primary):disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f5f5f5;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .record-search-filter-items {
+    gap: 12px;
+  }
+
+  .record-search-filter-item {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .record-search-filter {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .record-search-filter-items {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .record-search-filter-item {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .record-search-filter-actions {
+    margin-top: 0;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .record-search-filter-button {
+    flex: 1;
+    height: 42px;
+  }
+}
+
+@media (max-width: 480px) {
+  .record-search-filter {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .record-search-filter-label {
+    font-size: 13px;
+  }
+
+  .filter-icon {
+    font-size: 14px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .record-search-filter-input,
+  .record-search-filter-date-picker .ant-picker {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .record-search-filter-button {
+    height: 40px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+}
+
+/* 深色模式支持（可选） */
+@media (prefers-color-scheme: dark) {
+  .record-search-filter {
+    background: #1f1f1f;
+    border-color: #333333;
+  }
+
+  .record-search-filter-label {
+    color: #e0e0e0;
+  }
+
+  .record-search-filter-input,
+  .record-search-filter-date-picker .ant-picker {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #e0e0e0;
+  }
+
+  .record-search-filter-input:hover,
+  .record-search-filter-date-picker .ant-picker:hover {
+    border-color: #6366f1;
+  }
+}
+

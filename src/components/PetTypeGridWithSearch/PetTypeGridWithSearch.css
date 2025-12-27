@@ -1,0 +1,313 @@
+.pet-type-grid-with-search {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto 20px;
+}
+
+/* 搜索组件行样式 */
+.search-filter-row {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* 顶部搜索组件样式 */
+.top-search-filter {
+  width: 100%;
+  margin: 0;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  transition: all 0.3s ease;
+}
+
+.top-search-filter:hover {
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.top-search-filter .record-search-filter-content {
+  width: 100%;
+}
+
+.top-search-filter .record-search-filter-items {
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.top-search-filter .record-search-filter-item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.top-search-filter .record-search-filter-actions {
+  margin-top: 0;
+  gap: 12px;
+}
+
+.top-search-filter .record-search-filter-button {
+  height: 44px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+
+.top-search-filter .record-search-filter-input,
+.top-search-filter .record-search-filter-date-picker .ant-picker {
+  height: 44px;
+  font-size: 14px;
+}
+
+.pet-type-grid-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+
+/* 宠物类型卡片样式（复用原有样式，但需要调整高度匹配） */
+.pet-type-card {
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  position: relative;
+  min-height: 190px !important;
+  transition: all 0.3s ease;
+}
+
+.pet-type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+}
+
+.pet-type-card-content {
+  padding: 16px 14px;
+  color: white;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 190px;
+  gap: 6px;
+}
+
+.pet-type-icon-wrapper {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.pet-type-icon {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.pet-type-name {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.pet-type-description {
+  font-size: 13px;
+  margin: 0 0 10px 0;
+  opacity: 0.92;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.pet-type-count {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  width: 100%;
+}
+
+.count-number {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.count-label {
+  font-size: 13px;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 400;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .top-search-filter {
+    padding: 18px 20px;
+  }
+
+  .top-search-filter .record-search-filter-items {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .pet-type-grid-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .pet-type-grid-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pet-type-grid-with-search {
+    margin-bottom: 16px;
+  }
+
+  .search-filter-row {
+    margin-bottom: 16px;
+  }
+
+  .pet-type-grid-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .top-search-filter {
+    padding: 16px;
+  }
+
+  .top-search-filter .record-search-filter-items {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .top-search-filter .record-search-filter-item {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .top-search-filter .record-search-filter-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .top-search-filter .record-search-filter-button {
+    flex: 1;
+    height: 40px;
+  }
+
+  .pet-type-card {
+    min-height: 160px !important;
+  }
+
+  .pet-type-card-content {
+    min-height: 160px;
+    padding: 14px 12px;
+  }
+
+  .pet-type-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 8px;
+  }
+
+  .pet-type-name {
+    font-size: 18px;
+  }
+
+  .pet-type-description {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .count-number {
+    font-size: 24px;
+  }
+
+  .count-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pet-type-grid-row {
+    grid-template-columns: 1fr;
+  }
+
+  .top-search-filter {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .top-search-filter .record-search-filter-button {
+    height: 38px;
+    font-size: 13px;
+    padding: 0 20px;
+  }
+
+  .top-search-filter .record-search-filter-input,
+  .top-search-filter .record-search-filter-date-picker .ant-picker {
+    height: 38px;
+  }
+
+  .pet-type-card {
+    min-height: 150px !important;
+  }
+
+  .pet-type-card-content {
+    min-height: 150px;
+    padding: 12px 10px;
+  }
+
+  .pet-type-icon-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pet-type-name {
+    font-size: 16px;
+  }
+
+  .count-number {
+    font-size: 20px;
+  }
+}
+

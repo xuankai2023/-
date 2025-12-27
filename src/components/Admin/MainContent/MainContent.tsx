@@ -1,8 +1,11 @@
-import React, { useRef, useEffect } from 'react';
-import { ArrowRightOutlined, LikeOutlined } from '@ant-design/icons';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import { ArrowRightOutlined, LikeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Card, Button, Space, Row, Col, Tag, Image, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import './MainContent.css';
 import * as echarts from 'echarts';
+import { allOrders, OrderStatus } from '../../../mock/orderData';
+import { useOrderSearch } from '../hooks/useOrderSearch';
 
 // 图表组件
 const EChartsChart: React.FC = () => {
@@ -223,32 +226,70 @@ const MetricCard: React.FC = () => {
 };
 
 // 最近订单项
-const OrderItem: React.FC<{
-  id: string;
+interface RecentOrderItemProps {
+  orderId: string;
   customer: string;
   time: string;
-  amount: string;
-  status: 'completed' | 'processing';
-}> = ({ id, customer, time, amount, status }) => {
-  const statusConfig = {
-    completed: { text: '已完成', color: 'success' },
-    processing: { text: '进行中', color: 'warning' }
-  }[status];
+  amount: number;
+  status: OrderStatus;
+  onClick?: () => void;
+}
+
+const RecentOrderItem: React.FC<RecentOrderItemProps> = ({
+  orderId,
+  customer,
+  time,
+  amount,
+  status,
+  onClick,
+}) => {
+  const statusConfig = useMemo(() => {
+    const map: Record<OrderStatus, { text: string; color: string; bgColor: string; textColor: string }> = {
+      [OrderStatus.COMPLETED]: { text: '已完成', color: 'green', bgColor: '#e6f7ff', textColor: '#1890ff' },
+      [OrderStatus.PENDING]: { text: '待处理', color: 'orange', bgColor: '#fff7e6', textColor: '#fa8c16' },
+      [OrderStatus.CANCELLED]: { text: '已取消', color: 'default', bgColor: '#f5f5f5', textColor: '#999' },
+    };
+    return map[status];
+  }, [status]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0' }}>
-      <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: status === 'completed' ? '#e6f7ff' : '#fff7e6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontWeight: 'bold', color: status === 'completed' ? '#1890ff' : '#fa8c16' }}>
-          {id.startsWith('ORD') ? 'C' : id.startsWith('SER') ? 'S' : 'E'}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 0',
+        cursor: onClick ? 'pointer' : 'default',
+      }}
+      onClick={onClick}
+    >
+      <div
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
+          backgroundColor: statusConfig.bgColor,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <span style={{ fontWeight: 'bold', color: statusConfig.textColor }}>
+          {orderId.startsWith('ORDER') ? 'O' : orderId[0]}
         </span>
       </div>
       <div style={{ flex: 1, marginLeft: 12 }}>
-        <div style={{ fontWeight: 500, fontSize: 14 }}>{id}</div>
-        <div style={{ color: '#999', fontSize: 12 }}>{customer} · {time}</div>
+        <div style={{ fontWeight: 500, fontSize: 14 }}>{orderId}</div>
+        <div style={{ color: '#999', fontSize: 12 }}>
+          {customer} · {time}
+        </div>
       </div>
       <div style={{ textAlign: 'right' }}>
-        <div style={{ fontWeight: 500, fontSize: 14 }}>{amount}</div>
-        <Tag color={statusConfig.color === 'success' ? 'green' : 'orange'} style={{ marginTop: 4 }}>{statusConfig.text}</Tag>
+        <div style={{ fontWeight: 500, fontSize: 14, color: '#f5222d' }}>
+          ¥{amount.toFixed(2)}
+        </div>
+        <Tag color={statusConfig.color} style={{ marginTop: 4 }}>
+          {statusConfig.text}
+        </Tag>
       </div>
     </div>
   );
@@ -256,6 +297,48 @@ const OrderItem: React.FC<{
 
 // 主内容组件
 const MainContent: React.FC = () => {
+  const navigate = useNavigate();
+  const { filteredOrders } = useOrderSearch({
+    orders: allOrders,
+    initialSort: { field: 'orderTime', order: 'desc' },
+  });
+
+  // 获取最近5条订单
+  const recentOrders = useMemo(() => {
+    return filteredOrders.slice(0, 5);
+  }, [filteredOrders]);
+
+  // 格式化时间
+  const formatTime = useCallback((timeString: string) => {
+    const date = new Date(timeString);
+    return date.toLocaleString('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }, []);
+
+  // 处理查看全部订单
+  const handleViewAllOrders = useCallback(() => {
+    navigate('/order');
+  }, [navigate]);
+
+  // 处理订单项点击
+  const handleOrderClick = useCallback(
+    (orderId: string) => {
+      navigate(`/order/${orderId}`);
+    },
+    [navigate]
+  );
+
+  // 处理刷新
+  const handleRefresh = useCallback(() => {
+    message.success('数据已刷新');
+    // 这里可以触发数据重新加载
+    window.location.reload();
+  }, []);
+
   return (
     <div style={{ padding: '15px' }}>
       {/* 数据指标 */}
@@ -263,9 +346,23 @@ const MainContent: React.FC = () => {
 
       {/* 图表 */}
       <Card style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 16px 0 16px',
+          }}
+        >
           <span style={{ fontSize: 16, fontWeight: 500 }}>月度数据统计</span>
-          <Button type="primary" size="small">查看详情</Button>
+          <Space>
+            <Button icon={<ReloadOutlined />} size="small" onClick={handleRefresh}>
+              刷新
+            </Button>
+            <Button type="primary" size="small">
+              查看详情
+            </Button>
+          </Space>
         </div>
         <div style={{ paddingTop: 0, padding: '0 16px 16px 16px' }}>
           <EChartsChart />
@@ -274,37 +371,46 @@ const MainContent: React.FC = () => {
 
       {/* 最近订单 */}
       <Card>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0 16px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 16px 0 16px',
+          }}
+        >
           <span style={{ fontSize: 16, fontWeight: 500 }}>最近订单</span>
-          <Button type="primary" size="small">查看全部</Button>
+          <Button type="primary" size="small" onClick={handleViewAllOrders}>
+            查看全部
+          </Button>
         </div>
-        <div style={{ padding: 0 }}>
-          <OrderItem
-            id="ORD-2023-0875"
-            customer="张明"
-            time="2023-11-30 14:30"
-            amount="¥580.00"
-            status="completed"
-          />
-          <div style={{ height: 1, backgroundColor: '#f0f0f0' }}></div>
-          <OrderItem
-            id="SER-2023-0451"
-            customer="王芳"
-            time="2023-11-30 10:00"
-            amount="¥280.00"
-            status="processing"
-          />
-          <div style={{ height: 1, backgroundColor: '#f0f0f0' }}></div>
-          <OrderItem
-            id="EMG-2023-019"
-            customer="赵敏"
-            time="2023-11-30 18:00"
-            amount="¥89.00"
-            status="processing"
-          />
+        <div style={{ padding: '16px' }}>
+          {recentOrders.length > 0 ? (
+            <>
+              {recentOrders.map((order, index) => (
+                <React.Fragment key={order.id}>
+                  <RecentOrderItem
+                    orderId={order.id}
+                    customer={order.customerName}
+                    time={formatTime(order.orderTime)}
+                    amount={order.totalAmount}
+                    status={order.status}
+                    onClick={() => handleOrderClick(order.id)}
+                  />
+                  {index < recentOrders.length - 1 && (
+                    <div style={{ height: 1, backgroundColor: '#f0f0f0', margin: '8px 0' }} />
+                  )}
+                </React.Fragment>
+              ))}
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+              暂无订单数据
+            </div>
+          )}
         </div>
         <div style={{ padding: 16, textAlign: 'center' }}>
-          <Button type="primary" size="small" block>
+          <Button type="primary" size="small" block onClick={handleViewAllOrders}>
             查看全部订单
           </Button>
         </div>

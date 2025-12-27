@@ -1,0 +1,19 @@
+/* DateRangePicker 组件样式 */
+.date-range-picker {
+  width: 100%;
+}
+
+/* 可以在这里添加自定义样式 */
+.date-range-picker .ant-picker {
+  border-radius: 6px;
+}
+
+.date-range-picker .ant-picker:hover {
+  border-color: #40a9ff;
+}
+
+.date-range-picker .ant-picker-focused {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+

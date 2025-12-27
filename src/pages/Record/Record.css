@@ -51,8 +51,15 @@
   align-items: center;
   justify-content: flex-start;
   padding-top: 12px;
-  gap: 16px;
+  gap: 20px;
   /* 减小间距 */
+}
+
+/* 搜索筛选组件容器样式优化 */
+.record-page-container > .record-search-filter {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto 24px;
 }
 
 /* 宠物类型卡片网格容器 */

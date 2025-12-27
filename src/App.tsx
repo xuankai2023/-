@@ -4,8 +4,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
-  useLocation
+  Navigate
 } from "react-router-dom";
 import Header from './components/Header/Header';
 import { AuthProvider, useAuthContext } from './auth/AuthContext';
@@ -32,21 +31,22 @@ const VaccinationRecordsPage = React.lazy(() => import('./pages/VaccinationRecor
 const BoardingRecordsPage = React.lazy(() => import('./pages/ BoardingRecords/ BoardingRecordsPage'));
 const OrderPage = React.lazy(() => import('./pages/Order/OrderPage'));
 const SettingPage = React.lazy(() => import('./pages/Setting/Setting'));
+// AI对话和账单分析页面
+const AIChatPage = React.lazy(() => import('./pages/AIChat/AIChatPage'));
+const BillAnalysisPage = React.lazy(() => import('./pages/BillAnalysis/BillAnalysisPage'));
 // 认证保护路由组件
 const ProtectedRoute: React.FC<{ element: React.ReactNode; requiredRole?: string }> = ({
   element,
   requiredRole
 }) => {
   const { isAuthenticated, user, isLoading } = useAuthContext();
-  const location = useLocation();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   if (!isAuthenticated) {
-    // 保存当前位置，以便登录后重定向回来
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // 如果需要特定角色，检查用户角色
@@ -190,6 +190,22 @@ function App() {
                   path="/setting"
                   element={
                     <ProtectedRoute element={<SettingPage />} requiredRole="admin" />
+                  }
+                />
+
+                {/* AI对话页面路由 */}
+                <Route
+                  path="/ai-chat"
+                  element={
+                    <ProtectedRoute element={<AIChatPage />} requiredRole="admin" />
+                  }
+                />
+
+                {/* 账单分析页面路由 */}
+                <Route
+                  path="/bill-analysis"
+                  element={
+                    <ProtectedRoute element={<BillAnalysisPage />} requiredRole="admin" />
                   }
                 />
 

@@ -1,0 +1,40 @@
+.api-key-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.api-key-modal-content {
+  padding: 8px 0;
+}
+
+.api-key-modal-description {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.api-key-input {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.api-key-input:hover {
+  border-color: #6366f1;
+}
+
+.api-key-input:focus,
+.api-key-input.ant-input-focused {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.api-key-modal-tip {
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+

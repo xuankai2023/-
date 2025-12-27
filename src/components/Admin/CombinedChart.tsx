@@ -1,115 +1,160 @@
-import React from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
+import * as echarts from 'echarts';
+import { Order } from '../../mock/orderData';
+import { format, startOfWeek, startOfMonth, startOfYear, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval } from 'date-fns';
 
-const CombinedChart: React.FC = () => {
-  // 模拟图表数据
-  const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
-  const barData = [350, 300, 400, 350, 450, 400, 500];
-  const lineData = [150, 200, 250, 280, 320, 380, 420];
+interface CombinedChartProps {
+  orders: Order[];
+  timeRange: 'week' | 'month' | 'year';
+}
 
-  return (
-    <div style={{
-      height: '400px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      {/* 图表占位符 */}
-      <div style={{
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* 横轴标签 */}
-        <div style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '40px',
-          right: '40px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          color: '#666',
-          fontSize: '12px'
-        }}>
-          {months.map((month, index) => (
-            <span key={index}>{month}</span>
-          ))}
-        </div>
-        
-        {/* 模拟柱状图 */}
-        <div style={{
-          position: 'absolute',
-          bottom: '40px',
-          left: '40px',
-          right: '40px',
-          height: '280px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end'
-        }}>
-          {barData.map((value, index) => (
-            <div
-              key={index}
-              style={{
-                width: '30px',
-                height: `${(value / 500) * 280}px`,
-                backgroundColor: '#91d5ff',
-                borderRadius: '4px 4px 0 0',
-                position: 'relative'
-              }}
-            />
-          ))}
-        </div>
-        
-        {/* 模拟折线图 */}
-        <svg
-          style={{
-            position: 'absolute',
-            bottom: '40px',
-            left: '40px',
-            right: '40px',
-            height: '280px',
-            width: 'calc(100% - 80px)'
-          }}
-          viewBox={`0 0 700 280`}
-        >
-          <path
-            d={`M 0,280 L ${lineData.map((value, index) => `${index * 100},${280 - (value / 420) * 280}`).join(' L ')}`}
-            fill="none"
-            stroke="#ff7875"
-            strokeWidth="2"
-          />
-          {lineData.map((value, index) => (
-            <circle
-              key={index}
-              cx={index * 100}
-              cy={280 - (value / 420) * 280}
-              r="4"
-              fill="#ff7875"
-            />
-          ))}
-        </svg>
-        
-        {/* 图例 */}
-        <div style={{
-          position: 'absolute',
-          top: '0',
-          right: '0',
-          display: 'flex',
-          gap: '16px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', backgroundColor: '#91d5ff' }}></div>
-            <span style={{ fontSize: '12px', color: '#666' }}>销售额</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', backgroundColor: '#ff7875' }}></div>
-            <span style={{ fontSize: '12px', color: '#666' }}>订单量</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+const CombinedChart: React.FC<CombinedChartProps> = ({ orders, timeRange }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts | null>(null);
+
+  // 根据时间范围生成图表数据
+  const chartData = useMemo(() => {
+    const now = new Date();
+    let timeLabels: string[] = [];
+    let salesData: number[] = [];
+    let orderCountData: number[] = [];
+
+    // 根据时间范围分组数据
+    if (timeRange === 'week') {
+      const start = startOfWeek(now, { weekStartsOn: 1 });
+      const days = eachDayOfInterval({ start, end: now });
+      timeLabels = days.map((day) => format(day, 'MM/dd'));
+      
+      days.forEach((day) => {
+        const dayStart = new Date(day.setHours(0, 0, 0, 0));
+        const dayEnd = new Date(day.setHours(23, 59, 59, 999));
+        const dayOrders = orders.filter((order) => {
+          const orderDate = new Date(order.orderTime);
+          return orderDate >= dayStart && orderDate <= dayEnd;
+        });
+        salesData.push(dayOrders.reduce((sum, o) => sum + o.totalAmount, 0));
+        orderCountData.push(dayOrders.length);
+      });
+    } else if (timeRange === 'month') {
+      const start = startOfMonth(now);
+      const weeks = eachWeekOfInterval({ start, end: now }, { weekStartsOn: 1 });
+      timeLabels = weeks.map((week) => `第${weeks.indexOf(week) + 1}周`);
+      
+      weeks.forEach((week) => {
+        const weekEnd = new Date(week);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const weekOrders = orders.filter((order) => {
+          const orderDate = new Date(order.orderTime);
+          return orderDate >= week && orderDate <= weekEnd;
+        });
+        salesData.push(weekOrders.reduce((sum, o) => sum + o.totalAmount, 0));
+        orderCountData.push(weekOrders.length);
+      });
+    } else {
+      // year
+      const start = startOfYear(now);
+      const months = eachMonthOfInterval({ start, end: now });
+      timeLabels = months.map((month) => format(month, 'M月'));
+      
+      months.forEach((month) => {
+        const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+        const monthOrders = orders.filter((order) => {
+          const orderDate = new Date(order.orderTime);
+          return orderDate >= month && orderDate <= monthEnd;
+        });
+        salesData.push(monthOrders.reduce((sum, o) => sum + o.totalAmount, 0));
+        orderCountData.push(monthOrders.length);
+      });
+    }
+
+    return { timeLabels, salesData, orderCountData };
+  }, [orders, timeRange]);
+
+  // 初始化图表
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    if (!chartInstance.current) {
+      chartInstance.current = echarts.init(chartRef.current);
+    }
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+        },
+      },
+      legend: {
+        data: ['销售额', '订单量'],
+        right: 10,
+        top: 10,
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: chartData.timeLabels,
+      },
+      yAxis: [
+        {
+          type: 'value',
+          name: '销售额 (¥)',
+          position: 'left',
+          axisLabel: {
+            formatter: (value: number) => `¥${value}`,
+          },
+        },
+        {
+          type: 'value',
+          name: '订单量',
+          position: 'right',
+        },
+      ],
+      series: [
+        {
+          name: '销售额',
+          type: 'bar',
+          yAxisIndex: 0,
+          data: chartData.salesData,
+          itemStyle: {
+            color: '#91d5ff',
+          },
+        },
+        {
+          name: '订单量',
+          type: 'line',
+          yAxisIndex: 1,
+          data: chartData.orderCountData,
+          itemStyle: {
+            color: '#ff7875',
+          },
+          lineStyle: {
+            width: 2,
+          },
+          symbolSize: 6,
+        },
+      ],
+    };
+
+    chartInstance.current.setOption(option);
+
+    const resizeHandler = () => {
+      chartInstance.current?.resize();
+    };
+    window.addEventListener('resize', resizeHandler);
+
+    return () => {
+      window.removeEventListener('resize', resizeHandler);
+    };
+  }, [chartData]);
+
+  return <div ref={chartRef} style={{ height: '400px', width: '100%' }} />;
 };
 
 export default CombinedChart;

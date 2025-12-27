@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
-import { Card, Row, Col } from 'antd';
+import { Card } from 'antd';
+import PetTypeGridWithSearch from '../../components/PetTypeGridWithSearch/PetTypeGridWithSearch';
 import './Record.css';
 import { petRecords, petTypes } from '../../mock/petData';
 
@@ -36,10 +37,38 @@ const getPetTypeIcon = (typeId: string): string => {
 // 宠物档案页面主组件
 const Record = () => {
   const navigate = useNavigate();
+  const [orderNumber, setOrderNumber] = useState('');
+  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
 
   const handleCardClick = (path: string) => {
     navigate(path);
   };
+
+  // 过滤宠物记录
+  const filteredPetRecords = useMemo(() => {
+    let filtered = petRecords;
+
+    // 订单号/编号筛选（根据宠物ID或名称）
+    if (orderNumber) {
+      const keyword = orderNumber.toLowerCase();
+      filtered = filtered.filter(pet =>
+        pet.id.toLowerCase().includes(keyword) ||
+        pet.name.toLowerCase().includes(keyword) ||
+        pet.breed.toLowerCase().includes(keyword)
+      );
+    }
+
+    // 日期范围筛选（根据最近体检日期）
+    if (dateRange) {
+      const [startDate, endDate] = dateRange;
+      filtered = filtered.filter(pet => {
+        const checkupDate = pet.lastCheckupDate;
+        return checkupDate >= startDate && checkupDate <= endDate;
+      });
+    }
+
+    return filtered;
+  }, [orderNumber, dateRange]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -48,50 +77,30 @@ const Record = () => {
         <Sidebar />
         <div style={{ flex: 1, padding: '20px', overflow: 'auto' }}>
           <div className="record-page-container">
-            {/* 宠物类型卡片网格（5 个并排） */}
-            <div className="pet-type-grid-container">
-              <Row gutter={12}>
-                {petTypes.map((type) => {
-                  const count = getPetCountByType(type.id);
-                  const iconPath = getPetTypeIcon(type.id);
-                  return (
-                    <Col key={type.id} xs={24} sm={12} md={8} lg={6} xl={5.5}>
-                      <Card
-                        className="pet-type-card"
-                        style={{
-                          background: type.gradient,
-                          cursor: 'pointer',
-                          height: '100%',
-                          width: '100%'
-                        }}
-                        onClick={() => handleCardClick(type.path)}
-                      >
-                        <div className="pet-type-card-content">
-                          <div className="pet-type-icon-wrapper">
-                            <img
-                              src={iconPath}
-                              alt={type.name}
-                              className="pet-type-icon"
-                              style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-                            />
-                          </div>
-                          <h3 className="pet-type-name">{type.name}</h3>
-                          <p className="pet-type-description">{type.description}</p>
-                          <div className="pet-type-count">
-                            <span className="count-number">{count}</span>
-                            <span className="count-label">只宠物</span>
-                          </div>
-                        </div>
-                      </Card>
-                    </Col>
-                  );
-                })}
-              </Row>
-            </div>
+            {/* 宠物类型卡片网格 + 搜索组件 */}
+            <PetTypeGridWithSearch
+              petTypes={petTypes}
+              getPetCountByType={getPetCountByType}
+              getPetTypeIcon={getPetTypeIcon}
+              onCardClick={handleCardClick}
+              orderNumber={orderNumber}
+              dateRange={dateRange}
+              onOrderNumberChange={setOrderNumber}
+              onDateRangeChange={setDateRange}
+              orderNumberPlaceholder="请输入宠物ID、名称或品种"
+              onSearch={() => {
+                // 搜索逻辑已在 useMemo 中实现，这里可以添加额外的操作
+                console.log('搜索:', { orderNumber, dateRange });
+              }}
+              onReset={() => {
+                setOrderNumber('');
+                setDateRange(null);
+              }}
+            />
 
             {/* 宠物信息卡片 */}
             <div className="pet-summary-grid">
-              {petRecords.map((pet) => (
+              {filteredPetRecords.map((pet) => (
                 <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
                   <div className="pet-summary-card-header">
                     <div className="pet-summary-avatar">

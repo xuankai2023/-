@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
-import { LeftOutlined, DownOutlined } from '@ant-design/icons';
+import {
+  LeftOutlined,
+  DownOutlined,
+  MenuOutlined,
+  DashboardOutlined,
+  FileTextOutlined,
+  ShoppingCartOutlined,
+  CalendarOutlined,
+  UserOutlined,
+  MessageOutlined,
+  BarChartOutlined
+} from '@ant-design/icons';
 import './Sidebar.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,7 +42,9 @@ export default () => {
     '/services',
     '/vaccination-records',
     '/boarding-records',
-    '/admin'
+    '/admin',
+    '/ai-chat',
+    '/bill-analysis'
   ];
 
   // 根据当前路由更新active状态
@@ -80,12 +93,12 @@ export default () => {
     } else {
       setPetRecordsExpanded(false);
       setIsLeft(true); // 关闭其他菜单时重置箭头状态为向上
-      // 点击其他菜单项时收缩菜单栏
-      setSidebarCollapsed(true);
+      // 点击其他菜单项时不自动收缩菜单栏
+      // setSidebarCollapsed(true);
       const route = routeMap[index];
       if (route) {
         navigate(route);
-        const titles = ['宠物档案', '订单', '服务', '疫苗接种', '寄养情况', '数据统计'];
+        const titles = ['宠物档案', '订单', '服务', '疫苗接种', '寄养情况', '数据统计', 'AI对话', '账单分析'];
         message.info(`已切换到${titles[index]}`);
       }
     }
@@ -105,16 +118,24 @@ export default () => {
 
   // 菜单项数据
   const menuItems = [
-    { title: '宠物档案', hasSubmenu: true },
-    { title: '订单' },
-    { title: '服务' },
-    { title: '疫苗接种' },
-    { title: '寄养情况' },
-    { title: '数据统计' }
+    { title: '宠物档案', icon: <FileTextOutlined />, hasSubmenu: true },
+    { title: '订单', icon: <ShoppingCartOutlined /> },
+    { title: '服务', icon: <CalendarOutlined /> },
+    { title: '疫苗接种', icon: <CalendarOutlined /> },
+    { title: '寄养情况', icon: <UserOutlined /> },
+    { title: '数据统计', icon: <DashboardOutlined /> },
+    { title: 'AI对话', icon: <MessageOutlined /> },
+    { title: '账单分析', icon: <BarChartOutlined /> }
   ];
 
   return (
     <div className={`sidebar-container ${sidebarCollapsed ? 'collapsed' : ''}`}>
+      {/* 顶部切换按钮 */}
+      <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+        <MenuOutlined />
+        {!sidebarCollapsed && <span>菜单</span>}
+      </div>
+      
       <div className="sidebar-menu">
         {menuItems.map((item, index) => (
           <div key={index}>
@@ -123,7 +144,10 @@ export default () => {
               className={`menu-item ${active === index ? 'active' : ''}`}
               onClick={() => handleSidebarChange(index)}
             >
-              <span className="menu-item-title">{sidebarCollapsed ? '' : item.title}</span>
+              <div className="menu-item-content">
+                <span className="menu-item-icon">{item.icon}</span>
+                {!sidebarCollapsed && <span className="menu-item-title">{item.title}</span>}
+              </div>
               {item.hasSubmenu && !sidebarCollapsed && (
                 <div className="arrow-icon" onClick={(e) => toggleArrow(e)}>
                   {isLeft ? (

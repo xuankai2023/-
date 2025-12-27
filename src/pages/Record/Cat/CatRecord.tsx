@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../../components/Header/Header';
 import Sidebar from '../../../components/SideBar/Sidebar';
-import { Input, Button, Tag, Space } from 'antd';
+import { Button, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import RecordSearchFilter from '../../../components/RecordSearchFilter/RecordSearchFilter';
 import './CatRecord.css';
 
 interface PetInfo {
@@ -16,7 +17,8 @@ interface PetInfo {
 }
 
 const CatRecord: React.FC = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
   const navigate = useNavigate();
   
   // 跳转到宠物详情页
@@ -57,15 +59,28 @@ const CatRecord: React.FC = () => {
 
   // 过滤数据
   const filteredRecords = useMemo(() => {
-    if (!searchValue) return catRecords;
-    const keyword = searchValue.toLowerCase();
-    return catRecords.filter(pet =>
-      pet.name.toLowerCase().includes(keyword) ||
-      pet.breed.toLowerCase().includes(keyword) ||
-      pet.age.toLowerCase().includes(keyword) ||
-      pet.weight.toLowerCase().includes(keyword)
-    );
-  }, [searchValue]);
+    let filtered = catRecords;
+
+    // 订单号/编号筛选（这里用宠物ID作为示例）
+    if (orderNumber) {
+      const keyword = orderNumber.toLowerCase();
+      filtered = filtered.filter(pet =>
+        pet.id.toLowerCase().includes(keyword) ||
+        pet.name.toLowerCase().includes(keyword)
+      );
+    }
+
+    // 日期范围筛选（这里可以根据实际需求添加日期字段）
+    // 示例：如果有创建日期字段，可以在这里进行筛选
+    // if (dateRange) {
+    //   filtered = filtered.filter(pet => {
+    //     // 根据实际日期字段进行筛选
+    //     return true;
+    //   });
+    // }
+
+    return filtered;
+  }, [orderNumber, dateRange]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -79,17 +94,22 @@ const CatRecord: React.FC = () => {
               <p>共 {filteredRecords.length} 条宠物猫记录</p>
             </div>
 
-            {/* 搜索栏 */}
-            <div className="table-toolbar">
-              <Input.Search
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="搜索宠物名称、品种、年龄或体重"
-                style={{ width: '400px' }}
-                allowClear
-                onPressEnter={() => { }}
-              />
-            </div>
+            {/* 搜索筛选组件 */}
+            <RecordSearchFilter
+              orderNumber={orderNumber}
+              dateRange={dateRange}
+              onOrderNumberChange={setOrderNumber}
+              onDateRangeChange={setDateRange}
+              orderNumberPlaceholder="请输入宠物ID或名称"
+              onSearch={() => {
+                // 可以在这里添加额外的搜索逻辑
+                console.log('搜索:', { orderNumber, dateRange });
+              }}
+              onReset={() => {
+                setOrderNumber('');
+                setDateRange(null);
+              }}
+            />
 
             {/* 数据表格 */}
             <div className="table-container">

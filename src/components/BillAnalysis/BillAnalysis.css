@@ -1,0 +1,359 @@
+/* ===== 主容器 ===== */
+.bill-analysis-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  height: 100%;
+}
+
+/* ===== 标题 ===== */
+.bill-analysis-container h1 {
+  margin: 0 0 24px 0;
+  color: #1a1a1a;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+/* ===== 筛选卡片 ===== */
+.filter-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8eaed;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.filter-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.filter-card .ant-card-body {
+  padding: 20px 24px;
+}
+
+/* ===== 统计卡片行 ===== */
+.stats-row {
+  margin-bottom: 24px;
+}
+
+.stats-row .ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8eaed;
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  overflow: hidden;
+}
+
+.stats-row .ant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #d1d5db;
+}
+
+.stats-row .ant-card-body {
+  padding: 24px;
+}
+
+.stats-row .ant-statistic-title {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.stats-row .ant-statistic-content {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* ===== 图表卡片行 ===== */
+.charts-row {
+  margin-bottom: 24px;
+}
+
+.charts-row .ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8eaed;
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+}
+
+.charts-row .ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #d1d5db;
+}
+
+.charts-row .ant-card-head {
+  border-bottom: 1px solid #e8eaed;
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-radius: 12px 12px 0 0;
+}
+
+.charts-row .ant-card-body {
+  padding: 24px;
+}
+
+/* ===== 卡片标题 ===== */
+.card-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.card-title .anticon {
+  margin-right: 8px;
+  font-size: 18px;
+  color: #6366f1;
+}
+
+/* ===== 详情卡片 ===== */
+.detail-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8eaed;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.detail-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-card .ant-card-head {
+  border-bottom: 1px solid #e8eaed;
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-radius: 12px 12px 0 0;
+}
+
+.detail-card .ant-card-body {
+  padding: 24px;
+}
+
+/* ===== 表格样式优化 ===== */
+.bill-analysis-container .ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bill-analysis-container .ant-table-thead > tr > th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 16px;
+}
+
+.bill-analysis-container .ant-table-tbody > tr > td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.bill-analysis-container .ant-table-tbody > tr:hover > td {
+  background: #f9fafb;
+}
+
+.bill-analysis-container .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+.bill-analysis-container .ant-table-bordered .ant-table-thead > tr > th,
+.bill-analysis-container .ant-table-bordered .ant-table-tbody > tr > td {
+  border-right: 1px solid #e5e7eb;
+}
+
+/* ===== 选择器样式 ===== */
+.bill-analysis-container .ant-select {
+  border-radius: 8px;
+}
+
+.bill-analysis-container .ant-select-selector {
+  border-radius: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  transition: all 0.2s ease;
+}
+
+.bill-analysis-container .ant-select-focused .ant-select-selector {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+.bill-analysis-container .ant-select:hover .ant-select-selector {
+  border-color: #d1d5db !important;
+}
+
+/* ===== 日期选择器样式 ===== */
+.bill-analysis-container .ant-picker {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.bill-analysis-container .ant-picker:hover {
+  border-color: #d1d5db;
+}
+
+.bill-analysis-container .ant-picker-focused {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ===== 分页样式 ===== */
+.bill-analysis-container .ant-pagination {
+  margin-top: 24px;
+}
+
+.bill-analysis-container .ant-pagination-item {
+  border-radius: 6px;
+  border-color: #e5e7eb;
+}
+
+.bill-analysis-container .ant-pagination-item:hover {
+  border-color: #6366f1;
+}
+
+.bill-analysis-container .ant-pagination-item-active {
+  background: #6366f1;
+  border-color: #6366f1;
+}
+
+.bill-analysis-container .ant-pagination-item-active a {
+  color: #ffffff;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 1200px) {
+  .bill-analysis-container {
+    max-width: 100%;
+  }
+
+  .charts-row .ant-col {
+    flex: 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .stats-row .ant-col {
+    flex: 50%;
+    max-width: 50%;
+    margin-bottom: 16px;
+  }
+
+  .bill-analysis-container h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bill-analysis-container {
+    padding: 0;
+  }
+
+  .bill-analysis-container h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .filter-card .ant-card-body {
+    padding: 16px;
+  }
+
+  .filter-card .ant-row {
+    flex-direction: column;
+  }
+
+  .filter-card .ant-col {
+    flex: 100%;
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .stats-row .ant-col {
+    flex: 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .charts-row .ant-col {
+    flex: 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .stats-row .ant-card-body,
+  .charts-row .ant-card-body,
+  .detail-card .ant-card-body {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .bill-analysis-container h1 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 14px;
+  }
+
+  .card-title .anticon {
+    font-size: 16px;
+  }
+
+  .stats-row .ant-statistic-content {
+    font-size: 24px;
+  }
+
+  .filter-card .ant-card-body {
+    padding: 12px;
+  }
+
+  .stats-row .ant-card-body,
+  .charts-row .ant-card-body,
+  .detail-card .ant-card-body {
+    padding: 12px;
+  }
+
+  .bill-analysis-container .ant-table-thead > tr > th,
+  .bill-analysis-container .ant-table-tbody > tr > td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+}
+
+/* ===== 滚动条样式 ===== */
+.bill-analysis-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bill-analysis-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bill-analysis-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.bill-analysis-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

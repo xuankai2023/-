@@ -1,19 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from 'antd';
-import { useNavigate, useLocation} from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from '../../auth/AuthContext';
 import './LoginModal.css';
 import Login from '../Login/Login';
 
 const Header: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuthContext();
+
+  // 当登录状态变为已登录时，自动关闭登录弹窗并跳转到 admin 页面
+  useEffect(() => {
+    if (isAuthenticated && showLoginModal) {
+      console.log('登录成功，准备跳转到 admin 页面');
+      setShowLoginModal(false);
+      setTimeout(() => {
+        const currentPath = location.pathname;
+        if (currentPath !== '/admin' && currentPath !== '/admin/dashboard') {
+          console.log('跳转到 /admin 页面');
+          navigate('/admin', { replace: true });
+        }
+      }, 200);
+    }
+  }, [isAuthenticated, showLoginModal, navigate, location.pathname]);
 
   const openLoginModal = () => {
+    // 如果已经登录，直接跳转到 admin 页面
+    if (isAuthenticated) {
+      console.log('已登录，跳转到 admin 页面');
+      navigate('/admin', { replace: true });
+      return;
+    }
+    // 未登录时打开登录弹窗
+    console.log('未登录，打开登录弹窗');
     setShowLoginModal(true);
   };
 
   const closeLoginModal = () => {
     setShowLoginModal(false);
+  };
+
+  // 处理登录成功回调
+  const handleLoginSuccess = () => {
+    console.log('登录成功回调被调用');
+    setShowLoginModal(false);
+    setTimeout(() => {
+      console.log('从 loginHeader 组件跳转到 /admin');
+      navigate('/admin', { replace: true });
+    }, 100);
   };
   //使用 react-router 进行页面导航
   const navigateToAbout = () => {
@@ -28,8 +64,8 @@ const Header: React.FC = () => {
   const navigateToContact = () => {
     navigate('/contact');
   }
-  const location = useLocation();
-  if(location.pathname === '/admin'){
+
+  if (location.pathname === '/admin') {
     return null;
   }
   return (
@@ -48,13 +84,22 @@ const Header: React.FC = () => {
             <Button onClick={navigateToContact} className="nav-button">Contact</Button>
           </nav>
           <div className="header-actions">
-            <Button type="primary" onClick={openLoginModal} className="watch-tiktok-btn">
-              登录
-            </Button>
+            {/* 如果未登录，显示登录按钮 */}
+            {!isAuthenticated && (
+              <Button type="primary" onClick={openLoginModal} className="watch-tiktok-btn">
+                登录
+              </Button>
+            )}
           </div>
         </div>
       </header>
-      {showLoginModal && <Login visible={showLoginModal} onClose={closeLoginModal} />}
+      {showLoginModal && (
+        <Login
+          visible={showLoginModal}
+          onClose={closeLoginModal}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
     </>
   );
 };
