@@ -13,6 +13,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-height: 0;
 }
 
 .ai-chat-main-container {
@@ -20,27 +21,29 @@
   display: flex;
   overflow: hidden;
   background: #f5f6fa;
+  min-width: 0;
 }
 
 .ai-chat-history-wrapper {
   width: 350px;
   min-width: 300px;
   max-width: 400px;
-  height: 100%;
   background: #ffffff;
   border-right: 1px solid #e8eaed;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .ai-chat-wrapper {
   flex: 1;
-  height: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: #f5f6fa;
+  height: 100%;
 }
 
 /* 响应式设计 */

@@ -41,10 +41,23 @@ const ProtectedRoute: React.FC<{ element: React.ReactNode; requiredRole?: string
 }) => {
   const { isAuthenticated, user, isLoading } = useAuthContext();
 
+  // 如果正在加载，显示加载状态，不要重定向
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '16px',
+        color: '#666'
+      }}>
+        加载中...
+      </div>
+    );
   }
 
+  // 只有在确认未认证时才重定向到登录页
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

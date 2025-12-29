@@ -14,7 +14,7 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ visible = true, onClose, onLoginSuccess }) => {
   const navigate = useNavigate();
-  const { login, isLoading: authLoading } = useAuthContext();
+  const { login, isLoading: authLoading, isAuthenticated } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,6 +23,13 @@ const Login: React.FC<LoginProps> = ({ visible = true, onClose, onLoginSuccess }
 
   // 检查是否是独立页面模式（通过路由访问）
   const isStandalonePage = !onClose;
+
+  // 如果已经登录，自动跳转到 admin 页面
+  React.useEffect(() => {
+    if (isAuthenticated && isStandalonePage) {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAuthenticated, isStandalonePage, navigate]);
 
   // 移除焦点，收起软键盘（移动端友好）
   const handleInputBlur = () => {

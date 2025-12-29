@@ -1,0 +1,29 @@
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.message-action-btn {
+  opacity: 0;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  padding: 4px 8px;
+  height: auto;
+  line-height: 1;
+  border-radius: 6px;
+}
+
+.message-item:hover .message-action-btn {
+  opacity: 1;
+}
+
+.message-action-btn:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.message-action-btn:active {
+  transform: scale(0.95);
+}
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { List, Input, Button, Empty, Popconfirm, message as antMessage } from 'antd';
+import { Input, Button, Empty, Popconfirm, message as antMessage } from 'antd';
 import { SearchOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import './ChatHistory.css';
 import {
@@ -153,10 +153,10 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ onSelectHistory, currentHisto
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         ) : (
-          <List
-            dataSource={filteredHistories}
-            renderItem={(item) => (
-              <List.Item
+          <div className="chat-history-list-items">
+            {filteredHistories.map((item) => (
+              <div
+                key={item.id}
                 className={`chat-history-item ${currentHistoryId === item.id ? 'active' : ''}`}
                 onClick={() => onSelectHistory(item.id)}
               >
@@ -186,9 +186,9 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ onSelectHistory, currentHisto
                     className="chat-history-item-delete"
                   />
                 </Popconfirm>
-              </List.Item>
-            )}
-          />
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

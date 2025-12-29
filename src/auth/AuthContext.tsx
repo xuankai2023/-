@@ -31,91 +31,128 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [error, setError] = useState<string | null>(null);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-    // 应用启动时检查本地令牌
+    // 应用启动时检查本地令牌（只执行一次）
     useEffect(() => {
+        let isMounted = true;
+
         const initAuth = async () => {
             try {
                 setIsLoading(true);
 
-                // 首先检查localStorage中是否有令牌
+                // 首先检查localStorage中是否有令牌和用户信息
                 const accessToken = tokenStorage.getAccessToken();
                 const refreshToken = tokenStorage.getRefreshToken();
+                const storedUser = tokenStorage.getUser();
 
-                console.log('初始化认证 - 检查本地令牌:', {
-                    hasAccessToken: !!accessToken,
-                    hasRefreshToken: !!refreshToken
-                });
-
-                if (accessToken) {
-                    // 直接验证令牌是否有效
+                // 优先使用本地存储的用户信息（快速恢复认证状态）
+                if (storedUser && accessToken) {
+                    // 验证 token 是否有效（本地验证，不调用API）
                     const tokenResult = jwtUtils.verifyToken(accessToken);
-                    console.log('令牌验证结果:', tokenResult);
+                    
+                    if (tokenResult.isValid && isMounted) {
+                        // Token 有效，直接使用本地存储的用户信息恢复认证状态
+                        setUser(storedUser);
+                        setIsAuthenticated(true);
+                        setIsLoading(false);
+                        setIsInitialized(true);
+                        return; // 快速返回，避免不必要的 API 调用
+                    }
+                }
+
+                // 如果没有本地用户信息或 token 无效，尝试从 token 中恢复
+                if (accessToken) {
+                    const tokenResult = jwtUtils.verifyToken(accessToken);
 
                     if (tokenResult.isValid) {
-                        // 令牌有效，获取用户信息
-                        const userInfo = await authApiService.getCurrentUser();
-                        console.log('获取到的用户信息:', userInfo);
-
-                        if (userInfo) {
-                            setUser(userInfo);
-                            setIsAuthenticated(true);
-                        } else {
-                            // 如果无法获取用户信息，尝试从令牌中解析
-                            const userFromToken = jwtUtils.getUserFromToken(accessToken);
-                            if (userFromToken) {
-                                // 从模拟用户中查找完整信息
-                                const mockUsers = [
-                                    {
-                                        id: '1',
-                                        username: 'admin',
-                                        fullName: '管理员',
-                                        email: 'admin@example.com',
-                                        avatar: '/images/png/admin.png',
-                                        roles: ['admin', 'user']
-                                    },
-                                    {
-                                        id: '2',
-                                        username: 'user',
-                                        fullName: '普通用户',
-                                        email: 'user@example.com',
-                                        avatar: '/images/png/admin.png',
-                                        roles: ['user']
-                                    }
-                                ];
-
-                                const foundUser = mockUsers.find(u => u.id === userFromToken.id);
-                                if (foundUser) {
-                                    setUser(foundUser);
-                                    setIsAuthenticated(true);
-                                    tokenStorage.setUser(foundUser);
+                        // 令牌有效，尝试从 token 中解析用户信息
+                        const userFromToken = jwtUtils.getUserFromToken(accessToken);
+                        if (userFromToken && isMounted) {
+                            // 从模拟用户中查找完整信息
+                            const mockUsers = [
+                                {
+                                    id: '1',
+                                    username: 'admin',
+                                    fullName: '管理员',
+                                    email: 'admin@example.com',
+                                    avatar: '/images/png/admin.png',
+                                    roles: ['admin', 'user']
+                                },
+                                {
+                                    id: '2',
+                                    username: 'user',
+                                    fullName: '普通用户',
+                                    email: 'user@example.com',
+                                    avatar: '/images/png/admin.png',
+                                    roles: ['user']
                                 }
+                            ];
+
+                            const foundUser = mockUsers.find(u => u.id === userFromToken.id);
+                            if (foundUser && isMounted) {
+                                setUser(foundUser);
+                                setIsAuthenticated(true);
+                                tokenStorage.setUser(foundUser); // 保存用户信息到本地存储
+                                setIsLoading(false);
+                                setIsInitialized(true);
+                                return;
                             }
+                        }
+
+                        // 如果无法从 token 解析，尝试调用 API（可选，不阻塞）
+                        try {
+                            const userInfo = await authApiService.getCurrentUser();
+                            if (userInfo && isMounted) {
+                                setUser(userInfo);
+                                setIsAuthenticated(true);
+                                tokenStorage.setUser(userInfo); // 保存用户信息到本地存储
+                                return;
+                            }
+                        } catch (error) {
+                            // API调用失败，但不影响已恢复的认证状态
+                            console.warn('获取用户信息失败，使用本地存储:', error);
                         }
                     } else if (refreshToken) {
                         // 访问令牌过期，尝试使用刷新令牌
-                        console.log('访问令牌已过期，尝试刷新...');
-                        const refreshResult = await authApiService.refreshToken();
-
-                        if (refreshResult.success) {
-                            const userInfo = await authApiService.getCurrentUser();
-                            if (userInfo) {
-                                setUser(userInfo);
-                                setIsAuthenticated(true);
+                        try {
+                            const refreshResult = await authApiService.refreshToken();
+                            if (refreshResult.success && isMounted) {
+                                const userInfo = await authApiService.getCurrentUser();
+                                if (userInfo) {
+                                    setUser(userInfo);
+                                    setIsAuthenticated(true);
+                                    tokenStorage.setUser(userInfo);
+                                }
                             }
+                        } catch (error) {
+                            // 刷新失败，清除无效的令牌
+                            if (isMounted) {
+                                tokenStorage.clear();
+                            }
+                        }
+                    } else {
+                        // 令牌无效且无刷新令牌，清除
+                        if (isMounted) {
+                            tokenStorage.clear();
                         }
                     }
                 }
             } catch (err) {
                 console.error('初始化认证失败:', err);
-                // 清除无效的令牌
-                tokenStorage.clear();
+                // 只有在明确错误时才清除 token，避免误清除
+                // 不清除 token，保持用户已登录状态
             } finally {
-                setIsLoading(false);
-                setIsInitialized(true);
+                if (isMounted) {
+                    setIsLoading(false);
+                    setIsInitialized(true);
+                }
             }
         };
 
         initAuth();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {

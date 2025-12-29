@@ -5,7 +5,7 @@ import AIChat, { AIChatRef } from '../../components/AIChat/AIChat';
 import ChatHistory from '../../components/AIChat/ChatHistory/ChatHistory';
 import './AIChatPage.css';
 
-const AIChatPage: React.FC = () => {
+function AIChatPage() {
   const aiChatRef = useRef<AIChatRef>(null);
   const [currentHistoryId, setCurrentHistoryId] = useState<string | undefined>();
 
@@ -22,16 +22,12 @@ const AIChatPage: React.FC = () => {
 
   return (
     <div className="ai-chat-page">
-      {/* 头部导航栏 */}
       <Header />
       
       <div className="ai-chat-page-content">
-        {/* 侧边菜单栏 */}
         <Sidebar />
 
-        {/* 主内容区 - 左右分栏 */}
         <div className="ai-chat-main-container">
-          {/* 左侧：提问记录 */}
           <div className="ai-chat-history-wrapper">
             <ChatHistory 
               onSelectHistory={handleSelectHistory}
@@ -39,7 +35,6 @@ const AIChatPage: React.FC = () => {
             />
           </div>
 
-          {/* 右侧：AI对话 */}
           <div className="ai-chat-wrapper">
             <AIChat 
               ref={aiChatRef}
@@ -50,6 +45,6 @@ const AIChatPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default AIChatPage;

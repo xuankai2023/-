@@ -30,7 +30,36 @@ request.interceptors.response.use(
     },
     // 错误处理函数
     (error) => {
-        // 直接返回Promise.reject(error)将错误传递给调用者
+        // 处理连接错误（后端服务器未运行）
+        if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+            console.error('❌ 无法连接到后端服务器');
+            console.error('💡 请确保后端服务器运行在 http://localhost:8083');
+            console.error('💡 如果后端运行在其他端口，请修改 vite.config.ts 中的 proxy 配置');
+            
+            // 创建一个友好的错误对象
+            const friendlyError = new Error('无法连接到后端服务器，请确保后端服务已启动');
+            (friendlyError as any).code = 'ECONNREFUSED';
+            (friendlyError as any).isBackendUnavailable = true;
+            return Promise.reject(friendlyError);
+        }
+        
+        // 处理其他错误
+        if (error.response) {
+            // 服务器返回了错误响应
+            const status = error.response.status;
+            const data = error.response.data;
+            
+            // 401 未授权，清除 token
+            if (status === 401) {
+                localStorage.removeItem('token');
+                console.warn('Token 已过期或无效，已清除本地 token');
+            }
+            
+            // 返回后端错误信息
+            return Promise.reject(data || error);
+        }
+        
+        // 网络错误或其他错误
         return Promise.reject(error);
     }
 );
@@ -43,8 +72,7 @@ request.interceptors.request.use(
         // 如果token存在且配置对象有headers属性
         if (token && config.headers) {
             // 设置Authorization请求头为Bearer token格式
-            // 注意：这里有个小问题，Bearer和token之间应该有个空格，即`Bearer ${token}`
-            config.headers.Authorization = `Bearer${token}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
         // 返回配置对象
         return config;
@@ -56,44 +84,11 @@ request.interceptors.request.use(
     }
 );
 
-//响应拦截器
-request.interceptors.response.use(
-    (response: AxiosResponse<ApiResponse>) => {
-        const { success, data, message, error } = response.data;
-        if (!success) {
-            throw new Error(message || error || '请求失败');
-        }
-        return data;
-    },
-    (error) => {
-        //处理网络请求错误
-        if(error.response){
-            switch(error.response.status){
-                case 401:
-                    // 处理未授权错误，例如跳转到登录页
-                    break;
-                case 403:
-                    // 处理禁止访问错误，例如显示权限不足提示
-                    break;
-                case 404:
-                    // 处理资源不存在错误，例如显示404页面
-                    break;
-                default:
-                    // 处理其他错误，例如显示通用错误提示
-                    break;
-            }
-            return Promise.reject(error);
-        }else if (error.request){
-            //请求已发出但没有收到响应
-            console.error('请求已发出但没有收到响应', error.request);
-            return Promise.reject(error);
-        }else{
-            // 处理其他错误，例如显示通用错误提示
-            console.error('未知错误', error.message);
-            return Promise.reject(error);
-        }        
-    }
-);
+// 注意：第一个响应拦截器已经返回了 response.data
+// 后端 API 响应格式：
+// - 成功：直接返回数据或 { data: [...], count: 10 }
+// - 错误：{ detail: "错误描述信息" }
+// 因此不需要第二个拦截器处理 success 字段
 
 export const api = {
     get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => request.get(url, config),

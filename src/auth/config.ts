@@ -3,9 +3,9 @@
 export const jwtConfig = {
   //用于本地签名/验证 JWT的密钥（开发环境）
   secret: 'love you 20070803',
-  //令牌过期时间 (改为 2 天)
+  //令牌过期时间：2天 (格式: '2d' = 2天, '1h' = 1小时, '30m' = 30分钟)
   tokenExpiration: '2d',
-  //刷新时间
+  //刷新令牌过期时间：7天
   refreshExpiration: '7d',
   //令牌前缀
   tokenPrefix: 'Bearer',

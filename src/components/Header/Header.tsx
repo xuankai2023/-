@@ -25,27 +25,16 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const navigate = useNavigate();
   const { isAuthenticated, user: authUser } = useAuthContext();
 
-  // 调试：打印登录状态
-  useEffect(() => {
-    console.log('Header - 当前登录状态:', isAuthenticated);
-    console.log('Header - 当前用户:', authUser);
-  }, [isAuthenticated, authUser]);
+  // 移除调试日志，避免不必要的输出
 
-  // 当登录状态变为已登录时，自动关闭登录弹窗并跳转到 admin 页面
+  // 当登录状态变为已登录时，自动关闭登录弹窗
+  // 注意：不要在这里自动跳转，让路由守卫处理
   useEffect(() => {
     if (isAuthenticated && showLoginModal) {
-      console.log('登录成功，准备跳转到 admin 页面');
+      console.log('登录成功，关闭登录弹窗');
       setShowLoginModal(false);
-      // 延迟跳转，确保状态更新完成
-      setTimeout(() => {
-        const currentPath = location.pathname;
-        if (currentPath !== '/admin' && currentPath !== '/admin/dashboard') {
-          console.log('跳转到 /admin 页面');
-          navigate('/admin', { replace: true });
-        }
-      }, 200);
     }
-  }, [isAuthenticated, showLoginModal, navigate, location.pathname]);
+  }, [isAuthenticated, showLoginModal]);
 
   const handleAvatarClick = () => {
     navigate('/setting');
@@ -53,15 +42,12 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
   // 处理登录按钮点击
   const handleLoginClick = () => {
-    console.log('登录按钮被点击，当前登录状态:', isAuthenticated);
     // 如果已经登录，直接跳转到 admin 页面
     if (isAuthenticated) {
-      console.log('已登录，跳转到 admin 页面');
       navigate('/admin', { replace: true });
       return;
     }
     // 未登录时打开登录弹窗
-    console.log('未登录，打开登录弹窗');
     setShowLoginModal(true);
   };
 
@@ -71,13 +57,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
 
   // 处理登录成功回调
   const handleLoginSuccess = () => {
-    console.log('登录成功回调被调用');
     setShowLoginModal(false);
-    // 延迟跳转，确保状态更新完成
-    setTimeout(() => {
-      console.log('从 Header 组件跳转到 /admin');
-      navigate('/admin', { replace: true });
-    }, 100);
+    // 登录成功后，路由守卫会自动处理跳转，这里不需要手动跳转
   };
 
   // // ✨ 在 admin 页面隐藏 Header

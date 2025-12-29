@@ -53,8 +53,29 @@ export default defineConfig(async ({ mode }) => {
             ),
         },
         server: {
-            port: 8000,
+            port: 8080,
             open: true,
+            proxy: {
+                '/api': {
+                    target: 'http://localhost:8083',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api/, '/api'),
+                    // 配置代理错误处理（使用 http-proxy-middleware 的 configure 选项）
+                    configure: (proxy, _options) => {
+                        proxy.on('error', (err, _req, _res) => {
+                            console.warn('⚠️  代理错误:', err.message);
+                            console.warn('💡 提示: 请确保后端服务器运行在 http://localhost:8083');
+                        });
+                        proxy.on('proxyReq', (proxyReq, req, _res) => {
+                            if (process.env.NODE_ENV === 'development') {
+                                console.log(`[代理] ${req.method} ${req.url} -> http://localhost:8083${req.url}`);
+                            }
+                        });
+                    },
+                    // 如果需要 WebSocket 支持，取消注释
+                    // ws: true,
+                }
+            }
         },
         base: './',
         esbuild: {

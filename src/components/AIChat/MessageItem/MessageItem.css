@@ -1,0 +1,250 @@
+.message-item {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  animation: messageFadeIn 0.3s ease-out;
+  gap: 12px;
+  padding: 0;
+}
+
+.message-item.streaming {
+  animation: none;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-item.user {
+  flex-direction: row-reverse;
+}
+
+.message-item-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.message-item.user .message-item-meta {
+  flex-direction: row-reverse;
+}
+
+.message-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.message-avatar:hover {
+  transform: scale(1.05);
+}
+
+.message-avatar.user {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.message-avatar.ai {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.message-sender {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  flex: 1;
+}
+
+.message-item.user .message-sender {
+  color: #6366f1;
+}
+
+.message-item.ai .message-sender {
+  color: #10b981;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.message-content-wrapper {
+  position: relative;
+  max-width: 100%;
+}
+
+.message-content {
+  background: #ffffff;
+  color: #1f2937;
+  padding: 14px 18px;
+  border-radius: 16px;
+  max-width: 100%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-size: 15px;
+  line-height: 1.7;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.message-content:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.message-content.user-message {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+.message-content.ai-message {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.streaming-cursor {
+  display: inline-block;
+  color: #10b981;
+  font-weight: 600;
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Markdown 样式增强 */
+.message-content :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1em 0 0.5em 0;
+  font-weight: 600;
+  line-height: 1.4;
+  color: inherit;
+}
+
+.message-content h1 {
+  font-size: 1.5em;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.3em;
+}
+
+.message-content.user-message h1 {
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.message-content h2 {
+  font-size: 1.3em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.2em;
+}
+
+.message-content.user-message h2 {
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+.message-content p {
+  margin: 0.75em 0;
+  line-height: 1.7;
+}
+
+.message-content ul,
+.message-content ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.message-content li {
+  margin: 0.4em 0;
+  line-height: 1.6;
+}
+
+.message-content code {
+  background-color: rgba(99, 102, 241, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.9em;
+  color: #6366f1;
+}
+
+.message-content.user-message code {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.message-content pre {
+  background: #1f2937;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-content pre code {
+  background: transparent;
+  padding: 0;
+  color: #e5e7eb;
+}
+
+.message-content blockquote {
+  border-left: 3px solid #6366f1;
+  margin: 1em 0;
+  padding: 0.75em 1em;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+}
+
+.message-content.user-message blockquote {
+  background: rgba(255, 255, 255, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.6);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .message-item {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .message-content {
+    padding: 12px 14px;
+    font-size: 14px;
+    max-width: 85%;
+  }
+}
+

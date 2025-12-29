@@ -1,0 +1,58 @@
+.chat-header {
+  padding: 20px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eaed;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
+}
+
+.chat-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header-title {
+  margin: 0 0 4px 0;
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.chat-header-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.chat-header-action {
+  color: #6b7280;
+  border-radius: 8px;
+  padding: 8px;
+  height: auto;
+  transition: all 0.2s ease;
+}
+
+.chat-header-action:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 16px;
+  }
+
+  .chat-header-title {
+    font-size: 18px;
+  }
+
+  .chat-header-subtitle {
+    font-size: 13px;
+  }
+}
+

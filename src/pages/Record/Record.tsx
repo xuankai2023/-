@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message, Card } from 'antd';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/SideBar/Sidebar';
-import { Card } from 'antd';
 import PetTypeGridWithSearch from '../../components/PetTypeGridWithSearch/PetTypeGridWithSearch';
 import './Record.css';
-import { petRecords, petTypes } from '../../mock/petData';
+import { petApi, type Pet } from '../../api/pet';
+import { petTypes } from '../../mock/petData';
 
 // 根据宠物品种判断类型
 const getPetType = (breed: string): string => {
@@ -15,11 +16,6 @@ const getPetType = (breed: string): string => {
   if (breedLower.includes('鱼') || breedLower.includes('fish')) return 'fish';
   if (breedLower.includes('兔') || breedLower.includes('rabbit')) return 'rabbit';
   return 'other';
-};
-
-// 统计各类型宠物数量
-const getPetCountByType = (type: string): number => {
-  return petRecords.filter(pet => getPetType(pet.breed) === type).length;
 };
 
 // 根据类型 ID 获取对应的 SVG 图标路径
@@ -35,10 +31,28 @@ const getPetTypeIcon = (typeId: string): string => {
 };
 
 // 宠物档案页面主组件
-const Record = () => {
+function Record() {
   const navigate = useNavigate();
   const [orderNumber, setOrderNumber] = useState('');
   const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [petRecords, setPetRecords] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadPets = async () => {
+      setLoading(true);
+      try {
+        const response = await petApi.getPetList({ limit: 1000 });
+        setPetRecords(response.data || []);
+      } catch (error: any) {
+        console.error('加载宠物列表失败:', error);
+        message.error(error?.message || '加载宠物列表失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPets();
+  }, []);
 
   const handleCardClick = (path: string) => {
     navigate(path);
@@ -62,13 +76,18 @@ const Record = () => {
     if (dateRange) {
       const [startDate, endDate] = dateRange;
       filtered = filtered.filter(pet => {
-        const checkupDate = pet.lastCheckupDate;
-        return checkupDate >= startDate && checkupDate <= endDate;
+        const checkupDate = pet.last_checkup_date;
+        return checkupDate && checkupDate >= startDate && checkupDate <= endDate;
       });
     }
 
     return filtered;
-  }, [orderNumber, dateRange]);
+  }, [orderNumber, dateRange, petRecords]);
+
+  // 统计各类型宠物数量
+  const getPetCountByType = (type: string): number => {
+    return filteredPetRecords.filter(pet => getPetType(pet.breed) === type).length;
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -99,43 +118,62 @@ const Record = () => {
             />
 
             {/* 宠物信息卡片 */}
-            <div className="pet-summary-grid">
-              {filteredPetRecords.map((pet) => (
-                <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
-                  <div className="pet-summary-card-header">
-                    <div className="pet-summary-avatar">
-                      <img src={pet.avatar} alt={pet.name} />
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <p>加载中...</p>
+              </div>
+            ) : filteredPetRecords.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <p>暂无宠物记录</p>
+              </div>
+            ) : (
+              <div className="pet-summary-grid">
+                {filteredPetRecords.map((pet) => (
+                  <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
+                    <div className="pet-summary-card-header">
+                      <div className="pet-summary-avatar">
+                        <img src={pet.avatar || '/images/png/petSystem.png'} alt={pet.name} onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/png/petSystem.png';
+                        }} />
+                      </div>
+                      <div className="pet-summary-title">
+                        <h3>{pet.name}</h3>
+                        <p>{pet.breed}</p>
+                      </div>
                     </div>
-                    <div className="pet-summary-title">
-                      <h3>{pet.name}</h3>
-                      <p>{pet.breed}</p>
+                    <div className="pet-summary-body">
+                      {pet.weight && (
+                        <div className="pet-summary-row">
+                          <span className="label">体重</span>
+                          <span className="value">{pet.weight} kg</span>
+                        </div>
+                      )}
+                      {pet.height && (
+                        <div className="pet-summary-row">
+                          <span className="label">身高</span>
+                          <span className="value">{pet.height} cm</span>
+                        </div>
+                      )}
+                      {pet.fur_color && (
+                        <div className="pet-summary-row">
+                          <span className="label">毛色</span>
+                          <span className="value">{pet.fur_color}</span>
+                        </div>
+                      )}
+                      <div className="pet-summary-row">
+                        <span className="label">状态</span>
+                        <span className="value status">{pet.status}</span>
+                      </div>
+                      <div className="pet-summary-row">
+                        <span className="label">最近体检</span>
+                        <span className="value">{pet.last_checkup_date ? new Date(pet.last_checkup_date).toLocaleDateString('zh-CN') : '暂无'}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="pet-summary-body">
-                    <div className="pet-summary-row">
-                      <span className="label">体型</span>
-                      <span className="value">{pet.size}</span>
-                    </div>
-                    <div className="pet-summary-row">
-                      <span className="label">体重</span>
-                      <span className="value">{pet.weight} kg</span>
-                    </div>
-                    <div className="pet-summary-row">
-                      <span className="label">毛色</span>
-                      <span className="value">{pet.furColor}</span>
-                    </div>
-                    <div className="pet-summary-row">
-                      <span className="label">状态</span>
-                      <span className="value status">{pet.status}</span>
-                    </div>
-                    <div className="pet-summary-row">
-                      <span className="label">最近体检</span>
-                      <span className="value">{pet.lastCheckupDate}</span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

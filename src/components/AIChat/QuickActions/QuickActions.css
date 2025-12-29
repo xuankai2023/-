@@ -1,0 +1,54 @@
+.quick-actions {
+  padding: 16px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.quick-actions-label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.quick-action-tag {
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  user-select: none;
+}
+
+.quick-action-tag:hover {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+.quick-action-tag:active {
+  transform: translateY(0);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .quick-actions {
+    padding: 12px 16px;
+  }
+
+  .quick-actions-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .quick-action-tag {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+}
+

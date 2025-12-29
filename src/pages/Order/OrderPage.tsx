@@ -4,35 +4,27 @@ import Sidebar from '../../components/SideBar/Sidebar';
 import './order.css';
 import { Card, Button, Tabs, Tag, Image, Space, message, Empty, Spin, Divider, Alert, Row, Col, Typography, List } from 'antd';
 import { RestOutlined } from '@ant-design/icons';
-import {
-  Order, pendingOrders, completedOrders, cancelledOrders, allOrders, OrderStatus
-} from '../../mock/orderData';
+import { orderApi, type Order as ApiOrder } from '../../api/order';
 import { useNavigate } from 'react-router';
 
-// 模拟异步获取订单数据的函数
-async function getOrderData(orders: Order[], page: number, pageSize: number = 6) {
-  return new Promise<Order[]>((resolve) => {
-    setTimeout(() => {
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const paginatedOrders = orders.slice(start, end);
-      resolve(paginatedOrders);
-    }, 800);
-  });
-}
+type OrderStatus = 'pending' | 'completed' | 'cancelled';
 
-const OrderPage: React.FC = () => {
-  const navgate = useNavigate();
-  const handleclick = (id: string) => {
-    navgate(`/order/${id}`);
-  }
+function OrderPage() {
+  const navigate = useNavigate();
+  const handleClick = (id: string) => {
+    navigate(`/order/${id}`);
+  };
 
   const [activeTab, setActiveTab] = useState<string>('all');
-  const [currentOrders, setCurrentOrders] = useState<Order[]>([]);
+  const [currentOrders, setCurrentOrders] = useState<ApiOrder[]>([]);
   const [page, setPage] = useState<number>(1);
   const [finished, setFinished] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<boolean>(false);
+  const [total, setTotal] = useState<number>(0);
+  const [stats, setStats] = useState({ all: 0, pending: 0, completed: 0 });
+  const pageSize = 6;
 
   // 格式化时间
   const formatDate = (dateString: string) => {
@@ -46,14 +38,65 @@ const OrderPage: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    const loadOrders = async () => {
+      // 只在第一页或 Tab 切换时加载（避免与 handleLoadMore 冲突）
+      if (page === 1) {
+        setLoading(true);
+        setLoadError(false);
+        try {
+          const status = activeTab === 'all' ? undefined : (activeTab as OrderStatus);
+          const response = await orderApi.getOrderList({
+            skip: 0,
+            limit: pageSize,
+            status
+          });
+
+          // 第一页总是替换数据
+          setCurrentOrders(response.data || []);
+          setTotal(response.count || 0);
+          setFinished((response.data?.length || 0) < pageSize);
+        } catch (error: any) {
+          console.error('加载订单失败:', error);
+          setLoadError(true);
+          message.error(error?.message || '加载订单失败');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadOrders();
+  }, [activeTab, pageSize]); // 移除 page 依赖，只在 activeTab 或 pageSize 变化时触发
+
+  // 加载统计数据
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const [allRes, pendingRes, completedRes] = await Promise.all([
+          orderApi.getOrderList({ skip: 0, limit: 1 }),
+          orderApi.getOrderList({ skip: 0, limit: 1, status: 'pending' }),
+          orderApi.getOrderList({ skip: 0, limit: 1, status: 'completed' })
+        ]);
+        setStats({
+          all: allRes.count || 0,
+          pending: pendingRes.count || 0,
+          completed: completedRes.count || 0
+        });
+      } catch (error) {
+        console.error('加载统计数据失败:', error);
+      }
+    };
+    loadStats();
+  }, []);
+
   // 获取状态配置
   const getStatusConfig = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.PENDING:
+      case 'pending':
         return { text: '待处理' };
-      case OrderStatus.COMPLETED:
+      case 'completed':
         return { text: '已完成' };
-      case OrderStatus.CANCELLED:
+      case 'cancelled':
         return { text: '已取消' };
       default:
         return { text: '未知状态' };
@@ -75,15 +118,16 @@ const OrderPage: React.FC = () => {
     return petIconMap[petType] || '/images/svg/puppy.svg';
   };
 
-  // 渲染订单卡片（还原为最初版本，使用内联样式）
-  const renderOrderCard = (order: Order) => {
+  // 渲染订单卡片
+  const renderOrderCard = (order: ApiOrder) => {
     const statusConfig = getStatusConfig(order.status);
-    const isUrgent = new Date(order.scheduledTime).getTime() - Date.now() < 24 * 60 * 60 * 1000;
+    const scheduledTime = order.created_at ? new Date(order.created_at).getTime() : 0;
+    const isUrgent = scheduledTime > 0 && scheduledTime - Date.now() < 24 * 60 * 60 * 1000;
 
     const statusClassMap: Record<OrderStatus, string> = {
-      [OrderStatus.PENDING]: 'order-card-status-danger',
-      [OrderStatus.COMPLETED]: 'order-card-status-success',
-      [OrderStatus.CANCELLED]: 'order-card-status-default',
+      'pending': 'order-card-status-danger',
+      'completed': 'order-card-status-success',
+      'cancelled': 'order-card-status-default',
     };
 
     return (
@@ -98,18 +142,15 @@ const OrderPage: React.FC = () => {
           <Space align="center" style={{ gap: '12px' }}>
             <div className="order-card-avatar-container">
               <Image
-                src={
-                  order.customerAvatar ||
-                  'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=600&q=80'
-                }
-                alt={order.customerName}
+                src="/images/png/default-avatar.png"
+                alt="用户头像"
                 className="order-card-avatar"
               />
               {isUrgent && <div className="order-card-urgent-badge" />}
             </div>
             <div className="order-card-customer-info">
-              <div className="order-card-customer-name">{order.customerName}</div>
-              <div className="order-card-order-id">#{order.id}</div>
+              <div className="order-card-customer-name">{order.user_id || '未知用户'}</div>
+              <div className="order-card-order-id">#{order.order_number || order.id}</div>
             </div>
           </Space>
 
@@ -127,14 +168,14 @@ const OrderPage: React.FC = () => {
             {[
               {
                 label: '宠物',
-                value: `${order.petName} (${order.petType})`,
+                value: order.pet_id || '未指定宠物',
                 isPet: true,
-                petType: order.petType
+                petType: 'other'
               },
-              { icon: '服务', label: '服务', value: order.serviceName, isIconSVG: true },
-              { icon: '数量', label: '数量', value: `${order.quantity} 项`, isIconSVG: true },
-              { icon: '已下单', label: '下单', value: formatDate(order.orderTime), isIconSVG: true },
-              { icon: '预约', label: '预约', value: formatDate(order.scheduledTime), isIconSVG: true },
+              { icon: '服务', label: '服务', value: order.service_name || '未指定服务', isIconSVG: true },
+              { icon: '数量', label: '数量', value: `${order.quantity || 1} 项`, isIconSVG: true },
+              { icon: '已下单', label: '下单', value: order.created_at ? formatDate(order.created_at) : '未指定', isIconSVG: true },
+              { icon: '预约', label: '预约', value: order.created_at ? formatDate(order.created_at) : '未指定', isIconSVG: true },
             ].map((item, idx) => (
               <div key={idx} className="detail-row">
                 <div className="label">
@@ -170,7 +211,7 @@ const OrderPage: React.FC = () => {
         <div
           style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <div className="order-card-footer-left">¥{order.totalAmount.toFixed(2)}</div>
+          <div className="order-card-footer-left">¥{order.total_amount?.toFixed(2) || '0.00'}</div>
           <div className="order-card-actions">
             <Button
               size="small"
@@ -178,21 +219,21 @@ const OrderPage: React.FC = () => {
               className="order-card-button"
               onClick={(e) => {
                 e.stopPropagation();
-                handleclick(order.id);
+                handleClick(order.id);
               }}
             >
               详情
             </Button>
             <Button
               size="small"
-              type={order.status === OrderStatus.PENDING ? 'primary' : 'default'}
+              type={order.status === 'pending' ? 'primary' : 'default'}
               className="order-card-button"
               onClick={(e) => {
                 e.stopPropagation();
-                handleclick(order.id);
+                handleClick(order.id);
               }}
             >
-              {order.status === OrderStatus.PENDING ? '处理' : ' 查看'}
+              {order.status === 'pending' ? '处理' : ' 查看'}
             </Button>
           </div>
         </div>
@@ -200,77 +241,38 @@ const OrderPage: React.FC = () => {
     );
   };
 
-  // 根据 Tab 获取订单列表
-  const getOrdersByTab = (tab: string): Order[] => {
-    switch (tab) {
-      case 'pending': return pendingOrders;
-      case 'completed': return completedOrders;
-      case 'cancelled': return cancelledOrders;
-      default: return allOrders;
-    }
-  };
-
-  // 加载订单数据（支持指定页码和是否追加）
-  const loadOrders = async (pageNum: number, append: boolean = true) => {
-    try {
-      const orders = getOrdersByTab(activeTab);
-      const newOrders = await getOrderData(orders, pageNum);
-
-      if (pageNum === 1) {
-        setCurrentOrders(newOrders);
-        setFinished(newOrders.length === 0 || newOrders.length < 6);
-      } else if (append) {
-        setCurrentOrders(prev => [...prev, ...newOrders]);
-        setFinished(newOrders.length === 0 || newOrders.length < 6);
-      }
-
-      setLoadError(false);
-      if (pageNum === 1) {
-        setLoading(false);
-      }
-    } catch (error) {
-      setLoadError(true);
-      if (pageNum === 1) {
-        setLoading(false);
-      }
-      throw error;
-    }
-  };
-
   // 刷新
   const handleRefresh = async () => {
-    try {
-      await loadOrders(1, false);
-      message.success('刷新成功');
-    } catch (error) {
-      message.error('刷新失败，请重试');
-    }
+    setPage(1);
+    setFinished(false);
   };
 
-  // 加载更多（用于 List）—— 关键修复点
+  // 加载更多（用于 List）
   const handleLoadMore = async () => {
-    // ⚠️ 不要提前 return！即使 finished 或 loadError 为 true，也要允许重试
-    setLoadError(false); // 允许重试
+    if (finished || loading || loadingMore) return;
 
+    setLoadError(false);
+    setLoadingMore(true);
     try {
+      const status = activeTab === 'all' ? undefined : (activeTab as OrderStatus);
       const nextPage = page + 1;
-      const orders = getOrdersByTab(activeTab);
-      const newOrders = await getOrderData(orders, nextPage);
+      const response = await orderApi.getOrderList({
+        skip: (nextPage - 1) * pageSize,
+        limit: pageSize,
+        status
+      });
 
-      if (newOrders.length === 0) {
-        setFinished(true);
-        return;
-      }
-
-      setCurrentOrders(prev => [...prev, ...newOrders]);
+      // 追加新数据到现有列表
+      setCurrentOrders(prev => [...prev, ...(response.data || [])]);
+      setTotal(response.count || 0);
+      setFinished((response.data?.length || 0) < pageSize);
       setPage(nextPage);
-
-      if (newOrders.length < 6) {
-        setFinished(true);
-      }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('加载更多订单失败:', error);
       setLoadError(true);
-      message.error('加载更多失败');
+      message.error(error?.message || '加载更多订单失败');
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -284,14 +286,14 @@ const OrderPage: React.FC = () => {
     if (activeTab) {
       setPage(1);
       setFinished(false);
-      setLoadError(false); // 👈 新增：清除错误状态
-      setLoading(true);
-      loadOrders(1, false).catch(() => { });
+      setCurrentOrders([]); // 清空当前订单列表
+      setLoadError(false); // 重置错误状态
+      // 触发加载第一页数据（通过上面的 useEffect）
     }
   }, [activeTab]);
 
-  const renderTabContent = (data: Order[], title: string, showRefresh?: boolean) => (
-    data.length === 0 ? (
+  const renderTabContent = (title: string, showRefresh?: boolean) => (
+    currentOrders.length === 0 && !loading ? (
       <Empty description={`暂无${title}`}>
         {title === '全部订单' && (
           <Button type="primary" size="small" onClick={() => window.location.reload()}>
@@ -318,11 +320,21 @@ const OrderPage: React.FC = () => {
             </List.Item>
           )}
         />
-        {!finished && (
+        {!finished && currentOrders.length > 0 && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
-            <Button type="default" onClick={handleLoadMore} disabled={loadError}>
-              {loadError ? '加载失败，点击重试' : '加载更多'}
+            <Button
+              type="default"
+              onClick={handleLoadMore}
+              disabled={loading || loadingMore || loadError}
+              loading={loadingMore}
+            >
+              {loadError ? '加载失败，点击重试' : loadingMore ? '加载中...' : '加载更多'}
             </Button>
+          </div>
+        )}
+        {loading && currentOrders.length === 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="加载中..." />
           </div>
         )}
       </div>
@@ -336,12 +348,14 @@ const OrderPage: React.FC = () => {
         <Sidebar />
         <main style={{ flex: 1, padding: '20px', overflow: 'auto' }}>
           {/* 通知栏 */}
-          <Alert
-            type="warning"
-            message={`当前有 ${pendingOrders.length} 个待处理订单，请及时处理`}
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
+          {stats.pending > 0 && (
+            <Alert
+              type="warning"
+              message={`当前有 ${stats.pending} 个待处理订单，请及时处理`}
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
 
           {/* 统计卡片 */}
           <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -350,7 +364,7 @@ const OrderPage: React.FC = () => {
                 <div className="order-stat-card-body">
                   <div>
                     <div className="order-stat-label">全部订单</div>
-                    <div className="order-stat-value">{allOrders.length}</div>
+                    <div className="order-stat-value">{stats.all}</div>
                   </div>
                   <div className="order-stat-icon">🛍️</div>
                 </div>
@@ -361,7 +375,7 @@ const OrderPage: React.FC = () => {
                 <div className="order-stat-card-body">
                   <div>
                     <div className="order-stat-label">待处理</div>
-                    <div className="order-stat-value">{pendingOrders.length}</div>
+                    <div className="order-stat-value">{stats.pending}</div>
                   </div>
                   <div className="order-stat-icon">⏳</div>
                 </div>
@@ -372,7 +386,7 @@ const OrderPage: React.FC = () => {
                 <div className="order-stat-card-body">
                   <div>
                     <div className="order-stat-label">已完成</div>
-                    <div className="order-stat-value">{completedOrders.length}</div>
+                    <div className="order-stat-value">{stats.completed}</div>
                   </div>
                   <div className="order-stat-icon">✅</div>
                 </div>
@@ -389,20 +403,20 @@ const OrderPage: React.FC = () => {
               </div>
             ) : (
               <Tabs activeKey={activeTab} onChange={handleTabChange}>
-                <Tabs.TabPane key='all' tab={`全部订单 (${allOrders.length})`}>
-                  {renderTabContent(allOrders, '全部订单')}
+                <Tabs.TabPane key='all' tab={`全部订单 (${stats.all})`}>
+                  {renderTabContent('全部订单')}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane key='pending' tab={`待处理订单 (${pendingOrders.length})`}>
-                  {renderTabContent(pendingOrders, '待处理订单')}
+                <Tabs.TabPane key='pending' tab={`待处理订单 (${stats.pending})`}>
+                  {renderTabContent('待处理订单')}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane key='completed' tab={`已完成订单 (${completedOrders.length})`}>
-                  {renderTabContent(completedOrders, '已完成订单', true)}
+                <Tabs.TabPane key='completed' tab={`已完成订单 (${stats.completed})`}>
+                  {renderTabContent('已完成订单', true)}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane key='cancelled' tab={`已取消订单 (${cancelledOrders.length})`}>
-                  {renderTabContent(cancelledOrders, '已取消订单', true)}
+                <Tabs.TabPane key='cancelled' tab={`已取消订单`}>
+                  {renderTabContent('已取消订单', true)}
                 </Tabs.TabPane>
               </Tabs>
             )}

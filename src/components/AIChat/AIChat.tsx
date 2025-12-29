@@ -1,16 +1,19 @@
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
-import { message, List, Avatar, Button, Dropdown } from 'antd';
-import { RobotOutlined, CopyOutlined, MoreOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
+import { message } from 'antd';
 import './AIChat.css';
 import { ChatMessage } from '../../services/aiService';
 import { KeyManager } from '../../utils/keyManager';
 import { saveChatHistory, getChatHistoryById, updateChatHistory, Message as HistoryMessage } from '../../utils/chatHistoryManager';
-import ConversationHistory from './ConversationHistory/ConversationHistory';
-import ApiKeyModal from './ApiKeyModal/ApiKeyModal';
-import ChatInput from './ChatInput/ChatInput';
-import { useStreamingMessage, Message } from '../../hooks/useStreamingMessage';
 import { formatAiOutput } from '../../utils/messageFormatter';
+import { useStreamingMessage, Message } from '../../hooks/useStreamingMessage';
+
+// 导入新组件
+import ChatHeader from './ChatHeader/ChatHeader';
+import MessageItem from './MessageItem/MessageItem';
+import TypingIndicator from './TypingIndicator/TypingIndicator';
+import ChatInput from './ChatInput/ChatInput';
+import QuickActions, { QuickAction } from './QuickActions/QuickActions';
+import ApiKeyModal from './ApiKeyModal/ApiKeyModal';
 
 export interface AIChatRef {
   loadHistory: (historyId: string) => void;
@@ -27,6 +30,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
   const [inputValue, setInputValue] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
+  const [showQuickActions, setShowQuickActions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -38,6 +42,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
     maxWords: 300,
     onComplete: (aiMessage) => {
       setMessages(prev => [...prev, aiMessage]);
+      setShowQuickActions(false);
     },
     onError: (error) => {
       message.error(`AI服务错误: ${error.message}`);
@@ -75,8 +80,10 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
     setMessages([]);
     setInputValue('');
     setCurrentHistoryId(null);
+    setShowQuickActions(true);
     cancel();
     onHistoryChange?.(null);
+    message.success('对话已清空');
   }, [cancel, onHistoryChange]);
 
   // 加载历史记录
@@ -91,6 +98,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
       const historyMessages = history.messages as Message[];
       setMessages(historyMessages);
       setCurrentHistoryId(historyId);
+      setShowQuickActions(historyMessages.length === 0);
       onHistoryChange?.(historyId);
       message.success('已加载历史对话');
     } else {
@@ -124,10 +132,11 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
 
     processStreamingResponse(chatMessages, (aiMessage) => {
       setMessages([aiMessage]);
+      setShowQuickActions(false);
     });
   }, [processStreamingResponse]);
 
-  // 检查是否已存储API密钥
+  // 检查是否已存储API密钥（仅在组件挂载时执行一次）
   useEffect(() => {
     const hasKey = KeyManager.hasKey();
     if (hasKey) {
@@ -135,7 +144,8 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
     } else {
       setShowKeyModal(true);
     }
-  }, [sendWelcomeMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 处理发送消息
   const handleSendMessage = useCallback(() => {
@@ -161,6 +171,20 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
 
     setMessages(prev => {
       const newMessages = [...prev, userMessage];
+      setShowQuickActions(false);
+
+      // 转换为AI服务所需的消息格式
+      const chatMessages: ChatMessage[] = [
+        { role: 'system', content: '你是一个专业的宠物行业智能助手，提供友好、准确的回答。' },
+        ...newMessages.map(msg => ({
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content
+        }))
+      ];
+
+      // 异步调用AI服务
+      processStreamingResponse(chatMessages);
+
       if (!currentHistoryId && newMessages.length === 1) {
         const newHistoryId = saveChatHistory(newMessages as HistoryMessage[]);
         if (newHistoryId) {
@@ -171,26 +195,16 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
       return newMessages;
     });
     setInputValue('');
+  }, [inputValue, currentHistoryId, onHistoryChange, processStreamingResponse]);
 
-    // 转换为AI服务所需的消息格式
-    const chatMessages: ChatMessage[] = [
-      { role: 'system', content: '你是一个专业的宠物行业智能助手，提供友好、准确的回答。' },
-      ...messages.map(msg => ({
-        role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content
-      })),
-      { role: 'user', content: trimmedInput }
-    ];
-
-    processStreamingResponse(chatMessages);
-  }, [inputValue, messages, currentHistoryId, onHistoryChange, processStreamingResponse]);
+  // 处理停止生成
+  const handleStop = useCallback(() => {
+    cancel();
+    message.info('已停止生成');
+  }, [cancel]);
 
   // 复制消息内容
-  const handleCopyMessage = useCallback(async (content: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-
+  const handleCopyMessage = useCallback(async (content: string) => {
     try {
       const textContent = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
       await navigator.clipboard.writeText(textContent);
@@ -213,136 +227,134 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
     }
   }, []);
 
-  // 重新提问（立即发送）
-  const handleRegenerateAndSend = useCallback((messageContent: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-
+  // 重新提问
+  const handleRegenerate = useCallback((content: string) => {
     if (!KeyManager.hasKey()) {
       message.error('请先设置API密钥');
       setShowKeyModal(true);
       return;
     }
 
-    const trimmedContent = messageContent.trim();
-    if (!trimmedContent) {
-      return;
-    }
-
     const userMessage: Message = {
       id: `user-${Date.now()}`,
-      content: trimmedContent,
+      content: content.trim(),
       sender: 'user',
       timestamp: new Date()
     };
 
     setMessages(prev => {
       const newMessages = [...prev, userMessage];
-      if (!currentHistoryId && newMessages.length === 1) {
-        const newHistoryId = saveChatHistory(newMessages as HistoryMessage[]);
-        if (newHistoryId) {
-          setCurrentHistoryId(newHistoryId);
-          onHistoryChange?.(newHistoryId);
-        }
-      }
+
+      const chatMessages: ChatMessage[] = [
+        { role: 'system', content: '你是一个专业的宠物行业智能助手，提供友好、准确的回答。' },
+        ...newMessages.map(msg => ({
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content
+        }))
+      ];
+
+      processStreamingResponse(chatMessages);
       return newMessages;
     });
+  }, [processStreamingResponse]);
 
-    const chatMessages: ChatMessage[] = [
-      { role: 'system', content: '你是一个专业的宠物行业智能助手，提供友好、准确的回答。' },
-      ...messages.map(msg => ({
-        role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content
-      })),
-      { role: 'user', content: trimmedContent }
-    ];
+  // 编辑消息
+  const handleEditMessage = useCallback((messageId: string, newContent: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, content: newContent } : msg
+    ));
+    message.success('消息已更新');
+  }, []);
 
-    processStreamingResponse(chatMessages);
-  }, [messages, currentHistoryId, onHistoryChange, processStreamingResponse]);
+  // 处理快捷操作
+  const handleQuickAction = useCallback((action: QuickAction) => {
+    setInputValue(action.prompt);
+    // 自动发送
+    setTimeout(() => {
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        content: action.prompt,
+        sender: 'user',
+        timestamp: new Date()
+      };
 
-  // 渲染消息操作菜单（用于当前流式消息）
-  const renderMessageActions = (item: Message) => {
-    const content = item.content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+      setMessages(prev => {
+        const newMessages = [...prev, userMessage];
+        setShowQuickActions(false);
 
-    const menuItems: MenuProps['items'] = [
-      {
-        key: 'copy',
-        label: '复制',
-        icon: <CopyOutlined />,
-        onClick: () => handleCopyMessage(content)
-      }
-    ];
+        const chatMessages: ChatMessage[] = [
+          { role: 'system', content: '你是一个专业的宠物行业智能助手，提供友好、准确的回答。' },
+          ...newMessages.map(msg => ({
+            role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+            content: msg.content
+          }))
+        ];
 
-    return (
-      <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-        <Button
-          type="text"
-          size="small"
-          icon={<MoreOutlined />}
-          className="message-action-btn"
-          onClick={(e) => e.stopPropagation()}
-        />
-      </Dropdown>
-    );
-  };
+        processStreamingResponse(chatMessages);
 
-  // 渲染当前AI消息（流式输出）
-  const renderCurrentAiMessage = () => {
-    if (!currentAiMessage) return null;
-
-    return (
-      <List.Item className="message-item ai" key={currentAiMessage.id}>
-        <List.Item.Meta
-          avatar={<Avatar icon={<RobotOutlined />} />}
-          title={
-            <div className="message-header">
-              <span className="message-sender">
-                AI助手
-                <span className="message-time">
-                  {currentAiMessage.timestamp.toLocaleTimeString()}
-                </span>
-              </span>
-              {renderMessageActions(currentAiMessage)}
-            </div>
+        if (!currentHistoryId && newMessages.length === 1) {
+          const newHistoryId = saveChatHistory(newMessages as HistoryMessage[]);
+          if (newHistoryId) {
+            setCurrentHistoryId(newHistoryId);
+            onHistoryChange?.(newHistoryId);
           }
-          description={
-            <div
-              className="message-content"
-              dangerouslySetInnerHTML={{ __html: formatAiOutput(currentAiMessage.content) }}
-            />
-          }
-        />
-      </List.Item>
-    );
-  };
+        }
+        return newMessages;
+      });
+    }, 100);
+  }, [currentHistoryId, onHistoryChange, processStreamingResponse]);
+
+  // 消息反馈（点赞/点踩）
+  const handleLike = useCallback((messageId: string) => {
+    message.success('感谢您的反馈！');
+    // 这里可以发送反馈到后端
+  }, []);
+
+  const handleDislike = useCallback((messageId: string) => {
+    message.info('我们会改进回答质量');
+    // 这里可以发送反馈到后端
+  }, []);
 
   return (
     <div className="ai-chat-container">
-      <div className="ai-chat-header">
-        <div>
-          <h2>AI对话助手</h2>
-          <p>有什么可以帮助您的？</p>
-        </div>
-      </div>
+      <ChatHeader
+        onClear={clearChat}
+        onNewChat={clearChat}
+        showActions={messages.length > 0}
+      />
+
+      {showQuickActions && messages.length === 0 && (
+        <QuickActions
+          onSelect={handleQuickAction}
+          visible={showQuickActions}
+        />
+      )}
 
       <div className="ai-chat-messages">
-        {messages.length > 0 && (
-          <ConversationHistory
-            messages={messages}
+        {messages.map((msg) => (
+          <MessageItem
+            key={msg.id}
+            message={msg}
             formatAiOutput={formatAiOutput}
-            onCopyMessage={handleCopyMessage}
-            onRegenerate={handleRegenerateAndSend}
+            onCopy={handleCopyMessage}
+            onRegenerate={handleRegenerate}
+            onEdit={handleEditMessage}
+            onLike={handleLike}
+            onDislike={handleDislike}
+          />
+        ))}
+
+        {currentAiMessage && (
+          <MessageItem
+            message={currentAiMessage}
+            formatAiOutput={formatAiOutput}
+            onCopy={handleCopyMessage}
+            isStreaming={true}
           />
         )}
 
-        {renderCurrentAiMessage()}
-
         {isTyping && !currentAiMessage && (
-          <div className="typing-indicator">
-            <Avatar icon={<RobotOutlined />} />
-            <span>AI助手正在输入...</span>
-          </div>
+          <TypingIndicator />
         )}
 
         <div ref={messagesEndRef} />
@@ -352,7 +364,10 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
         value={inputValue}
         onChange={setInputValue}
         onSend={handleSendMessage}
-        disabled={isTyping}
+        onStop={handleStop}
+        disabled={false}
+        isStreaming={isTyping}
+        showStopButton={true}
       />
 
       <ApiKeyModal

@@ -1,6 +1,7 @@
 import { jwtUtils } from '../jwt/jwtUtils';
 import { tokenStorage } from '../jwt/tokenStorage';
 import { jwtConfig } from '../config';
+import { authApi, type User as ApiUser } from '../../api/auth';
 
 // 定义API响应类型
 interface ApiResponse<T> {
@@ -73,50 +74,56 @@ class AuthApiService {
    */
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> {
     try {
-      // 模拟API请求延迟
-      await delay(500);
+      const response = await authApi.login(credentials);
       
-      // 在本地环境中验证用户
-      const user = MOCK_USERS.find(
-        u => u.username === credentials.username && u.password === credentials.password
-      );
-      
-      if (!user) {
+      if (!response.access_token) {
         return {
           success: false,
-          error: '用户名或密码错误'
+          error: '登录失败，未获取到访问令牌'
         };
       }
+
+      localStorage.setItem('token', response.access_token);
       
-      // 生成JWT令牌
-      // 注意：根据jwtUtils的实现，我们需要传递包含role和permissions的用户对象
-      const accessToken = this.jwtUtils.createToken({
-        id: user.id,
-        username: user.username,
-        role: user.roles && user.roles.length > 0 ? user.roles[0] : 'user',
-        permissions: user.roles || []
-      });
+      const userInfo = await authApi.getCurrentUser();
       
-      const refreshToken = this.jwtUtils.createRefreshToken(user.id);
-      
-      // 存储令牌和用户信息
-      tokenStorage.setAccessToken(accessToken);
-      tokenStorage.setRefreshToken(refreshToken);
+      if (!userInfo) {
+        return {
+          success: false,
+          error: '获取用户信息失败'
+        };
+      }
+
+      const user = {
+        id: userInfo.id,
+        username: userInfo.email,
+        fullName: userInfo.full_name,
+        email: userInfo.email,
+        avatar: userInfo.avatar,
+        roles: userInfo.is_superuser ? ['admin', 'user'] : ['user']
+      };
+
+      // 保存 token 和用户信息到本地存储
+      tokenStorage.setAccessToken(response.access_token);
+      tokenStorage.setRefreshToken(response.access_token); // 使用相同的 token 作为 refresh token（Mock 数据）
       tokenStorage.setUser(user);
+      
+      // 同时保存到 localStorage（兼容旧代码）
+      localStorage.setItem('token', response.access_token);
       
       return {
         success: true,
         data: {
-          accessToken,
-          refreshToken,
+          accessToken: response.access_token,
+          refreshToken: response.access_token,
           user
         }
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('登录失败:', error);
       return {
         success: false,
-        error: '登录过程中发生错误'
+        error: error?.message || '登录过程中发生错误'
       };
     }
   }
@@ -148,76 +155,36 @@ class AuthApiService {
    */
   async refreshToken(): Promise<ApiResponse<RefreshTokenResponse>> {
     try {
-      const refreshToken = tokenStorage.getRefreshToken();
-      
-      if (!refreshToken) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         return {
           success: false,
-          error: '没有可用的刷新令牌'
+          error: '没有可用的访问令牌'
         };
       }
-      
-      // 验证刷新令牌
-      const result = this.jwtUtils.verifyToken(refreshToken);
-      
-      if (!result.isValid) {
+
+      const userInfo = await authApi.testToken();
+      if (!userInfo) {
         tokenStorage.clear();
-        localStorage.removeItem('currentUser');
         return {
           success: false,
-          error: '刷新令牌无效'
+          error: '令牌验证失败'
         };
       }
-      
-      // 获取用户ID
-      const payload = this.jwtUtils.parseToken(refreshToken);
-      const userId = payload?.sub;
-      
-      if (!userId) {
-        return {
-          success: false,
-          error: '无法从刷新令牌中获取用户信息'
-        };
-      }
-      
-      // 查找用户
-      const user = MOCK_USERS.find(u => u.id === userId);
-      
-      if (!user) {
-        return {
-          success: false,
-          error: '用户不存在'
-        };
-      }
-      
-      // 生成新的访问令牌
-      // 注意：根据jwtUtils的实现，我们需要传递包含role和permissions的用户对象
-      const newAccessToken = this.jwtUtils.createToken({
-        id: user.id,
-        username: user.username,
-        role: user.roles && user.roles.length > 0 ? user.roles[0] : 'user',
-        permissions: user.roles || []
-      });
-      
-      // 可选：生成新的刷新令牌
-      const newRefreshToken = this.jwtUtils.createRefreshToken(user.id);
-      
-      // 更新存储
-      tokenStorage.setAccessToken(newAccessToken);
-      tokenStorage.setRefreshToken(newRefreshToken);
-      
+
       return {
         success: true,
         data: {
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken
+          accessToken: token,
+          refreshToken: token
         }
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('刷新令牌失败:', error);
+      tokenStorage.clear();
       return {
         success: false,
-        error: '刷新令牌过程中发生错误'
+        error: error?.message || '刷新令牌过程中发生错误'
       };
     }
   }
@@ -228,17 +195,33 @@ class AuthApiService {
    */
   async checkAuth(): Promise<boolean> {
     try {
-      const accessToken = tokenStorage.getAccessToken();
-      
-      if (!accessToken) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         return false;
       }
       
-      // 验证访问令牌（verifyToken返回对象，我们需要检查isValid属性）
-      const result = this.jwtUtils.verifyToken(accessToken);
-      return result.isValid;
-    } catch (error) {
+      // 使用 Mock 数据时，直接验证 token 是否存在
+      // 避免每次路由切换都调用 API
+      try {
+        await authApi.testToken();
+        return true;
+      } catch (error: any) {
+        // 如果是后端服务器未运行，检查本地 token 是否有效
+        if (error?.isBackendUnavailable || error?.code === 'ECONNREFUSED' || error?.message) {
+          // 使用 Mock 数据时，如果 token 存在就认为已认证
+          // 这样可以避免每次路由切换都弹出登录框
+          const tokenStorage = require('../jwt/tokenStorage').tokenStorage;
+          const user = tokenStorage.getUser();
+          return !!user;
+        }
+        throw error;
+      }
+    } catch (error: any) {
       console.error('验证认证状态失败:', error);
+      // 只有在明确错误时才清除 token
+      if (error?.message && !error.message.includes('用户名或密码错误')) {
+        localStorage.removeItem('token');
+      }
       return false;
     }
   }
@@ -249,57 +232,29 @@ class AuthApiService {
    */
   async getCurrentUser() {
     try {
-      console.log('正在获取当前用户信息');
+      const userInfo = await authApi.getCurrentUser();
       
-      // 从tokenStorage中获取用户信息
-      let user = tokenStorage.getUser();
-      console.log('从tokenStorage获取的用户:', user);
-      
-      if (!user) {
-        // 如果存储中没有，尝试从localStorage直接获取
-        const localStorageUser = localStorage.getItem('currentUser');
-        if (localStorageUser) {
-          try {
-            user = JSON.parse(localStorageUser);
-            console.log('从localStorage直接获取的用户:', user);
-            tokenStorage.setUser(user);
-            return user;
-          } catch (parseError) {
-            console.warn('解析localStorage中的用户信息失败:', parseError);
-          }
-        }
-        
-        // 如果localStorage中也没有，尝试从令牌中解析
-        const accessToken = tokenStorage.getAccessToken();
-        console.log('尝试从令牌解析用户信息，令牌存在:', !!accessToken);
-        
-        if (accessToken) {
-          // 首先验证令牌是否有效
-          const tokenResult = this.jwtUtils.verifyToken(accessToken);
-          console.log('令牌验证结果:', tokenResult);
-          
-          if (tokenResult.isValid) {
-            const payload = this.jwtUtils.parseToken(accessToken);
-            console.log('令牌解析结果:', payload);
-            
-            if (payload?.sub) {
-              const foundUser = MOCK_USERS.find(u => u.id === payload.sub);
-              if (foundUser) {
-                console.log('找到匹配的用户:', foundUser);
-                // 将用户信息存入tokenStorage
-                tokenStorage.setUser(foundUser);
-                return foundUser;
-              }
-            }
-          }
-        }
-        
-        console.log('无法获取用户信息');
+      if (!userInfo) {
         return null;
       }
-      
+
+      const user = {
+        id: userInfo.id,
+        username: userInfo.email,
+        fullName: userInfo.full_name,
+        email: userInfo.email,
+        avatar: userInfo.avatar,
+        roles: userInfo.is_superuser ? ['admin', 'user'] : ['user']
+      };
+
+      tokenStorage.setUser(user);
       return user;
-    } catch (error) {
+    } catch (error: any) {
+      // 如果是后端服务器未运行，静默处理，不显示错误
+      if (error?.isBackendUnavailable || error?.code === 'ECONNREFUSED') {
+        console.warn('后端服务器未运行，无法获取用户信息');
+        return null;
+      }
       console.error('获取用户信息失败:', error);
       return null;
     }

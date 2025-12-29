@@ -50,13 +50,21 @@
   color: #6b7280;
 }
 
+.chat-history-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-history-item {
-  padding: 16px 20px !important;
-  border-bottom: 1px solid #e8eaed !important;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8eaed;
   cursor: pointer;
   transition: all 0.2s ease;
   background: #ffffff;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .chat-history-item:hover {
