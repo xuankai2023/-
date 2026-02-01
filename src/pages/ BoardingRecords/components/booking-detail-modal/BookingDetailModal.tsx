@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Descriptions, Tag, Button } from 'antd';
+import './BookingDetailModal.css';
 
 export interface BookingDetailModalProps {
   visible: boolean;
@@ -7,8 +8,14 @@ export interface BookingDetailModalProps {
   onClose: () => void;
 }
 
-const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ visible, booking, onClose }) => {
+function BookingDetailModal({ visible, booking, onClose }: BookingDetailModalProps) {
   if (!booking) return null;
+
+  const statusColorMap: Record<string, string> = {
+    '待审核': 'warning',
+    '已通过': 'success',
+    '已拒绝': 'error',
+  };
 
   return (
     <Modal
@@ -16,19 +23,17 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ visible, bookin
       open={visible}
       onCancel={onClose}
       footer={[
-        <Button key="close" onClick={onClose}>
+        <Button key="close" onClick={onClose} className="close-button">
           关闭
         </Button>
       ]}
       width={600}
+      className="booking-detail-modal"
     >
-      <Descriptions column={2} bordered>
+      <Descriptions column={2} bordered className="booking-descriptions">
         <Descriptions.Item label="预约号">{booking.id}</Descriptions.Item>
         <Descriptions.Item label="状态">
-          <Tag color={
-            booking.status === '待审核' ? 'warning' :
-            booking.status === '已通过' ? 'success' : 'error'
-          }>
+          <Tag color={statusColorMap[booking.status] || 'default'} className="status-tag">
             {booking.status}
           </Tag>
         </Descriptions.Item>
@@ -41,14 +46,14 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ visible, bookin
         <Descriptions.Item label="寄养天数">{booking.dates.days} 天</Descriptions.Item>
         <Descriptions.Item label="房间类型">{booking.roomType}</Descriptions.Item>
         <Descriptions.Item label="健康状态">
-          <Tag color={booking.healthStatus === '疫苗齐全' ? 'success' : 'error'}>
+          <Tag color={booking.healthStatus === '疫苗齐全' ? 'success' : 'error'} className="health-tag">
             {booking.healthStatus}
           </Tag>
         </Descriptions.Item>
       </Descriptions>
     </Modal>
   );
-};
+}
 
 export default BookingDetailModal;
 

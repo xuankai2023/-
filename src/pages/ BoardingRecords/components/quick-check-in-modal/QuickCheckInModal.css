@@ -1,0 +1,22 @@
+.quick-check-in-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.quick-check-in-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+.quick-check-in-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.quick-check-in-form .ant-input,
+.quick-check-in-form .ant-select-selector {
+  border-radius: 6px;
+}
+
+.quick-check-in-form .ant-input-number {
+  border-radius: 6px;
+}
+

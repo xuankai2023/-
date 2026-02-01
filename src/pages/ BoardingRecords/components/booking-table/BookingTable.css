@@ -1,0 +1,81 @@
+.booking-table {
+  background: #ffffff;
+}
+
+.booking-table .ant-table-thead > tr > th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.booking-table .ant-table-tbody > tr:hover > td {
+  background-color: #f8fafc;
+}
+
+.pet-avatar {
+  border: 1px solid #e5e7eb;
+}
+
+.pet-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-name {
+  font-weight: 700;
+  color: #374151;
+  font-size: 14px;
+}
+
+.pet-breed {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.owner-name {
+  font-weight: 700;
+  color: #374151;
+  font-size: 14px;
+}
+
+.owner-phone {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.booking-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-item {
+  font-size: 12px;
+  color: #475569;
+}
+
+.date-days {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.health-tag,
+.status-tag {
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.table-actions .ant-btn {
+  margin: 0;
+}
+

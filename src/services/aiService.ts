@@ -40,7 +40,7 @@ export class AIService {
       apiUrl: 'https://api.deepseek.com/v1/chat/completions',
       model: 'deepseek-chat',
       temperature: 0.7,
-      maxTokens: 400, // 大约对应300个汉字
+      maxTokens: 2000, // 增加最大 token 数，支持更长的回复
       ...config
     };
   }
@@ -64,66 +64,136 @@ export class AIService {
     messages: ChatMessage[],
     callback: StreamingCallback
   ): Promise<void> {
-    // 使用 Mock 数据 - 已注释真实 API 调用
-    // try {
-    //   const apiKey = KeyManager.getKey();
-    //   if (!apiKey) {
-    //     throw new Error('API密钥未配置');
-    //   }
+    // 检查是否有 API 密钥
+    const apiKey = KeyManager.getKey();
+    if (!apiKey) {
+      // 如果没有 API 密钥，直接返回错误
+      callback.onError(new Error('API密钥未配置'));
+      return;
+    }
 
-    //   this.controller = new AbortController();
-    //   const response = await fetch(this.config.apiUrl, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Authorization': `Bearer ${apiKey}`,
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //       model: this.config.model,
-    //       messages,
-    //       temperature: this.config.temperature,
-    //       max_tokens: this.config.maxTokens,
-    //       stream: true
-    //     }),
-    //     signal: this.controller.signal
-    //   });
+    // 使用真实 API 调用
+    try {
+      this.controller = new AbortController();
+      const response = await fetch(this.config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          messages,
+          temperature: this.config.temperature,
+          max_tokens: this.config.maxTokens,
+          stream: true
+        }),
+        signal: this.controller.signal
+      });
 
-    //   if (!response.ok) {
-    //     const errorData = await response.json().catch(() => ({}));
-    //     throw new Error(errorData.error?.message || `API请求失败: ${response.status}`);
-    //   }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `API请求失败: ${response.status}`);
+      }
 
-    //   if (!response.body) {
-    //     throw new Error('响应体为空');
-    //   }
+      if (!response.body) {
+        throw new Error('响应体为空');
+      }
 
-    //   const reader = response.body.getReader();
-    //   const decoder = new TextDecoder('utf-8');
-    //   let buffer = '';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+      let pendingContent = ''; // 待发送的内容缓冲区
+      let lastFlushTime = performance.now();
+      const FLUSH_INTERVAL = 8; // 约 120fps，更流畅的更新
+      const MIN_FLUSH_SIZE = 10; // 最小刷新大小，避免过于频繁的更新
+      let flushTimer: number | null = null;
 
-    //   while (true) {
-    //     const { done, value } = await reader.read();
-    //     if (done) {
-    //       // 处理剩余的缓冲区数据
-    //       if (buffer) {
-    //         this.processStreamBuffer(buffer, callback);
-    //       }
-    //       callback.onMessage('', true);
-    //       callback.onComplete?.();
-    //       break;
-    //     }
+      // 优化的批量刷新函数，使用 requestAnimationFrame 确保流畅渲染
+      const flushContent = () => {
+        if (pendingContent.length >= MIN_FLUSH_SIZE) {
+          const contentToFlush = pendingContent;
+          pendingContent = '';
+          lastFlushTime = performance.now();
 
-    //     buffer += decoder.decode(value, { stream: true });
-    //     // 保存处理后的缓冲区
-    //     buffer = this.processStreamBuffer(buffer, callback);
-    //   }
-    // } catch (error) {
-    //   callback.onError(error instanceof Error ? error : new Error('未知错误'));
-    //   this.controller = null;
-    // }
+          // 使用 requestAnimationFrame 确保在下一帧渲染
+          if (flushTimer !== null) {
+            cancelAnimationFrame(flushTimer);
+          }
+          flushTimer = requestAnimationFrame(() => {
+            callback.onMessage(contentToFlush, false);
+            flushTimer = null;
+          });
+        }
+      };
 
-    // 使用 Mock 数据模拟流式响应
-    this.simulateStream(messages, callback);
+      // 强制刷新所有待发送内容
+      const forceFlush = () => {
+        if (flushTimer !== null) {
+          cancelAnimationFrame(flushTimer);
+          flushTimer = null;
+        }
+        if (pendingContent) {
+          callback.onMessage(pendingContent, false);
+          pendingContent = '';
+        }
+      };
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            // 处理剩余的缓冲区数据
+            if (buffer) {
+              buffer = this.processStreamBuffer(buffer, (content, isDone) => {
+                if (content && !isDone) {
+                  pendingContent += content;
+                }
+              });
+            }
+            // 强制刷新所有待发送内容
+            forceFlush();
+            callback.onMessage('', true);
+            callback.onComplete?.();
+            break;
+          }
+
+          // 解码数据
+          buffer += decoder.decode(value, { stream: true });
+
+          // 处理缓冲区，累积内容到 pendingContent
+          buffer = this.processStreamBuffer(buffer, (content, isDone) => {
+            if (content && !isDone) {
+              pendingContent += content;
+
+              // 如果累积的内容足够多，立即刷新
+              if (pendingContent.length >= 30) {
+                flushContent();
+              }
+            }
+          });
+
+          // 定期刷新，确保流畅输出（使用 performance.now() 更精确）
+          const now = performance.now();
+          if (now - lastFlushTime >= FLUSH_INTERVAL && pendingContent.length >= MIN_FLUSH_SIZE) {
+            flushContent();
+          }
+        }
+      } finally {
+        // 清理定时器
+        if (flushTimer !== null) {
+          cancelAnimationFrame(flushTimer);
+        }
+      }
+    } catch (error) {
+      // 如果是取消操作，不显示错误
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+      callback.onError(error instanceof Error ? error : new Error('未知错误'));
+      this.controller = null;
+    }
   }
 
   /**
@@ -152,44 +222,90 @@ export class AIService {
 
   /**
    * 处理流式响应缓冲区
+   * 优化版本：更快的解析速度，更好的错误处理
    * @param buffer 缓冲区数据
-   * @param callback 回调函数
+   * @param callback 回调函数，接收 (content, isDone) 参数
    * @returns 处理后的缓冲区，只包含最后一行（可能不完整）
    */
-  private processStreamBuffer(buffer: string, callback: StreamingCallback): string {
-    const lines = buffer.split('\n');
-    
-    // 处理除了最后一行（可能不完整）之外的所有行
-    for (let i = 0; i < lines.length - 1; i++) {
+  private processStreamBuffer(
+    buffer: string,
+    callback: (content: string, isDone: boolean) => void
+  ): string {
+    // 使用更高效的方式分割和处理
+    let lastNewlineIndex = -1;
+    let processedLength = 0;
+
+    // 查找最后一个完整行的位置
+    for (let i = buffer.length - 1; i >= 0; i--) {
+      if (buffer[i] === '\n') {
+        lastNewlineIndex = i;
+        break;
+      }
+    }
+
+    // 如果没有找到换行符，说明整个buffer都是不完整的数据
+    if (lastNewlineIndex === -1) {
+      return buffer;
+    }
+
+    // 处理所有完整的行
+    const completeLines = buffer.substring(0, lastNewlineIndex);
+    const remaining = buffer.substring(lastNewlineIndex + 1);
+
+    // 快速处理每一行
+    const lines = completeLines.split('\n');
+    for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      
-      // 移除data:前缀
-      if (line.startsWith('data: ')) {
+
+      // 快速检查是否是 data: 开头的行
+      if (line.length > 6 && line.startsWith('data: ')) {
         const dataStr = line.slice(6);
-        
+
         // 处理结束标记
         if (dataStr === '[DONE]') {
-          callback.onMessage('', true);
-          callback.onComplete?.();
+          callback('', true);
           return '';
         }
-        
+
+        // 快速解析 JSON（优化：只解析必要的部分）
         try {
+          // 使用更快的 JSON 解析方式
           const data = JSON.parse(dataStr);
-          const content = data.choices?.[0]?.delta?.content || '';
-          if (content) {
-            callback.onMessage(content, false);
+
+          // 快速提取内容
+          const choices = data.choices;
+          if (choices && choices[0]) {
+            const delta = choices[0].delta;
+            if (delta && delta.content) {
+              callback(delta.content, false);
+            }
+          }
+
+          // 检查是否有错误
+          if (data.error) {
+            throw new Error(data.error.message || 'API返回错误');
           }
         } catch (error) {
-          // 忽略解析错误，继续处理下一行
-          console.error('解析流式数据失败:', error);
+          // 优化错误处理：只处理真正的错误，忽略部分数据导致的解析错误
+          if (error instanceof Error) {
+            // 如果是 JSON 解析错误且是部分数据，忽略
+            if (error.message === 'Unexpected end of JSON input' ||
+              error.message.includes('JSON')) {
+              // 这是部分数据，等待更多数据
+              continue;
+            }
+            // 其他错误需要处理
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('解析流式数据失败:', error, '数据片段:', dataStr.substring(0, 100));
+            }
+          }
         }
       }
     }
 
-    // 返回最后一行（可能不完整）作为新的缓冲区
-    return lines[lines.length - 1];
+    // 返回剩余的不完整数据
+    return remaining;
   }
 
   /**
@@ -203,9 +319,9 @@ export class AIService {
   ): void {
     // 根据用户消息生成更智能的回复
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
-    
+
     let response = '';
-    
+
     // 根据用户消息内容生成相应的回复
     if (lastUserMessage.includes('你好') || lastUserMessage.includes('您好')) {
       response = '您好！我是您的宠物行业智能助手，专门为您提供宠物相关的咨询和服务。我可以帮助您解答关于宠物健康、护理、训练、营养等方面的问题。有什么我可以帮助您的吗？';
@@ -226,7 +342,7 @@ export class AIService {
       ];
       response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
     }
-    
+
     let index = 0;
     const typingSpeed = 30; // 打字速度（毫秒/字符）
 

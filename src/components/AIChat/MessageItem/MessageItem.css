@@ -1,9 +1,9 @@
 .message-item {
-  margin-bottom: 24px;
+  margin-bottom: 0;
   display: flex;
   align-items: flex-start;
   animation: messageFadeIn 0.3s ease-out;
-  gap: 12px;
+  gap: 0;
   padding: 0;
 }
 
@@ -14,7 +14,7 @@
 @keyframes messageFadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -29,8 +29,12 @@
 .message-item-meta {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
 }
 
 .message-item.user .message-item-meta {
@@ -40,14 +44,15 @@
 .message-item-content {
   flex: 1;
   min-width: 0;
+  max-width: 100%;
 }
 
 .message-avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
+  border-radius: 2px;
 }
 
 .message-avatar:hover {
@@ -55,18 +60,18 @@
 }
 
 .message-avatar.user {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: #19c37d;
 }
 
 .message-avatar.ai {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #ab68ff;
 }
 
 .message-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   width: 100%;
 }
 
@@ -81,16 +86,16 @@
 }
 
 .message-item.user .message-sender {
-  color: #6366f1;
+  color: #19c37d;
 }
 
 .message-item.ai .message-sender {
-  color: #10b981;
+  color: #ab68ff;
 }
 
 .message-time {
   font-size: 11px;
-  color: #9ca3af;
+  color: #8e8ea0;
   font-weight: 400;
 }
 
@@ -101,40 +106,44 @@
 
 .message-content {
   background: #ffffff;
-  color: #1f2937;
-  padding: 14px 18px;
-  border-radius: 16px;
+  color: #353740;
+  padding: 0;
+  border-radius: 0;
   max-width: 100%;
   word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  font-size: 15px;
-  line-height: 1.7;
-  border: 1px solid #e5e7eb;
+  box-shadow: none;
+  font-size: 16px;
+  line-height: 1.75;
+  border: none;
   transition: all 0.2s ease;
 }
 
 .message-content:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
 }
 
 .message-content.user-message {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #ffffff;
+  background: transparent;
+  color: #353740;
   border: none;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  box-shadow: none;
 }
 
 .message-content.ai-message {
-  background: #ffffff;
-  color: #1f2937;
+  background: transparent;
+  color: #353740;
 }
 
 .streaming-cursor {
   display: inline-block;
-  color: #10b981;
-  font-weight: 600;
+  color: #ab68ff;
+  font-weight: 400;
   animation: blink 1s infinite;
   margin-left: 2px;
+  width: 2px;
+  height: 1.2em;
+  background: currentColor;
+  vertical-align: baseline;
 }
 
 @keyframes blink {
@@ -187,12 +196,12 @@
 }
 
 .message-content code {
-  background-color: rgba(99, 102, 241, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
   padding: 0.2em 0.4em;
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-size: 0.9em;
-  color: #6366f1;
+  color: #353740;
 }
 
 .message-content.user-message code {
@@ -201,18 +210,18 @@
 }
 
 .message-content pre {
-  background: #1f2937;
+  background: #f7f7f8;
   padding: 1em;
   border-radius: 8px;
   overflow-x: auto;
   margin: 1em 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .message-content pre code {
   background: transparent;
   padding: 0;
-  color: #e5e7eb;
+  color: #353740;
 }
 
 .message-content blockquote {
@@ -231,20 +240,22 @@
 
 /* 响应式 */
 @media (max-width: 768px) {
+  .message-item-meta {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
   .message-item {
-    gap: 8px;
-    margin-bottom: 16px;
+    padding: 16px 0;
   }
 
   .message-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
   .message-content {
-    padding: 12px 14px;
-    font-size: 14px;
-    max-width: 85%;
+    font-size: 15px;
   }
 }
 

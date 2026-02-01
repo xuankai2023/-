@@ -1,29 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, InputNumber } from 'antd';
+import './QuickCheckInModal.css';
 
 export interface QuickCheckInModalProps {
   visible: boolean;
+  defaultRoomType?: string;
   onOk: (values: any) => void;
   onCancel: () => void;
 }
 
-const QuickCheckInModal: React.FC<QuickCheckInModalProps> = ({ visible, onOk, onCancel }) => {
+function QuickCheckInModal({ visible, defaultRoomType, onOk, onCancel }: QuickCheckInModalProps) {
   const [form] = Form.useForm();
 
-  React.useEffect(() => {
-    if (!visible) {
+  useEffect(() => {
+    if (visible) {
+      if (defaultRoomType) {
+        form.setFieldsValue({ roomType: defaultRoomType });
+      }
+    } else {
       form.resetFields();
     }
-  }, [visible, form]);
+  }, [visible, defaultRoomType, form]);
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     try {
       const values = await form.validateFields();
       onOk(values);
     } catch (error) {
       console.error('表单验证失败:', error);
     }
-  };
+  }
 
   return (
     <Modal
@@ -32,8 +38,9 @@ const QuickCheckInModal: React.FC<QuickCheckInModalProps> = ({ visible, onOk, on
       onOk={handleSubmit}
       onCancel={onCancel}
       width={500}
+      className="quick-check-in-modal"
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" className="quick-check-in-form">
         <Form.Item
           name="petName"
           label="宠物名称"
@@ -72,7 +79,7 @@ const QuickCheckInModal: React.FC<QuickCheckInModalProps> = ({ visible, onOk, on
       </Form>
     </Modal>
   );
-};
+}
 
 export default QuickCheckInModal;
 

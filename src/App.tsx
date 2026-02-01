@@ -12,7 +12,6 @@ import { AuthProvider, useAuthContext } from './auth/AuthContext';
 //懒加载页面组件
 const OrderDetailPage = React.lazy(() => import('./pages/orderdetail/orderdetail'));
 const OrderEditPage = React.lazy(() => import('./pages/Order/edit/editdetail'));
-const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
 const CareersPage = React.lazy(() => import('./pages/Careers/CareersPage'));
 const ContactPage = React.lazy(() => import('./pages/Contact/Contact'));
 const NewsroomPage = React.lazy(() => import('./pages/Newsroom/Newsroom'));
@@ -88,7 +87,7 @@ function App() {
           }}>
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                <Route path="/about" element={<AboutPage />} />
+
                 <Route path="/newsroom" element={<NewsroomPage />} />
                 <Route path="/careers" element={<CareersPage />} />
                 <Route path="/contact" element={<ContactPage />} />
@@ -222,8 +221,8 @@ function App() {
                   }
                 />
 
-                {/* 默认路由重定向到 about */}
-                <Route path="/" element={<Navigate to="/about" replace />} />
+                {/* 默认路由重定向到 admin */}
+                <Route path="/" element={<Navigate to="/admin" replace />} />
               </Routes>
             </Suspense>
           </div>

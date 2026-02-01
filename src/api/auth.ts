@@ -1,3 +1,4 @@
+import { mockUsers } from '../auth/config';
 // import { api } from '../utils/request';
 
 export interface LoginCredentials {
@@ -36,69 +37,77 @@ export interface SignupData {
   email: string;
   password: string;
   full_name: string;
+  is_superuser?: boolean;
 }
 
-// Mock 数据
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    email: 'admin@example.com',
-    full_name: '管理员',
-    is_superuser: true,
-    is_active: true,
-    avatar: '/avatars/admin.svg',
-    phone: '13800138000',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    email: 'user@example.com',
-    full_name: '普通用户',
-    is_superuser: false,
-    is_active: true,
-    avatar: '/avatars/user.svg',
-    phone: '13800138001',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-];
+// Convert config users to API user format
+const INITIAL_MOCK_USERS: User[] = mockUsers.map(u => ({
+  id: u.id,
+  email: u.email,
+  full_name: u.name,
+  is_superuser: u.role === 'admin',
+  is_active: true,
+  avatar: u.role === 'admin' ? '/avatars/admin.svg' : '/avatars/user.svg',
+  phone: '13800138000',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+}));
+
+// Mutable state for mock users
+const MOCK_USERS: User[] = [...INITIAL_MOCK_USERS];
 
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const authApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     await delay();
-    // 真实 API 调用已注释
-    // const formData = new FormData();
-    // formData.append('username', credentials.username);
-    // formData.append('password', credentials.password);
-    // return api.post<LoginResponse>(`${API_PREFIX}/login/access-token`, formData, {
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data',
-    //   },
+    // 真实 API 调用已注释 - 支持 JSON 格式（推荐）
+    // return api.post<LoginResponse>('/login/access-token', {
+    //   username: credentials.username,
+    //   password: credentials.password,
     // });
-    
-    // Mock 数据
-    const user = MOCK_USERS.find(u => u.email === credentials.username || u.email === credentials.username);
-    if (!user || credentials.password !== '123456') {
-      throw new Error('用户名或密码错误');
+
+    // Mock 数据验证
+    // First, try to find in the config users (primary source for auth in dev)
+    const configUser = mockUsers.find(
+      u => (u.username === credentials.username || u.email === credentials.username) &&
+        u.password === credentials.password
+    );
+
+    if (configUser) {
+      return {
+        access_token: `mock_token_${configUser.id}_${Date.now()}`,
+        token_type: 'bearer',
+      };
     }
-    return {
-      access_token: `mock_token_${user.id}_${Date.now()}`,
-      token_type: 'bearer',
-    };
+
+    // Fallback: check dynamic MOCK_USERS (for users created via signup)
+    // Note: MOCK_USERS here doesn't store passwords, so this is a limitation of the current mock
+    // For newly signed up users, we might accept any password or need a separate creds store.
+    // Assuming simple behavior: if not in config, check if email exists in MOCK_USERS
+    const dynamicUser = MOCK_USERS.find(u => u.email === credentials.username);
+    if (dynamicUser && !mockUsers.find(mu => mu.id === dynamicUser.id)) {
+      // Allow login for dynamically created users with a default password for testing
+      if (credentials.password === '123456') {
+        return {
+          access_token: `mock_token_${dynamicUser.id}_${Date.now()}`,
+          token_type: 'bearer',
+        };
+      }
+    }
+
+    throw new Error('用户名或密码错误');
   },
 
   testToken: async (): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<User>(`${API_PREFIX}/login/test-token`);
-    
+    // return api.post<User>('/login/test-token');
+
     // Mock 数据 - 返回第一个用户
     return MOCK_USERS[0];
   },
@@ -106,8 +115,8 @@ export const authApi = {
   getCurrentUser: async (): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<User>(`${API_PREFIX}/users/me`);
-    
+    // return api.get<User>('/users/me');
+
     // Mock 数据 - 返回第一个用户
     return MOCK_USERS[0];
   },
@@ -115,8 +124,8 @@ export const authApi = {
   updateCurrentUser: async (data: Partial<User>): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<User>(`${API_PREFIX}/users/me`, data);
-    
+    // return api.patch<User>('/users/me', data);
+
     // Mock 数据
     const user = { ...MOCK_USERS[0], ...data };
     return user;
@@ -125,8 +134,8 @@ export const authApi = {
   updatePassword: async (data: PasswordUpdate): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<{ message: string }>(`${API_PREFIX}/users/me/password`, data);
-    
+    // return api.patch<{ message: string }>('/users/me/password', data);
+
     // Mock 数据
     return { message: '密码更新成功' };
   },
@@ -134,8 +143,8 @@ export const authApi = {
   deleteCurrentUser: async (): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/users/me`);
-    
+    // return api.delete<{ message: string }>('/users/me');
+
     // Mock 数据
     return { message: '用户删除成功' };
   },
@@ -143,8 +152,8 @@ export const authApi = {
   signup: async (data: SignupData): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<User>(`${API_PREFIX}/users/signup`, data);
-    
+    // return api.post<User>('/users/signup', data);
+
     // Mock 数据
     const newUser: User = {
       id: String(MOCK_USERS.length + 1),
@@ -162,8 +171,8 @@ export const authApi = {
   getUserList: async (params?: { skip?: number; limit?: number }): Promise<UserListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<UserListResponse>(`${API_PREFIX}/users/`, { params });
-    
+    // return api.get<UserListResponse>('/users/', { params });
+
     // Mock 数据
     const skip = params?.skip || 0;
     const limit = params?.limit || 10;
@@ -177,8 +186,8 @@ export const authApi = {
   getUserById: async (userId: string): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<User>(`${API_PREFIX}/users/${userId}`);
-    
+    // return api.get<User>(`/users/${userId}`);
+
     // Mock 数据
     const user = MOCK_USERS.find(u => u.id === userId);
     if (!user) {
@@ -190,8 +199,8 @@ export const authApi = {
   updateUser: async (userId: string, data: Partial<User>): Promise<User> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<User>(`${API_PREFIX}/users/${userId}`, data);
-    
+    // return api.patch<User>(`/users/${userId}`, data);
+
     // Mock 数据
     const userIndex = MOCK_USERS.findIndex(u => u.id === userId);
     if (userIndex === -1) {
@@ -204,8 +213,8 @@ export const authApi = {
   deleteUser: async (userId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/users/${userId}`);
-    
+    // return api.delete<{ message: string }>(`/users/${userId}`);
+
     // Mock 数据
     const userIndex = MOCK_USERS.findIndex(u => u.id === userId);
     if (userIndex === -1) {
@@ -218,8 +227,8 @@ export const authApi = {
   passwordRecovery: async (email: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<{ message: string }>(`${API_PREFIX}/password-recovery/${email}`);
-    
+    // return api.post<{ message: string }>(`/password-recovery/${email}`);
+
     // Mock 数据
     return { message: '密码重置邮件已发送' };
   },
@@ -227,8 +236,8 @@ export const authApi = {
   resetPassword: async (data: { token: string; new_password: string }): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<{ message: string }>(`${API_PREFIX}/reset-password/`, data);
-    
+    // return api.post<{ message: string }>('/reset-password/', data);
+
     // Mock 数据
     return { message: '密码重置成功' };
   },

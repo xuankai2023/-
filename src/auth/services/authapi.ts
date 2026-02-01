@@ -203,9 +203,9 @@ class AuthApiService {
       // 使用 Mock 数据时，直接验证 token 是否存在
       // 避免每次路由切换都调用 API
       try {
-        await authApi.testToken();
-        return true;
-      } catch (error: any) {
+      await authApi.testToken();
+      return true;
+    } catch (error: any) {
         // 如果是后端服务器未运行，检查本地 token 是否有效
         if (error?.isBackendUnavailable || error?.code === 'ECONNREFUSED' || error?.message) {
           // 使用 Mock 数据时，如果 token 存在就认为已认证
@@ -220,7 +220,7 @@ class AuthApiService {
       console.error('验证认证状态失败:', error);
       // 只有在明确错误时才清除 token
       if (error?.message && !error.message.includes('用户名或密码错误')) {
-        localStorage.removeItem('token');
+      localStorage.removeItem('token');
       }
       return false;
     }

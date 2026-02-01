@@ -1,0 +1,111 @@
+.post-drawer .ant-drawer-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+
+.post-drawer .ant-drawer-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.post-drawer .ant-drawer-body {
+  padding: 24px;
+}
+
+.post-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+.post-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.post-textarea {
+  border-radius: 6px;
+  resize: none;
+}
+
+.post-upload .ant-upload-select {
+  border-radius: 6px;
+  border: 1px dashed #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.post-upload .ant-upload-select:hover {
+  border-color: #3b82f6;
+}
+
+.upload-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.publish-button {
+  border-radius: 6px;
+  font-weight: 500;
+  height: 40px;
+}
+
+.post-drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-form-section,
+.post-history-section {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.post-history-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.post-history-item:last-child {
+  border-bottom: none;
+}
+
+.post-history-content {
+  width: 100%;
+}
+
+.post-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.post-history-date {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.post-history-text {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.post-history-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+

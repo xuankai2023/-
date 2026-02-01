@@ -84,14 +84,14 @@ let mockServiceData: ServiceRecord[] = extractServiceRecords();
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const serviceApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   getServiceRecordList: async (params?: ServiceRecordListParams): Promise<ServiceRecordListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<ServiceRecordListResponse>(`${API_PREFIX}/service-records/`, { params });
+    // return api.get<ServiceRecordListResponse>('/service-records/', { params });
     
     // Mock 数据
     let filteredData = [...mockServiceData];
@@ -115,7 +115,7 @@ export const serviceApi = {
   getServiceRecordById: async (recordId: string): Promise<ServiceRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<ServiceRecord>(`${API_PREFIX}/service-records/${recordId}`);
+    // return api.get<ServiceRecord>(`/service-records/${recordId}`);
     
     // Mock 数据
     const record = mockServiceData.find(r => r.id === recordId);
@@ -128,7 +128,7 @@ export const serviceApi = {
   createServiceRecord: async (data: ServiceRecordCreateData): Promise<ServiceRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<ServiceRecord>(`${API_PREFIX}/service-records/`, data);
+    // return api.post<ServiceRecord>('/service-records/', data);
     
     // Mock 数据
     const newRecord: ServiceRecord = {
@@ -144,7 +144,7 @@ export const serviceApi = {
   updateServiceRecord: async (recordId: string, data: Partial<ServiceRecordCreateData>): Promise<ServiceRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<ServiceRecord>(`${API_PREFIX}/service-records/${recordId}`, data);
+    // return api.patch<ServiceRecord>(`/service-records/${recordId}`, data);
     
     // Mock 数据
     const recordIndex = mockServiceData.findIndex(r => r.id === recordId);
@@ -162,7 +162,7 @@ export const serviceApi = {
   deleteServiceRecord: async (recordId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/service-records/${recordId}`);
+    // return api.delete<{ message: string }>(`/service-records/${recordId}`);
     
     // Mock 数据
     const recordIndex = mockServiceData.findIndex(r => r.id === recordId);

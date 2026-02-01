@@ -14,19 +14,25 @@ import {
 import dayjs, { Dayjs } from 'dayjs';
 
 // 导入组件
-import BookingModal from './components/BookingModal';
-import BookingDetailModal from './components/BookingDetailModal';
-import QuickCheckInModal from './components/QuickCheckInModal';
-import RoomCard from './components/RoomCard';
-import BookingTable from './components/BookingTable';
-import DashboardStats from './components/DashboardStats';
-import ChartsSection from './components/ChartsSection';
-import LogDrawer from './components/LogDrawer';
-import PostDrawer from './components/PostDrawer';
+import BookingModal from './components/booking-modal/BookingModal';
+import BookingDetailModal from './components/booking-detail-modal/BookingDetailModal';
+import QuickCheckInModal from './components/quick-check-in-modal/QuickCheckInModal';
+import RoomCard from './components/room-card/RoomCard';
+import BookingTable from './components/booking-table/BookingTable';
+import DashboardStats from './components/dashboard-stats/DashboardStats';
+import ChartsSection from './components/charts-section/ChartsSection';
+import LogDrawer from './components/log-drawer/LogDrawer';
+import PostDrawer from './components/post-drawer/PostDrawer';
 
-// 寄养记录页面组件
-const BoardingRecordsPage: React.FC = () => {
-  // 从store获取数据和方法
+interface StatusFilterMap {
+  [key: string]: string;
+}
+
+interface AreaFilterMap {
+  [key: string]: string[];
+}
+
+function BoardingRecordsPage() {
   const {
     dashboardData,
     rooms,
@@ -38,13 +44,11 @@ const BoardingRecordsPage: React.FC = () => {
     updateRoom
   } = useBoardStore();
 
-  // 状态管理
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
   const [selectedArea, setSelectedArea] = useState<string>('all');
 
-  // 模态框状态
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -53,17 +57,15 @@ const BoardingRecordsPage: React.FC = () => {
   const [isPostDrawerVisible, setIsPostDrawerVisible] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [quickCheckInRoomType, setQuickCheckInRoomType] = useState<string | undefined>(undefined);
 
-  // 组件加载时加载模拟数据
   useEffect(() => {
     loadMockData();
   }, [loadMockData]);
 
-  // 过滤预约数据
   const filteredBookings = useMemo(() => {
     let filtered = [...bookings];
 
-    // 搜索过滤
     if (searchText) {
       const keyword = searchText.toLowerCase();
       filtered = filtered.filter(booking =>
@@ -74,9 +76,8 @@ const BoardingRecordsPage: React.FC = () => {
       );
     }
 
-    // 状态过滤
     if (statusFilter !== 'all') {
-      const statusMap: Record<string, string> = {
+      const statusMap: StatusFilterMap = {
         'pending': '待审核',
         'confirmed': '已通过',
         'rejected': '已拒绝'
@@ -84,7 +85,6 @@ const BoardingRecordsPage: React.FC = () => {
       filtered = filtered.filter(booking => booking.status === statusMap[statusFilter]);
     }
 
-    // 日期范围过滤
     if (dateRange && dateRange[0] && dateRange[1]) {
       filtered = filtered.filter(booking => {
         const startDate = dayjs(booking.dates.start);
@@ -96,13 +96,11 @@ const BoardingRecordsPage: React.FC = () => {
     return filtered;
   }, [bookings, searchText, statusFilter, dateRange]);
 
-  // 过滤房间数据
   const filteredRooms = useMemo(() => {
     let filtered = [...rooms];
 
-    // 区域过滤
     if (selectedArea !== 'all') {
-      const areaMap: Record<string, string[]> = {
+      const areaMap: AreaFilterMap = {
         'dog': ['豪华单间', '标准间'],
         'cat': ['猫别墅']
       };
@@ -114,44 +112,37 @@ const BoardingRecordsPage: React.FC = () => {
     return filtered;
   }, [rooms, selectedArea]);
 
-  // 处理添加预约
-  const handleAddBooking = () => {
+  function handleAddBooking() {
     setSelectedBooking(null);
     setIsAddModalVisible(true);
-  };
+  }
 
-  // 处理编辑预约
-  const handleEditBooking = (booking: any) => {
+  function handleEditBooking(booking: any) {
     setSelectedBooking(booking);
     setIsEditModalVisible(true);
-  };
+  }
 
-  // 处理查看详情
-  const handleViewDetail = (booking: any) => {
+  function handleViewDetail(booking: any) {
     setSelectedBooking(booking);
     setIsDetailModalVisible(true);
-  };
+  }
 
-  // 处理通过预约
-  const handleApproveBooking = (bookingId: string) => {
+  function handleApproveBooking(bookingId: string) {
     updateBooking(bookingId, { status: '已通过' });
     message.success('预约已通过');
-  };
+  }
 
-  // 处理拒绝预约
-  const handleRejectBooking = (bookingId: string) => {
+  function handleRejectBooking(bookingId: string) {
     updateBooking(bookingId, { status: '已拒绝' });
     message.success('预约已拒绝');
-  };
+  }
 
-  // 处理删除预约
-  const handleDeleteBooking = (bookingId: string) => {
+  function handleDeleteBooking(bookingId: string) {
     removeBooking(bookingId);
     message.success('预约已删除');
-  };
+  }
 
-  // 提交预约表单
-  const handleSubmitBooking = (values: any) => {
+  function handleSubmitBooking(values: any) {
     const bookingData = {
       id: selectedBooking?.id || `booking-${Date.now()}`,
       pet: {
@@ -184,16 +175,14 @@ const BoardingRecordsPage: React.FC = () => {
       setIsAddModalVisible(false);
     }
     setSelectedBooking(null);
-  };
+  }
 
-  // 处理快速入住
-  const handleQuickCheckIn = () => {
+  function handleQuickCheckIn() {
+    setQuickCheckInRoomType(undefined);
     setIsQuickCheckInVisible(true);
-  };
+  }
 
-  // 提交快速入住
-  const handleSubmitQuickCheckIn = (values: any) => {
-    // 找到空闲房间
+  function handleSubmitQuickCheckIn(values: any) {
     const availableRoom = rooms.find(r => r.status === '空闲' && r.type === values.roomType);
 
     if (!availableRoom) {
@@ -201,7 +190,6 @@ const BoardingRecordsPage: React.FC = () => {
       return;
     }
 
-    // 更新房间状态
     updateRoom(availableRoom.id, {
       status: '已入住',
       pet: {
@@ -216,22 +204,19 @@ const BoardingRecordsPage: React.FC = () => {
 
     message.success('快速入住成功');
     setIsQuickCheckInVisible(false);
-  };
+  }
 
-  // 处理日志
-  const handleLog = (room: any) => {
+  function handleLog(room: any) {
     setSelectedRoom(room);
     setIsLogDrawerVisible(true);
-  };
+  }
 
-  // 处理发动态
-  const handlePost = (room: any) => {
+  function handlePost(room: any) {
     setSelectedRoom(room);
     setIsPostDrawerVisible(true);
-  };
+  }
 
-  // 导出数据
-  const handleExport = () => {
+  function handleExport() {
     const csvContent = [
       ['预约号', '宠物名称', '宠物品种', '主人姓名', '主人电话', '开始日期', '结束日期', '房间类型', '健康状态', '状态'].join(','),
       ...filteredBookings.map(booking => [
@@ -258,7 +243,21 @@ const BoardingRecordsPage: React.FC = () => {
     link.click();
     document.body.removeChild(link);
     message.success('导出成功');
-  };
+  }
+
+  function handleResetFilters() {
+    setSearchText('');
+    setStatusFilter('all');
+    setDateRange(null);
+  }
+
+  function handleEmptyRoomClick(room: any) {
+    if (room.status === '空闲') {
+      setQuickCheckInRoomType(room.type);
+      setIsQuickCheckInVisible(true);
+      message.info(`准备为 ${room.number} 办理入住`);
+    }
+  }
 
   return (
     <div className="boarding-records-container">
@@ -294,13 +293,11 @@ const BoardingRecordsPage: React.FC = () => {
           </header>
 
           <div className="main-content">
-            {/* 仪表盘视图 */}
             <div className="view-dashboard">
               <DashboardStats dashboardData={dashboardData} />
               <ChartsSection dashboardData={dashboardData} />
             </div>
 
-            {/* 房态管理视图 */}
             <div className="view-rooms" style={{ marginTop: 24 }}>
               <Typography.Title level={3}>房态管理</Typography.Title>
               <Card>
@@ -345,14 +342,18 @@ const BoardingRecordsPage: React.FC = () => {
                 ) : (
                   filteredRooms.map((room) => (
                     <Col key={room.id} xs={24} sm={12} md={6}>
-                      <RoomCard room={room} onLog={handleLog} onPost={handlePost} />
+                      <RoomCard
+                        room={room}
+                        onLog={handleLog}
+                        onPost={handlePost}
+                        onRoomClick={handleEmptyRoomClick}
+                      />
                     </Col>
                   ))
                 )}
               </Row>
             </div>
 
-            {/* 寄养预约表格 */}
             <div className="view-bookings" style={{ marginTop: 24 }}>
               <Card>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -399,13 +400,7 @@ const BoardingRecordsPage: React.FC = () => {
                       />
                     </Col>
                     <Col xs={24} sm={8} md={6}>
-                      <Button
-                        onClick={() => {
-                          setSearchText('');
-                          setStatusFilter('all');
-                          setDateRange(null);
-                        }}
-                      >
+                      <Button onClick={handleResetFilters}>
                         重置
                       </Button>
                     </Col>
@@ -426,7 +421,6 @@ const BoardingRecordsPage: React.FC = () => {
         </main>
       </div>
 
-      {/* 模态框和抽屉 */}
       <BookingModal
         visible={isAddModalVisible}
         onOk={handleSubmitBooking}
@@ -457,8 +451,12 @@ const BoardingRecordsPage: React.FC = () => {
 
       <QuickCheckInModal
         visible={isQuickCheckInVisible}
+        defaultRoomType={quickCheckInRoomType}
         onOk={handleSubmitQuickCheckIn}
-        onCancel={() => setIsQuickCheckInVisible(false)}
+        onCancel={() => {
+          setIsQuickCheckInVisible(false);
+          setQuickCheckInRoomType(undefined);
+        }}
       />
 
       <LogDrawer
@@ -480,6 +478,6 @@ const BoardingRecordsPage: React.FC = () => {
       />
     </div>
   );
-};
+}
 
 export default BoardingRecordsPage;

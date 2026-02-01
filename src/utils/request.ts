@@ -13,7 +13,7 @@ import type { ApiResponse } from '../Store/types';
 //创建 axios 实例
 
 const request: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -94,6 +94,7 @@ export const api = {
     get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => request.get(url, config),
     post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => request.post(url, data, config),
     put: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => request.put(url, data, config),
+    patch: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => request.patch(url, data, config),
     delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> => request.delete(url, config),
     upload: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => request.post(url, data, {...config,
          headers: {'Content-Type': 'multipart/form-data'}

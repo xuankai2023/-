@@ -1,0 +1,38 @@
+.charts-section {
+  margin-top: 24px;
+}
+
+.charts-row {
+  margin-bottom: 16px;
+}
+
+.chart-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.chart-card .ant-card-head {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+
+.chart-card .ant-card-head-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.chart-card .ant-card-body {
+  padding: 24px;
+}
+
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+.chart-container-heatmap {
+  height: 400px;
+}
+

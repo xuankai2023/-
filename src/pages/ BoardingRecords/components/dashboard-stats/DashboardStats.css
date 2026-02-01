@@ -1,0 +1,62 @@
+.dashboard-stats {
+  margin-bottom: 24px;
+}
+
+.stats-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card-vacancy {
+  border-left: 4px solid #10b981;
+}
+
+.stats-card-revenue {
+  border-left: 4px solid #3b82f6;
+}
+
+.stats-card-todo {
+  border-left: 4px solid #ff9800;
+}
+
+.stats-card-health {
+  border-left: 4px solid #ef4444;
+  cursor: pointer;
+}
+
+.stats-card .ant-statistic-title {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.stats-card .ant-statistic-content {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.todo-tags {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.health-alerts {
+  margin-top: 12px;
+}
+
+.health-alert-item {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+

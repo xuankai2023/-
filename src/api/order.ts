@@ -9,7 +9,7 @@ export interface Order {
   product_id?: string;
   quantity: number;
   total_amount: number;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded';
   service_name?: string;
   service_price?: number;
   shipping_address?: string;
@@ -28,7 +28,7 @@ export interface OrderCreateData {
   product_id?: string;
   quantity: number;
   total_amount?: number;
-  status?: 'pending' | 'completed' | 'cancelled';
+  status?: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded';
   service_name?: string;
   service_price?: number;
   shipping_address?: string;
@@ -36,12 +36,10 @@ export interface OrderCreateData {
 }
 
 export interface OrderCreateWithValidation {
-  pet_id: string;
   product_id: string;
   quantity: number;
-  service_name: string;
-  service_price: number;
-  shipping_address: string;
+  price: number;
+  shipping_address?: string;
   notes?: string;
 }
 
@@ -49,14 +47,20 @@ export interface OrderListParams {
   skip?: number;
   limit?: number;
   user_id?: string;
-  status?: 'pending' | 'completed' | 'cancelled';
+  status?: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded';
 }
 
 export interface OrderLog {
   id: string;
   order_id: string;
-  action: string;
-  details?: string;
+  action: 'created' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded';
+  operator_id: string;
+  operator_type: 'user' | 'system' | 'admin';
+  old_status: string | null;
+  new_status: string;
+  description: string;
+  ip_address?: string;
+  user_agent?: string;
   created_at: string;
 }
 
@@ -67,7 +71,7 @@ export interface OrderLogListResponse {
 
 // 将 Mock 数据转换为 API 格式
 const convertMockOrderToApiOrder = (mockOrder: MockOrder, userId: string = '1'): Order => {
-  const statusMap: Record<OrderStatus, 'pending' | 'completed' | 'cancelled'> = {
+  const statusMap: Record<OrderStatus, 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'> = {
     [OrderStatus.PENDING]: 'pending',
     [OrderStatus.COMPLETED]: 'completed',
     [OrderStatus.CANCELLED]: 'cancelled',
@@ -96,14 +100,14 @@ let mockOrderData: Order[] = allOrders.map(order => convertMockOrderToApiOrder(o
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const orderApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   getOrderList: async (params?: OrderListParams): Promise<OrderListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<OrderListResponse>(`${API_PREFIX}/orders/`, { params });
+    // return api.get<OrderListResponse>('/orders/', { params });
     
     // Mock 数据
     let filteredData = [...mockOrderData];
@@ -132,7 +136,7 @@ export const orderApi = {
   getOrderById: async (orderId: string): Promise<Order> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<Order>(`${API_PREFIX}/orders/${orderId}`);
+    // return api.get<Order>(`/orders/${orderId}`);
     
     // Mock 数据
     const order = mockOrderData.find(o => o.id === orderId || o.order_number === orderId);
@@ -145,7 +149,7 @@ export const orderApi = {
   createOrder: async (data: OrderCreateData): Promise<Order> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<Order>(`${API_PREFIX}/orders/`, data);
+    // return api.post<Order>('/orders/', data);
     
     // Mock 数据
     const newOrder: Order = {
@@ -165,21 +169,18 @@ export const orderApi = {
 
   createOrderWithValidation: async (data: OrderCreateWithValidation): Promise<Order> => {
     await delay();
-    // 真实 API 调用已注释
-    // return api.post<Order>(`${API_PREFIX}/orders/create`, data);
+    // 真实 API 调用已注释 - 带完整验证的订单创建接口
+    // return api.post<Order>('/orders/create', data);
     
     // Mock 数据
     const newOrder: Order = {
       id: `ORDER${String(mockOrderData.length + 1).padStart(4, '0')}`,
       order_number: `ORDER${String(mockOrderData.length + 1).padStart(4, '0')}`,
       user_id: '1',
-      pet_id: data.pet_id,
       product_id: data.product_id,
       quantity: data.quantity,
-      total_amount: data.service_price * data.quantity,
+      total_amount: data.price * data.quantity,
       status: 'pending',
-      service_name: data.service_name,
-      service_price: data.service_price,
       shipping_address: data.shipping_address,
       notes: data.notes,
       created_at: new Date().toISOString(),
@@ -192,7 +193,7 @@ export const orderApi = {
   updateOrder: async (orderId: string, data: Partial<OrderCreateData>): Promise<Order> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<Order>(`${API_PREFIX}/orders/${orderId}`, data);
+    // return api.patch<Order>(`/orders/${orderId}`, data);
     
     // Mock 数据
     const orderIndex = mockOrderData.findIndex(o => o.id === orderId || o.order_number === orderId);
@@ -210,7 +211,7 @@ export const orderApi = {
   deleteOrder: async (orderId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/orders/${orderId}`);
+    // return api.delete<{ message: string }>(`/orders/${orderId}`);
     
     // Mock 数据
     const orderIndex = mockOrderData.findIndex(o => o.id === orderId || o.order_number === orderId);
@@ -224,22 +225,34 @@ export const orderApi = {
   getOrderLogs: async (orderId: string, params?: { skip?: number; limit?: number }): Promise<OrderLogListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<OrderLogListResponse>(`${API_PREFIX}/orders/${orderId}/logs`, { params });
+    // return api.get<OrderLogListResponse>(`/orders/${orderId}/logs`, { params });
     
     // Mock 数据
     const mockLogs: OrderLog[] = [
       {
         id: '1',
         order_id: orderId,
-        action: '创建订单',
-        details: '订单已创建',
+        action: 'created',
+        operator_id: '1',
+        operator_type: 'user',
+        old_status: null,
+        new_status: 'pending',
+        description: '订单已创建',
+        ip_address: '127.0.0.1',
+        user_agent: 'Mozilla/5.0',
         created_at: new Date().toISOString(),
       },
       {
         id: '2',
         order_id: orderId,
-        action: '更新状态',
-        details: '订单状态已更新',
+        action: 'paid',
+        operator_id: '1',
+        operator_type: 'user',
+        old_status: 'pending',
+        new_status: 'paid',
+        description: '订单已支付',
+        ip_address: '127.0.0.1',
+        user_agent: 'Mozilla/5.0',
         created_at: new Date().toISOString(),
       },
     ];
@@ -257,14 +270,20 @@ export const orderApi = {
   getOrderLogById: async (orderId: string, logId: string): Promise<OrderLog> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<OrderLog>(`${API_PREFIX}/orders/${orderId}/logs/${logId}`);
+    // return api.get<OrderLog>(`/orders/${orderId}/logs/${logId}`);
     
     // Mock 数据
     const log: OrderLog = {
       id: logId,
       order_id: orderId,
-      action: '查看日志',
-      details: '订单日志详情',
+      action: 'created',
+      operator_id: '1',
+      operator_type: 'user',
+      old_status: null,
+      new_status: 'pending',
+      description: '订单日志详情',
+      ip_address: '127.0.0.1',
+      user_agent: 'Mozilla/5.0',
       created_at: new Date().toISOString(),
     };
     return log;

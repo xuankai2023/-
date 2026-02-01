@@ -1,0 +1,30 @@
+.booking-detail-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.booking-descriptions {
+  margin-top: 16px;
+}
+
+.booking-descriptions .ant-descriptions-item-label {
+  font-weight: 600;
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+.booking-descriptions .ant-descriptions-item-content {
+  color: #1f2937;
+}
+
+.status-tag,
+.health-tag {
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.close-button {
+  border-radius: 6px;
+  font-weight: 500;
+}
+

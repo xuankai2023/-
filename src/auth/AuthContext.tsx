@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { authApiService, LoginCredentials } from './services/authapi';
 import { tokenStorage } from './jwt/tokenStorage';
 import { jwtUtils } from './jwt/jwtUtils';
+import { mockUsers } from './config';
 
 interface User {
     id: string;
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (storedUser && accessToken) {
                     // 验证 token 是否有效（本地验证，不调用API）
                     const tokenResult = jwtUtils.verifyToken(accessToken);
-                    
+
                     if (tokenResult.isValid && isMounted) {
                         // Token 有效，直接使用本地存储的用户信息恢复认证状态
                         setUser(storedUser);
@@ -68,26 +69,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const userFromToken = jwtUtils.getUserFromToken(accessToken);
                         if (userFromToken && isMounted) {
                             // 从模拟用户中查找完整信息
-                            const mockUsers = [
-                                {
-                                    id: '1',
-                                    username: 'admin',
-                                    fullName: '管理员',
-                                    email: 'admin@example.com',
-                                    avatar: '/images/png/admin.png',
-                                    roles: ['admin', 'user']
-                                },
-                                {
-                                    id: '2',
-                                    username: 'user',
-                                    fullName: '普通用户',
-                                    email: 'user@example.com',
-                                    avatar: '/images/png/admin.png',
-                                    roles: ['user']
-                                }
-                            ];
+                            const mockUsersList = mockUsers.map(u => ({
+                                id: u.id,
+                                username: u.username,
+                                fullName: u.name,
+                                email: u.email,
+                                avatar: u.role === 'admin' ? '/avatars/admin.svg' : '/avatars/user.svg',
+                                roles: u.role === 'admin' ? ['admin', 'user'] : ['user']
+                            }));
 
-                            const foundUser = mockUsers.find(u => u.id === userFromToken.id);
+                            const foundUser = mockUsersList.find(u => u.id === userFromToken.id);
                             if (foundUser && isMounted) {
                                 setUser(foundUser);
                                 setIsAuthenticated(true);

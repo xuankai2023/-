@@ -41,6 +41,28 @@ interface Booking {
   status: '待审核' | '已通过' | '已拒绝';
 }
 
+// 定义健康日志类型
+interface HealthLog {
+  id: string;
+  roomId: string;
+  petId: string;
+  petName: string;
+  date: string;
+  content: string;
+  createdAt: string;
+}
+
+// 定义动态类型
+interface Post {
+  id: string;
+  roomId: string;
+  petId: string;
+  petName: string;
+  content: string;
+  images: string[];
+  createdAt: string;
+}
+
 // 定义仪表盘数据类型
 interface DashboardData {
   vacancyRate: number;
@@ -72,6 +94,10 @@ interface BoardState {
   rooms: Room[];
   // 寄养预约数据
   bookings: Booking[];
+  // 健康日志数据
+  healthLogs: HealthLog[];
+  // 动态数据
+  posts: Post[];
   
   // 操作方法
   // 仪表盘相关
@@ -86,6 +112,14 @@ interface BoardState {
   addBooking: (booking: Booking) => void;
   updateBooking: (id: string, updates: Partial<Booking>) => void;
   removeBooking: (id: string) => void;
+  
+  // 健康日志相关
+  addHealthLog: (log: Omit<HealthLog, 'id' | 'createdAt'>) => void;
+  getHealthLogsByRoom: (roomId: string) => HealthLog[];
+  
+  // 动态相关
+  addPost: (post: Omit<Post, 'id' | 'createdAt'>) => void;
+  getPostsByRoom: (roomId: string) => Post[];
   
   // 模拟数据加载
   loadMockData: () => void;
@@ -209,6 +243,10 @@ export const useBoardStore = create<BoardState>((set) => ({
       status: '待审核'
     }
   ],
+
+  healthLogs: [],
+
+  posts: [],
   
   // 操作方法
   updateDashboardData: (data) => set((state) => ({
@@ -242,6 +280,38 @@ export const useBoardStore = create<BoardState>((set) => ({
   removeBooking: (id) => set((state) => ({
     bookings: state.bookings.filter(booking => booking.id !== id)
   })),
+  
+  addHealthLog: (log) => set((state) => {
+    const newLog: HealthLog = {
+      ...log,
+      id: `log-${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    return {
+      healthLogs: [...state.healthLogs, newLog]
+    };
+  }),
+
+  getHealthLogsByRoom: (roomId) => {
+    const state = useBoardStore.getState();
+    return state.healthLogs.filter(log => log.roomId === roomId);
+  },
+
+  addPost: (post) => set((state) => {
+    const newPost: Post = {
+      ...post,
+      id: `post-${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    return {
+      posts: [...state.posts, newPost]
+    };
+  }),
+
+  getPostsByRoom: (roomId) => {
+    const state = useBoardStore.getState();
+    return state.posts.filter(post => post.roomId === roomId);
+  },
   
   loadMockData: () => set((state) => {
     // 这里可以添加模拟数据加载逻辑

@@ -76,14 +76,14 @@ let mockPetData: Pet[] = petRecords.map(pet => convertMockPetToApiPet(pet));
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const petApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   getPetList: async (params?: PetListParams): Promise<PetListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<PetListResponse>(`${API_PREFIX}/pets/`, { params });
+    // return api.get<PetListResponse>('/pets/', { params });
     
     // Mock 数据
     let filteredData = [...mockPetData];
@@ -107,7 +107,7 @@ export const petApi = {
   getPetById: async (petId: string): Promise<Pet> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<Pet>(`${API_PREFIX}/pets/${petId}`);
+    // return api.get<Pet>(`/pets/${petId}`);
     
     // Mock 数据
     const pet = mockPetData.find(p => p.id === petId);
@@ -119,8 +119,8 @@ export const petApi = {
 
   createPet: async (data: PetCreateData): Promise<Pet> => {
     await delay();
-    // 真实 API 调用已注释
-    // return api.post<Pet>(`${API_PREFIX}/pets/`, data);
+    // 真实 API 调用已注释 - 注意：需要包含 user_id 字段
+    // return api.post<Pet>('/pets/', { ...data, user_id: 'current_user_id' });
     
     // Mock 数据
     const newPet: Pet = {
@@ -138,7 +138,7 @@ export const petApi = {
   updatePet: async (petId: string, data: Partial<PetCreateData>): Promise<Pet> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<Pet>(`${API_PREFIX}/pets/${petId}`, data);
+    // return api.patch<Pet>(`/pets/${petId}`, data);
     
     // Mock 数据
     const petIndex = mockPetData.findIndex(p => p.id === petId);
@@ -156,7 +156,7 @@ export const petApi = {
   deletePet: async (petId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/pets/${petId}`);
+    // return api.delete<{ message: string }>(`/pets/${petId}`);
     
     // Mock 数据
     const petIndex = mockPetData.findIndex(p => p.id === petId);

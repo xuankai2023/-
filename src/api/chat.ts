@@ -91,14 +91,14 @@ let mockChatMessages: ChatMessage[] = [
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const chatApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   getChatSessionList: async (params?: ChatSessionListParams): Promise<ChatSessionListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<ChatSessionListResponse>(`${API_PREFIX}/chat-sessions/`, { params });
+    // return api.get<ChatSessionListResponse>('/chat-sessions/', { params });
     
     // Mock 数据
     let filteredData = [...mockChatSessions];
@@ -121,8 +121,8 @@ export const chatApi = {
 
   createChatSession: async (data: ChatSessionCreateData): Promise<ChatSession> => {
     await delay();
-    // 真实 API 调用已注释
-    // return api.post<ChatSession>(`${API_PREFIX}/chat-sessions/`, data);
+    // 真实 API 调用已注释 - user_id 可选，如果不提供则使用当前登录用户ID
+    // return api.post<ChatSession>('/chat-sessions/', data);
     
     // Mock 数据
     const newSession: ChatSession = {
@@ -141,7 +141,7 @@ export const chatApi = {
   getChatSessionById: async (sessionId: string): Promise<ChatSession> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<ChatSession>(`${API_PREFIX}/chat-sessions/${sessionId}`);
+    // return api.get<ChatSession>(`/chat-sessions/${sessionId}`);
     
     // Mock 数据
     const session = mockChatSessions.find(s => s.id === sessionId);
@@ -154,7 +154,7 @@ export const chatApi = {
   updateChatSession: async (sessionId: string, data: Partial<ChatSessionCreateData>): Promise<ChatSession> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<ChatSession>(`${API_PREFIX}/chat-sessions/${sessionId}`, data);
+    // return api.patch<ChatSession>(`/chat-sessions/${sessionId}`, data);
     
     // Mock 数据
     const sessionIndex = mockChatSessions.findIndex(s => s.id === sessionId);
@@ -173,7 +173,7 @@ export const chatApi = {
   deleteChatSession: async (sessionId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/chat-sessions/${sessionId}`);
+    // return api.delete<{ message: string }>(`/chat-sessions/${sessionId}`);
     
     // Mock 数据
     const sessionIndex = mockChatSessions.findIndex(s => s.id === sessionId);
@@ -189,7 +189,7 @@ export const chatApi = {
   updateMessageCount: async (sessionId: string): Promise<ChatSession> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<ChatSession>(`${API_PREFIX}/chat-sessions/${sessionId}/update-message-count`);
+    // return api.post<ChatSession>(`/chat-sessions/${sessionId}/update-message-count`);
     
     // Mock 数据
     const sessionIndex = mockChatSessions.findIndex(s => s.id === sessionId);
@@ -207,8 +207,8 @@ export const chatApi = {
 
   getChatMessageList: async (params: { session_id: string; skip?: number; limit?: number }): Promise<ChatMessageListResponse> => {
     await delay();
-    // 真实 API 调用已注释
-    // return api.get<ChatMessageListResponse>(`${API_PREFIX}/chat-messages/`, { params });
+    // 真实 API 调用已注释 - session_id 为必填参数
+    // return api.get<ChatMessageListResponse>('/chat-messages/', { params });
     
     // Mock 数据
     let filteredData = mockChatMessages.filter(m => m.session_id === params.session_id);
@@ -226,8 +226,11 @@ export const chatApi = {
 
   createChatMessage: async (data: ChatMessageCreateData): Promise<ChatMessage> => {
     await delay();
-    // 真实 API 调用已注释
-    // return api.post<ChatMessage>(`${API_PREFIX}/chat-messages/`, data);
+    // 真实 API 调用已注释 - 需要包含 timestamp 字段
+    // return api.post<ChatMessage>('/chat-messages/', {
+    //   ...data,
+    //   timestamp: new Date().toISOString(),
+    // });
     
     // Mock 数据
     const newMessage: ChatMessage = {
@@ -254,7 +257,7 @@ export const chatApi = {
   getChatMessageById: async (messageId: string): Promise<ChatMessage> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<ChatMessage>(`${API_PREFIX}/chat-messages/${messageId}`);
+    // return api.get<ChatMessage>(`/chat-messages/${messageId}`);
     
     // Mock 数据
     const message = mockChatMessages.find(m => m.id === messageId);
@@ -267,7 +270,7 @@ export const chatApi = {
   updateChatMessage: async (messageId: string, data: Partial<ChatMessageCreateData>): Promise<ChatMessage> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<ChatMessage>(`${API_PREFIX}/chat-messages/${messageId}`, data);
+    // return api.patch<ChatMessage>(`/chat-messages/${messageId}`, data);
     
     // Mock 数据
     const messageIndex = mockChatMessages.findIndex(m => m.id === messageId);
@@ -284,7 +287,7 @@ export const chatApi = {
   deleteChatMessage: async (messageId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/chat-messages/${messageId}`);
+    // return api.delete<{ message: string }>(`/chat-messages/${messageId}`);
     
     // Mock 数据
     const messageIndex = mockChatMessages.findIndex(m => m.id === messageId);

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Row, Col, Card } from 'antd';
 import * as echarts from 'echarts';
+import './ChartsSection.css';
 
 export interface ChartsSectionProps {
   dashboardData: {
@@ -11,7 +12,7 @@ export interface ChartsSectionProps {
   };
 }
 
-const ChartsSection: React.FC<ChartsSectionProps> = ({ dashboardData }) => {
+function ChartsSection({ dashboardData }: ChartsSectionProps) {
   const trendRef = useRef<HTMLDivElement>(null);
   const distRef = useRef<HTMLDivElement>(null);
   const heatmapRef = useRef<HTMLDivElement>(null);
@@ -108,11 +109,11 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ dashboardData }) => {
       ],
     });
 
-    const handleResize = () => {
+    function handleResize() {
       trendChart.resize();
       distChart.resize();
       heatmapChart.resize();
-    };
+    }
 
     window.addEventListener('resize', handleResize);
 
@@ -125,30 +126,30 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ dashboardData }) => {
   }, [dashboardData]);
 
   return (
-    <>
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+    <div className="charts-section">
+      <Row gutter={[16, 16]} className="charts-row">
         <Col xs={24} md={16}>
-          <Card title="近7天入住趋势" bordered={false}>
+          <Card title="近7天入住趋势" bordered={false} className="chart-card">
             <div ref={trendRef} className="chart-container"></div>
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card title="在店宠物分布" bordered={false}>
+          <Card title="在店宠物分布" bordered={false} className="chart-card">
             <div ref={distRef} className="chart-container"></div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Row gutter={[16, 16]} className="charts-row">
         <Col xs={24}>
-          <Card title="房型热力图" bordered={false}>
-            <div ref={heatmapRef} className="chart-container"></div>
+          <Card title="房型热力图" bordered={false} className="chart-card">
+            <div ref={heatmapRef} className="chart-container chart-container-heatmap"></div>
           </Card>
         </Col>
       </Row>
-    </>
+    </div>
   );
-};
+}
 
 export default ChartsSection;
 

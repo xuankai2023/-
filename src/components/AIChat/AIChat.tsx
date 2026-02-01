@@ -33,6 +33,8 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
   const [showQuickActions, setShowQuickActions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const {
     isTyping,
     currentAiMessage,
@@ -41,11 +43,20 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
   } = useStreamingMessage({
     maxWords: 300,
     onComplete: (aiMessage) => {
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => {
+        // 检查是否已经存在相同的消息，避免重复添加
+        const exists = prev.some(msg => msg.id === aiMessage.id);
+        if (exists) {
+          return prev;
+        }
+        return [...prev, aiMessage];
+      });
       setShowQuickActions(false);
+      setIsProcessing(false);
     },
     onError: (error) => {
       message.error(`AI服务错误: ${error.message}`);
+      setIsProcessing(false);
     }
   });
 
@@ -155,11 +166,47 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
       return;
     }
 
+    // 检查是否正在处理中，防止重复发送
+    if (isProcessing || isTyping) {
+      return;
+    }
+
+    // 检查是否有 API 密钥
     if (!KeyManager.hasKey()) {
-      message.error('请先设置API密钥');
+      // 如果没有 API 密钥，直接返回一个简单的回复
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        content: trimmedInput,
+        sender: 'user',
+        timestamp: new Date()
+      };
+
+      const noApiMessage: Message = {
+        id: `ai-${Date.now()}`,
+        content: '抱歉，当前未连接 API 服务。请先配置 API 密钥以使用 AI 助手功能。',
+        sender: 'ai',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => {
+        const newMessages = [...prev, userMessage, noApiMessage];
+        setShowQuickActions(false);
+
+        if (!currentHistoryId && newMessages.length === 2) {
+          const newHistoryId = saveChatHistory(newMessages as HistoryMessage[]);
+          if (newHistoryId) {
+            setCurrentHistoryId(newHistoryId);
+            onHistoryChange?.(newHistoryId);
+          }
+        }
+        return newMessages;
+      });
+      setInputValue('');
       setShowKeyModal(true);
       return;
     }
+
+    setIsProcessing(true);
 
     // 创建用户消息
     const userMessage: Message = {
@@ -195,7 +242,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
       return newMessages;
     });
     setInputValue('');
-  }, [inputValue, currentHistoryId, onHistoryChange, processStreamingResponse]);
+  }, [inputValue, currentHistoryId, onHistoryChange, processStreamingResponse, isProcessing, isTyping]);
 
   // 处理停止生成
   const handleStop = useCallback(() => {
@@ -229,11 +276,17 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
 
   // 重新提问
   const handleRegenerate = useCallback((content: string) => {
+    if (isProcessing || isTyping) {
+      return;
+    }
+
     if (!KeyManager.hasKey()) {
       message.error('请先设置API密钥');
       setShowKeyModal(true);
       return;
     }
+
+    setIsProcessing(true);
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
@@ -256,11 +309,11 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
       processStreamingResponse(chatMessages);
       return newMessages;
     });
-  }, [processStreamingResponse]);
+  }, [processStreamingResponse, isProcessing, isTyping]);
 
   // 编辑消息
   const handleEditMessage = useCallback((messageId: string, newContent: string) => {
-    setMessages(prev => prev.map(msg => 
+    setMessages(prev => prev.map(msg =>
       msg.id === messageId ? { ...msg, content: newContent } : msg
     ));
     message.success('消息已更新');
@@ -268,9 +321,47 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
 
   // 处理快捷操作
   const handleQuickAction = useCallback((action: QuickAction) => {
+    if (isProcessing || isTyping) {
+      return;
+    }
+
     setInputValue(action.prompt);
     // 自动发送
     setTimeout(() => {
+      if (!KeyManager.hasKey()) {
+        const userMessage: Message = {
+          id: `user-${Date.now()}`,
+          content: action.prompt,
+          sender: 'user',
+          timestamp: new Date()
+        };
+
+        const noApiMessage: Message = {
+          id: `ai-${Date.now()}`,
+          content: '抱歉，当前未连接 API 服务。请先配置 API 密钥以使用 AI 助手功能。',
+          sender: 'ai',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => {
+          const newMessages = [...prev, userMessage, noApiMessage];
+          setShowQuickActions(false);
+
+          if (!currentHistoryId && newMessages.length === 2) {
+            const newHistoryId = saveChatHistory(newMessages as HistoryMessage[]);
+            if (newHistoryId) {
+              setCurrentHistoryId(newHistoryId);
+              onHistoryChange?.(newHistoryId);
+            }
+          }
+          return newMessages;
+        });
+        setShowKeyModal(true);
+        return;
+      }
+
+      setIsProcessing(true);
+
       const userMessage: Message = {
         id: `user-${Date.now()}`,
         content: action.prompt,
@@ -302,7 +393,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
         return newMessages;
       });
     }, 100);
-  }, [currentHistoryId, onHistoryChange, processStreamingResponse]);
+  }, [currentHistoryId, onHistoryChange, processStreamingResponse, isProcessing, isTyping]);
 
   // 消息反馈（点赞/点踩）
   const handleLike = useCallback((messageId: string) => {
@@ -365,7 +456,7 @@ const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onHistoryChange }, ref) => 
         onChange={setInputValue}
         onSend={handleSendMessage}
         onStop={handleStop}
-        disabled={false}
+        disabled={isProcessing}
         isStreaming={isTyping}
         showStopButton={true}
       />

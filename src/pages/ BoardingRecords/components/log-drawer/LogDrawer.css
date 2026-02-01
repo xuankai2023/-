@@ -1,0 +1,79 @@
+.log-drawer .ant-drawer-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+
+.log-drawer .ant-drawer-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.log-drawer .ant-drawer-body {
+  padding: 24px;
+}
+
+.log-drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.log-form-section,
+.log-history-section {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.log-history-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.log-history-item:last-child {
+  border-bottom: none;
+}
+
+.log-history-content {
+  width: 100%;
+}
+
+.log-history-date {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.log-history-text {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.log-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+.log-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.log-textarea {
+  border-radius: 6px;
+  resize: none;
+}
+
+.save-button {
+  border-radius: 6px;
+  font-weight: 500;
+  height: 40px;
+}
+

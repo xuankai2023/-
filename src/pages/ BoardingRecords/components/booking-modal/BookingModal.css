@@ -1,0 +1,22 @@
+.booking-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.booking-form .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.booking-form .ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.booking-form .ant-input,
+.booking-form .ant-select-selector {
+  border-radius: 6px;
+}
+
+.booking-form .ant-picker {
+  border-radius: 6px;
+}
+

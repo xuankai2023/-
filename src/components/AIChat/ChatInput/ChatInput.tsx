@@ -100,12 +100,12 @@ function ChatInput({
               停止
             </Button>
           )}
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
+        <Button
+          type="primary"
+          icon={<SendOutlined />}
             onClick={handleSend}
             disabled={disabled || isStreaming || !value.trim()}
-            className="chat-send-button"
+          className="chat-send-button"
             title="发送 (Enter)"
           >
             发送

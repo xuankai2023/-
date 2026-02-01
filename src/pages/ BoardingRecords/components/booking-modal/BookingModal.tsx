@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, DatePicker, Row, Col } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import './BookingModal.css';
 
 export interface BookingModalProps {
   visible: boolean;
@@ -9,10 +10,10 @@ export interface BookingModalProps {
   onCancel: () => void;
 }
 
-const BookingModal: React.FC<BookingModalProps> = ({ visible, booking, onOk, onCancel }) => {
+function BookingModal({ visible, booking, onOk, onCancel }: BookingModalProps) {
   const [form] = Form.useForm();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (booking) {
       form.setFieldsValue({
         petName: booking.pet.name,
@@ -29,14 +30,14 @@ const BookingModal: React.FC<BookingModalProps> = ({ visible, booking, onOk, onC
     }
   }, [booking, form]);
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     try {
       const values = await form.validateFields();
       onOk(values);
     } catch (error) {
       console.error('表单验证失败:', error);
     }
-  };
+  }
 
   return (
     <Modal
@@ -45,8 +46,9 @@ const BookingModal: React.FC<BookingModalProps> = ({ visible, booking, onOk, onC
       onOk={handleSubmit}
       onCancel={onCancel}
       width={600}
+      className="booking-modal"
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" className="booking-form">
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -140,7 +142,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ visible, booking, onOk, onC
       </Form>
     </Modal>
   );
-};
+}
 
 export default BookingModal;
 

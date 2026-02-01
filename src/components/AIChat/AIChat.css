@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #f5f6fa;
+  background: #ffffff;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   position: relative;
@@ -12,13 +12,12 @@
 
 /* ===== 头部 ===== */
 .ai-chat-header {
-  padding: 20px 24px;
+  padding: 16px 24px;
   background: #ffffff;
-  border-bottom: 1px solid #e8eaed;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 10;
 }
@@ -53,19 +52,32 @@
 .ai-chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
-  background: #f5f6fa;
+  padding: 0;
+  background: #ffffff;
   position: relative;
   scroll-behavior: smooth;
 }
 
 /* ===== 消息项 ===== */
 .message-item {
-  margin-bottom: 20px;
+  margin-bottom: 0;
   display: flex;
   align-items: flex-start;
   animation: messageFadeIn 0.3s ease-out;
-  gap: 12px;
+  gap: 0;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.message-item:hover {
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.message-item:last-child {
+  border-bottom: none;
 }
 
 @keyframes messageFadeIn {
@@ -479,7 +491,7 @@
 
 /* ===== 滚动条 ===== */
 .ai-chat-messages::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .ai-chat-messages::-webkit-scrollbar-track {
@@ -487,12 +499,12 @@
 }
 
 .ai-chat-messages::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 
 .ai-chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* ===== 响应式设计 ===== */

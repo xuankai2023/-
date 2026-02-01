@@ -57,14 +57,14 @@ let mockVaccineData: VaccineRecord[] = extractVaccineRecords();
 // 模拟延迟
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-const API_PREFIX = '/v1';
+const API_PREFIX = '/api/v1';
 
 export const vaccineApi = {
   // 使用 Mock 数据 - 已注释真实 API 调用
   getVaccineRecordList: async (params?: VaccineRecordListParams): Promise<VaccineRecordListResponse> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<VaccineRecordListResponse>(`${API_PREFIX}/vaccine-records/`, { params });
+    // return api.get<VaccineRecordListResponse>('/vaccine-records/', { params });
     
     // Mock 数据
     let filteredData = [...mockVaccineData];
@@ -88,7 +88,7 @@ export const vaccineApi = {
   getVaccineRecordById: async (recordId: string): Promise<VaccineRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.get<VaccineRecord>(`${API_PREFIX}/vaccine-records/${recordId}`);
+    // return api.get<VaccineRecord>(`/vaccine-records/${recordId}`);
     
     // Mock 数据
     const record = mockVaccineData.find(r => r.id === recordId);
@@ -101,7 +101,7 @@ export const vaccineApi = {
   createVaccineRecord: async (data: VaccineRecordCreateData): Promise<VaccineRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.post<VaccineRecord>(`${API_PREFIX}/vaccine-records/`, data);
+    // return api.post<VaccineRecord>('/vaccine-records/', data);
     
     // Mock 数据
     const newRecord: VaccineRecord = {
@@ -117,7 +117,7 @@ export const vaccineApi = {
   updateVaccineRecord: async (recordId: string, data: Partial<VaccineRecordCreateData>): Promise<VaccineRecord> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.patch<VaccineRecord>(`${API_PREFIX}/vaccine-records/${recordId}`, data);
+    // return api.patch<VaccineRecord>(`/vaccine-records/${recordId}`, data);
     
     // Mock 数据
     const recordIndex = mockVaccineData.findIndex(r => r.id === recordId);
@@ -135,7 +135,7 @@ export const vaccineApi = {
   deleteVaccineRecord: async (recordId: string): Promise<{ message: string }> => {
     await delay();
     // 真实 API 调用已注释
-    // return api.delete<{ message: string }>(`${API_PREFIX}/vaccine-records/${recordId}`);
+    // return api.delete<{ message: string }>(`/vaccine-records/${recordId}`);
     
     // Mock 数据
     const recordIndex = mockVaccineData.findIndex(r => r.id === recordId);

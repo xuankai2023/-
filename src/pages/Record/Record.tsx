@@ -16,7 +16,7 @@ const getPetType = (breed: string): string => {
   if (breedLower.includes('鱼') || breedLower.includes('fish')) return 'fish';
   if (breedLower.includes('兔') || breedLower.includes('rabbit')) return 'rabbit';
   return 'other';
-};
+  };
 
 // 根据类型 ID 获取对应的 SVG 图标路径
 const getPetTypeIcon = (typeId: string): string => {
@@ -127,52 +127,52 @@ function Record() {
                 <p>暂无宠物记录</p>
               </div>
             ) : (
-              <div className="pet-summary-grid">
-                {filteredPetRecords.map((pet) => (
-                  <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
-                    <div className="pet-summary-card-header">
-                      <div className="pet-summary-avatar">
+            <div className="pet-summary-grid">
+              {filteredPetRecords.map((pet) => (
+                <Card key={pet.id} className="pet-summary-card" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(`/petdetail/${pet.id}`)}>
+                  <div className="pet-summary-card-header">
+                    <div className="pet-summary-avatar">
                         <img src={pet.avatar || '/images/png/petSystem.png'} alt={pet.name} onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = '/images/png/petSystem.png';
                         }} />
-                      </div>
-                      <div className="pet-summary-title">
-                        <h3>{pet.name}</h3>
-                        <p>{pet.breed}</p>
-                      </div>
                     </div>
-                    <div className="pet-summary-body">
-                      {pet.weight && (
-                        <div className="pet-summary-row">
-                          <span className="label">体重</span>
-                          <span className="value">{pet.weight} kg</span>
-                        </div>
-                      )}
-                      {pet.height && (
-                        <div className="pet-summary-row">
-                          <span className="label">身高</span>
-                          <span className="value">{pet.height} cm</span>
-                        </div>
-                      )}
-                      {pet.fur_color && (
-                        <div className="pet-summary-row">
-                          <span className="label">毛色</span>
-                          <span className="value">{pet.fur_color}</span>
-                        </div>
-                      )}
+                    <div className="pet-summary-title">
+                      <h3>{pet.name}</h3>
+                      <p>{pet.breed}</p>
+                    </div>
+                  </div>
+                  <div className="pet-summary-body">
+                    {pet.weight && (
                       <div className="pet-summary-row">
-                        <span className="label">状态</span>
-                        <span className="value status">{pet.status}</span>
+                        <span className="label">体重</span>
+                        <span className="value">{pet.weight} kg</span>
                       </div>
+                    )}
+                    {pet.height && (
                       <div className="pet-summary-row">
-                        <span className="label">最近体检</span>
+                        <span className="label">身高</span>
+                        <span className="value">{pet.height} cm</span>
+                      </div>
+                    )}
+                    {pet.fur_color && (
+                      <div className="pet-summary-row">
+                        <span className="label">毛色</span>
+                        <span className="value">{pet.fur_color}</span>
+                      </div>
+                    )}
+                    <div className="pet-summary-row">
+                      <span className="label">状态</span>
+                      <span className="value status">{pet.status}</span>
+                    </div>
+                    <div className="pet-summary-row">
+                      <span className="label">最近体检</span>
                         <span className="value">{pet.last_checkup_date ? new Date(pet.last_checkup_date).toLocaleDateString('zh-CN') : '暂无'}</span>
-                      </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
             )}
           </div>
         </div>
